@@ -1,0 +1,61 @@
+{
+  "name": "fastdecimal",
+  "version": "0.1.0",
+  "description": "BigInt-powered drop-in replacement for big.js — faster on every operand size, smaller, 100% compatible with the original test suite",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "packageManager": "yarn@4.12.0",
+  "jsdelivr": "./dist/browser.global.js",
+  "unpkg": "./dist/browser.global.js",
+  "exports": {
+    ".": "./src/big.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown && node scripts/postbuild-cjs-dts.mjs",
+    "check:exports": "yarn pack -o .pack-check.tgz && attw .pack-check.tgz && publint --pack yarn && rm -f .pack-check.tgz",
+    "prepack": "yarn build",
+    "test": "node test/run-vendored.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "decimal",
+    "arbitrary-precision",
+    "big.js",
+    "bignumber",
+    "bigint",
+    "arithmetic",
+    "financial"
+  ],
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "publint": "^0.3.22",
+    "tsdown": "^0.22.0",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/big.js",
+    "module": "./dist/big.mjs",
+    "types": "./dist/big.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/big.d.mts",
+          "default": "./dist/big.mjs"
+        },
+        "require": {
+          "types": "./dist/big.d.ts",
+          "default": "./dist/big.js"
+        }
+      },
+      "./package.json": "./package.json"
+    }
+  }
+}

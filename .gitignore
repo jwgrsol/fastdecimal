@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tgz
+
+# yarn 4 (zero-install 미사용)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
