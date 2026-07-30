@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "BigInt-powered drop-in replacement for big.js — faster on every operand size, smaller, 100% compatible with the original test suite",
   "license": "MIT",
+  "repository": "github:jwgrsol/fastdecimal",
   "engines": {
     "node": ">=18"
   },
