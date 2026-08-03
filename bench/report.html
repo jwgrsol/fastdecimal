@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fastdecimal vs big.js — benchmark report</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --faster: #2a78d6; --slower: #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+      --faster: #3987e5; --slower: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --faster: #3987e5; --slower: #e66767;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body { background: var(--page); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; padding: 24px; }
+  main { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 650; }
+  .meta { color: var(--ink-2); font-size: 13px; margin-top: 4px; }
+  .stats { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; }
+  .stat .v { font-size: 22px; font-weight: 650; }
+  .stat .l { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .legend { display: flex; gap: 18px; align-items: center; font-size: 13px; color: var(--ink-2); margin: 8px 0 4px; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px 8px; margin: 14px 0; }
+  .panel h2 { font-size: 14px; font-weight: 650; margin-bottom: 6px; }
+  .panel .digits { color: var(--ink-2); font-weight: 400; font-size: 13px; }
+  svg { width: 100%; height: auto; display: block; }
+  .grid { stroke: var(--grid); stroke-width: 1; }
+  .ref { stroke: var(--axis); stroke-width: 1.5; }
+  .stem { stroke: var(--grid); stroke-width: 1; }
+  .dot.faster { fill: var(--faster); }
+  .dot.slower { fill: var(--slower); }
+  .dot { stroke: var(--surface); stroke-width: 2; }
+  .hit { fill: transparent; cursor: default; }
+  .oplabel { font: 12px system-ui, sans-serif; fill: var(--ink-2); }
+  .vlabel { font: 11px system-ui, sans-serif; fill: var(--ink); font-variant-numeric: tabular-nums; }
+  .tick { font: 11px system-ui, sans-serif; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .note { color: var(--muted); font-size: 12px; margin: 4px 0 16px; }
+  #tooltip { position: fixed; display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,0.18); z-index: 10; }
+  #tooltip .t { font-weight: 650; margin-bottom: 4px; }
+  #tooltip td { padding: 1px 0 1px 12px; text-align: right; font-variant-numeric: tabular-nums; }
+  #tooltip td:first-child { padding-left: 0; text-align: left; color: var(--ink-2); }
+  details { margin: 20px 0; }
+  summary { cursor: pointer; color: var(--ink-2); font-size: 14px; }
+  table.data { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 13px; background: var(--surface); }
+  table.data th, table.data td { border: 1px solid var(--grid); padding: 5px 10px; text-align: left; }
+  table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <h1>fastdecimal vs big.js</h1>
+  <p class="meta">2026-08-03 · Node v24.18.0 · 12th Gen Intel(R) Core(TM) i7-12700 · big.js v7.0.1 · defaults DP=20, RM=1 · reproduce: <code>node bench/run.mjs</code></p>
+  <div class="stats">
+    <div class="stat"><div class="v">44/48</div><div class="l">cases faster than big.js</div></div>
+    <div class="stat"><div class="v">3.05×</div><div class="l">median speedup</div></div>
+    <div class="stat"><div class="v">1700×</div><div class="l">largest speedup</div></div>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--faster)"></span>faster than big.js</span>
+    <span><span class="swatch" style="background:var(--slower)"></span>slower</span>
+    <span>vertical line = 1× (parity) · log scale</span>
+  </div>
+  <section class="panel">
+  <h2>small <span class="digits">— 7 significant digits per operand</span></h2>
+  <svg viewBox="0 0 760 326" role="img" aria-label="Speedup of fastdecimal over big.js, small operands">
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="grid"/>
+    <text x="170.98353564063683" y="312" class="tick" text-anchor="middle">1×</text>
+    <line x1="262.81224579366346" y1="8" x2="262.81224579366346" y2="296" class="grid"/>
+    <text x="262.81224579366346" y="312" class="tick" text-anchor="middle">4×</text>
+    <line x1="354.64095594669004" y1="8" x2="354.64095594669004" y2="296" class="grid"/>
+    <text x="354.64095594669004" y="312" class="tick" text-anchor="middle">16×</text>
+    <line x1="446.4696660997167" y1="8" x2="446.4696660997167" y2="296" class="grid"/>
+    <text x="446.4696660997167" y="312" class="tick" text-anchor="middle">64×</text>
+    <line x1="538.2983762527433" y1="8" x2="538.2983762527433" y2="296" class="grid"/>
+    <text x="538.2983762527433" y="312" class="tick" text-anchor="middle">256×</text>
+    <line x1="630.12708640577" y1="8" x2="630.12708640577" y2="296" class="grid"/>
+    <text x="630.12708640577" y="312" class="tick" text-anchor="middle">1024×</text>
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="ref"/>
+    <text x="78" y="24" class="oplabel" text-anchor="end">parse</text>
+    <line x1="170.98353564063683" y1="20" x2="182.3343009256974" y2="20" class="stem"/>
+    <circle cx="182.3343009256974" cy="20" r="5" class="dot faster"/>
+    <circle cx="182.3343009256974" cy="20" r="13" class="hit" data-op="parse" data-size="small" data-big="5,559,597" data-fast="6,598,767" data-ratio="1.19×"/>
+    <text x="78" y="48" class="oplabel" text-anchor="end">plus</text>
+    <line x1="170.98353564063683" y1="44" x2="191.38773413062904" y2="44" class="stem"/>
+    <circle cx="191.38773413062904" cy="44" r="5" class="dot faster"/>
+    <circle cx="191.38773413062904" cy="44" r="13" class="hit" data-op="plus" data-size="small" data-big="7,091,691" data-fast="9,649,985" data-ratio="1.36×"/>
+    <text x="78" y="72" class="oplabel" text-anchor="end">minus</text>
+    <line x1="170.98353564063683" y1="68" x2="167.1092427172857" y2="68" class="stem"/>
+    <circle cx="167.1092427172857" cy="68" r="5" class="dot slower"/>
+    <text x="157.1092427172857" y="72" class="vlabel" text-anchor="end">0.94×</text>
+    <circle cx="167.1092427172857" cy="68" r="13" class="hit" data-op="minus" data-size="small" data-big="7,713,977" data-fast="7,275,740" data-ratio="0.94×"/>
+    <text x="78" y="96" class="oplabel" text-anchor="end">times</text>
+    <line x1="170.98353564063683" y1="92" x2="208.962289366675" y2="92" class="stem"/>
+    <circle cx="208.962289366675" cy="92" r="5" class="dot faster"/>
+    <circle cx="208.962289366675" cy="92" r="13" class="hit" data-op="times" data-size="small" data-big="4,490,410" data-fast="7,966,866" data-ratio="1.77×"/>
+    <text x="78" y="120" class="oplabel" text-anchor="end">div</text>
+    <line x1="170.98353564063683" y1="116" x2="367.28692622142813" y2="116" class="stem"/>
+    <circle cx="367.28692622142813" cy="116" r="5" class="dot faster"/>
+    <circle cx="367.28692622142813" cy="116" r="13" class="hit" data-op="div" data-size="small" data-big="218,905" data-fast="4,239,233" data-ratio="19.37×"/>
+    <text x="78" y="144" class="oplabel" text-anchor="end">mod</text>
+    <line x1="170.98353564063683" y1="140" x2="233.1984244461112" y2="140" class="stem"/>
+    <circle cx="233.1984244461112" cy="140" r="5" class="dot faster"/>
+    <circle cx="233.1984244461112" cy="140" r="13" class="hit" data-op="mod" data-size="small" data-big="3,154,455" data-fast="8,069,120" data-ratio="2.56×"/>
+    <text x="78" y="168" class="oplabel" text-anchor="end">pow</text>
+    <line x1="170.98353564063683" y1="164" x2="360.1150666777812" y2="164" class="stem"/>
+    <circle cx="360.1150666777812" cy="164" r="5" class="dot faster"/>
+    <circle cx="360.1150666777812" cy="164" r="13" class="hit" data-op="pow" data-size="small" data-big="325,542" data-fast="5,657,404" data-ratio="17.38×"/>
+    <text x="78" y="192" class="oplabel" text-anchor="end">sqrt</text>
+    <line x1="170.98353564063683" y1="188" x2="367.99149653269444" y2="188" class="stem"/>
+    <circle cx="367.99149653269444" cy="188" r="5" class="dot faster"/>
+    <text x="377.99149653269444" y="192" class="vlabel">19.57×</text>
+    <circle cx="367.99149653269444" cy="188" r="13" class="hit" data-op="sqrt" data-size="small" data-big="23,818" data-fast="466,182" data-ratio="19.57×"/>
+    <text x="78" y="216" class="oplabel" text-anchor="end">cmp</text>
+    <line x1="170.98353564063683" y1="212" x2="178.06455776056725" y2="212" class="stem"/>
+    <circle cx="178.06455776056725" cy="212" r="5" class="dot faster"/>
+    <circle cx="178.06455776056725" cy="212" r="13" class="hit" data-op="cmp" data-size="small" data-big="15,935,452" data-fast="17,733,316" data-ratio="1.11×"/>
+    <text x="78" y="240" class="oplabel" text-anchor="end">round</text>
+    <line x1="170.98353564063683" y1="236" x2="216.19709242524493" y2="236" class="stem"/>
+    <circle cx="216.19709242524493" cy="236" r="5" class="dot faster"/>
+    <circle cx="216.19709242524493" cy="236" r="13" class="hit" data-op="round" data-size="small" data-big="10,555,330" data-fast="20,888,495" data-ratio="1.98×"/>
+    <text x="78" y="264" class="oplabel" text-anchor="end">toString</text>
+    <line x1="170.98353564063683" y1="260" x2="251.52176806386004" y2="260" class="stem"/>
+    <circle cx="251.52176806386004" cy="260" r="5" class="dot faster"/>
+    <circle cx="251.52176806386004" cy="260" r="13" class="hit" data-op="toString" data-size="small" data-big="3,071,528" data-fast="10,360,730" data-ratio="3.37×"/>
+    <text x="78" y="288" class="oplabel" text-anchor="end">toFixed</text>
+    <line x1="170.98353564063683" y1="284" x2="211.97720617015568" y2="284" class="stem"/>
+    <circle cx="211.97720617015568" cy="284" r="5" class="dot faster"/>
+    <circle cx="211.97720617015568" cy="284" r="13" class="hit" data-op="toFixed" data-size="small" data-big="4,019,230" data-fast="7,462,961" data-ratio="1.86×"/>
+  </svg>
+</section>
+<section class="panel">
+  <h2>medium <span class="digits">— 20 significant digits per operand</span></h2>
+  <svg viewBox="0 0 760 326" role="img" aria-label="Speedup of fastdecimal over big.js, medium operands">
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="grid"/>
+    <text x="170.98353564063683" y="312" class="tick" text-anchor="middle">1×</text>
+    <line x1="262.81224579366346" y1="8" x2="262.81224579366346" y2="296" class="grid"/>
+    <text x="262.81224579366346" y="312" class="tick" text-anchor="middle">4×</text>
+    <line x1="354.64095594669004" y1="8" x2="354.64095594669004" y2="296" class="grid"/>
+    <text x="354.64095594669004" y="312" class="tick" text-anchor="middle">16×</text>
+    <line x1="446.4696660997167" y1="8" x2="446.4696660997167" y2="296" class="grid"/>
+    <text x="446.4696660997167" y="312" class="tick" text-anchor="middle">64×</text>
+    <line x1="538.2983762527433" y1="8" x2="538.2983762527433" y2="296" class="grid"/>
+    <text x="538.2983762527433" y="312" class="tick" text-anchor="middle">256×</text>
+    <line x1="630.12708640577" y1="8" x2="630.12708640577" y2="296" class="grid"/>
+    <text x="630.12708640577" y="312" class="tick" text-anchor="middle">1024×</text>
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="ref"/>
+    <text x="78" y="24" class="oplabel" text-anchor="end">parse</text>
+    <line x1="170.98353564063683" y1="20" x2="187.79175102857494" y2="20" class="stem"/>
+    <circle cx="187.79175102857494" cy="20" r="5" class="dot faster"/>
+    <circle cx="187.79175102857494" cy="20" r="13" class="hit" data-op="parse" data-size="medium" data-big="2,612,645" data-fast="3,367,292" data-ratio="1.29×"/>
+    <text x="78" y="48" class="oplabel" text-anchor="end">plus</text>
+    <line x1="170.98353564063683" y1="44" x2="198.003686263577" y2="44" class="stem"/>
+    <circle cx="198.003686263577" cy="44" r="5" class="dot faster"/>
+    <circle cx="198.003686263577" cy="44" r="13" class="hit" data-op="plus" data-size="medium" data-big="5,912,392" data-fast="8,890,301" data-ratio="1.50×"/>
+    <text x="78" y="72" class="oplabel" text-anchor="end">minus</text>
+    <line x1="170.98353564063683" y1="68" x2="179.01297078105847" y2="68" class="stem"/>
+    <circle cx="179.01297078105847" cy="68" r="5" class="dot faster"/>
+    <circle cx="179.01297078105847" cy="68" r="13" class="hit" data-op="minus" data-size="medium" data-big="6,667,770" data-fast="7,527,041" data-ratio="1.13×"/>
+    <text x="78" y="96" class="oplabel" text-anchor="end">times</text>
+    <line x1="170.98353564063683" y1="92" x2="303.16986499636687" y2="92" class="stem"/>
+    <circle cx="303.16986499636687" cy="92" r="5" class="dot faster"/>
+    <circle cx="303.16986499636687" cy="92" r="13" class="hit" data-op="times" data-size="medium" data-big="854,586" data-fast="6,286,574" data-ratio="7.36×"/>
+    <text x="78" y="120" class="oplabel" text-anchor="end">div</text>
+    <line x1="170.98353564063683" y1="116" x2="411.56857193839454" y2="116" class="stem"/>
+    <circle cx="411.56857193839454" cy="116" r="5" class="dot faster"/>
+    <circle cx="411.56857193839454" cy="116" r="13" class="hit" data-op="div" data-size="medium" data-big="75,104" data-fast="2,838,057" data-ratio="37.79×"/>
+    <text x="78" y="144" class="oplabel" text-anchor="end">mod</text>
+    <line x1="170.98353564063683" y1="140" x2="249.2147549972865" y2="140" class="stem"/>
+    <circle cx="249.2147549972865" cy="140" r="5" class="dot faster"/>
+    <circle cx="249.2147549972865" cy="140" r="13" class="hit" data-op="mod" data-size="medium" data-big="1,541,514" data-fast="5,021,780" data-ratio="3.26×"/>
+    <text x="78" y="168" class="oplabel" text-anchor="end">pow</text>
+    <line x1="170.98353564063683" y1="164" x2="479.7744868679699" y2="164" class="stem"/>
+    <circle cx="479.7744868679699" cy="164" r="5" class="dot faster"/>
+    <text x="489.7744868679699" y="168" class="vlabel">106×</text>
+    <circle cx="479.7744868679699" cy="164" r="13" class="hit" data-op="pow" data-size="medium" data-big="42,812" data-fast="4,530,011" data-ratio="106×"/>
+    <text x="78" y="192" class="oplabel" text-anchor="end">sqrt</text>
+    <line x1="170.98353564063683" y1="188" x2="361.7278467417765" y2="188" class="stem"/>
+    <circle cx="361.7278467417765" cy="188" r="5" class="dot faster"/>
+    <circle cx="361.7278467417765" cy="188" r="13" class="hit" data-op="sqrt" data-size="medium" data-big="22,310" data-fast="397,266" data-ratio="17.81×"/>
+    <text x="78" y="216" class="oplabel" text-anchor="end">cmp</text>
+    <line x1="170.98353564063683" y1="212" x2="174.68933411882148" y2="212" class="stem"/>
+    <circle cx="174.68933411882148" cy="212" r="5" class="dot faster"/>
+    <circle cx="174.68933411882148" cy="212" r="13" class="hit" data-op="cmp" data-size="medium" data-big="14,295,123" data-fast="15,117,652" data-ratio="1.06×"/>
+    <text x="78" y="240" class="oplabel" text-anchor="end">round</text>
+    <line x1="170.98353564063683" y1="236" x2="135.57289818410976" y2="236" class="stem"/>
+    <circle cx="135.57289818410976" cy="236" r="5" class="dot slower"/>
+    <text x="125.57289818410976" y="240" class="vlabel" text-anchor="end">0.59×</text>
+    <circle cx="135.57289818410976" cy="236" r="13" class="hit" data-op="round" data-size="medium" data-big="7,529,082" data-fast="4,411,416" data-ratio="0.59×"/>
+    <text x="78" y="264" class="oplabel" text-anchor="end">toString</text>
+    <line x1="170.98353564063683" y1="260" x2="209.51855343364065" y2="260" class="stem"/>
+    <circle cx="209.51855343364065" cy="260" r="5" class="dot faster"/>
+    <circle cx="209.51855343364065" cy="260" r="13" class="hit" data-op="toString" data-size="medium" data-big="3,357,063" data-fast="6,006,315" data-ratio="1.79×"/>
+    <text x="78" y="288" class="oplabel" text-anchor="end">toFixed</text>
+    <line x1="170.98353564063683" y1="284" x2="187.50008569002867" y2="284" class="stem"/>
+    <circle cx="187.50008569002867" cy="284" r="5" class="dot faster"/>
+    <circle cx="187.50008569002867" cy="284" r="13" class="hit" data-op="toFixed" data-size="medium" data-big="2,860,706" data-fast="3,670,804" data-ratio="1.28×"/>
+  </svg>
+</section>
+<section class="panel">
+  <h2>large <span class="digits">— 100 significant digits per operand</span></h2>
+  <svg viewBox="0 0 760 326" role="img" aria-label="Speedup of fastdecimal over big.js, large operands">
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="grid"/>
+    <text x="170.98353564063683" y="312" class="tick" text-anchor="middle">1×</text>
+    <line x1="262.81224579366346" y1="8" x2="262.81224579366346" y2="296" class="grid"/>
+    <text x="262.81224579366346" y="312" class="tick" text-anchor="middle">4×</text>
+    <line x1="354.64095594669004" y1="8" x2="354.64095594669004" y2="296" class="grid"/>
+    <text x="354.64095594669004" y="312" class="tick" text-anchor="middle">16×</text>
+    <line x1="446.4696660997167" y1="8" x2="446.4696660997167" y2="296" class="grid"/>
+    <text x="446.4696660997167" y="312" class="tick" text-anchor="middle">64×</text>
+    <line x1="538.2983762527433" y1="8" x2="538.2983762527433" y2="296" class="grid"/>
+    <text x="538.2983762527433" y="312" class="tick" text-anchor="middle">256×</text>
+    <line x1="630.12708640577" y1="8" x2="630.12708640577" y2="296" class="grid"/>
+    <text x="630.12708640577" y="312" class="tick" text-anchor="middle">1024×</text>
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="ref"/>
+    <text x="78" y="24" class="oplabel" text-anchor="end">parse</text>
+    <line x1="170.98353564063683" y1="20" x2="211.2604853899809" y2="20" class="stem"/>
+    <circle cx="211.2604853899809" cy="20" r="5" class="dot faster"/>
+    <circle cx="211.2604853899809" cy="20" r="13" class="hit" data-op="parse" data-size="large" data-big="1,099,743" data-fast="2,020,043" data-ratio="1.84×"/>
+    <text x="78" y="48" class="oplabel" text-anchor="end">plus</text>
+    <line x1="170.98353564063683" y1="44" x2="252.23526186291753" y2="44" class="stem"/>
+    <circle cx="252.23526186291753" cy="44" r="5" class="dot faster"/>
+    <circle cx="252.23526186291753" cy="44" r="13" class="hit" data-op="plus" data-size="large" data-big="2,059,447" data-fast="7,022,056" data-ratio="3.41×"/>
+    <text x="78" y="72" class="oplabel" text-anchor="end">minus</text>
+    <line x1="170.98353564063683" y1="68" x2="240.05274997659424" y2="68" class="stem"/>
+    <circle cx="240.05274997659424" cy="68" r="5" class="dot faster"/>
+    <circle cx="240.05274997659424" cy="68" r="13" class="hit" data-op="minus" data-size="large" data-big="2,569,267" data-fast="7,288,705" data-ratio="2.84×"/>
+    <text x="78" y="96" class="oplabel" text-anchor="end">times</text>
+    <line x1="170.98353564063683" y1="92" x2="466.2487255508363" y2="92" class="stem"/>
+    <circle cx="466.2487255508363" cy="92" r="5" class="dot faster"/>
+    <circle cx="466.2487255508363" cy="92" r="13" class="hit" data-op="times" data-size="large" data-big="35,678" data-fast="3,077,945" data-ratio="86.27×"/>
+    <text x="78" y="120" class="oplabel" text-anchor="end">div</text>
+    <line x1="170.98353564063683" y1="116" x2="503.5698902949057" y2="116" class="stem"/>
+    <circle cx="503.5698902949057" cy="116" r="5" class="dot faster"/>
+    <circle cx="503.5698902949057" cy="116" r="13" class="hit" data-op="div" data-size="large" data-big="15,976" data-fast="2,421,154" data-ratio="152×"/>
+    <text x="78" y="144" class="oplabel" text-anchor="end">mod</text>
+    <line x1="170.98353564063683" y1="140" x2="300.15384109042054" y2="140" class="stem"/>
+    <circle cx="300.15384109042054" cy="140" r="5" class="dot faster"/>
+    <circle cx="300.15384109042054" cy="140" r="13" class="hit" data-op="mod" data-size="large" data-big="657,090" data-fast="4,618,583" data-ratio="7.03×"/>
+    <text x="78" y="168" class="oplabel" text-anchor="end">pow</text>
+    <line x1="170.98353564063683" y1="164" x2="614.0321340602594" y2="164" class="stem"/>
+    <circle cx="614.0321340602594" cy="164" r="5" class="dot faster"/>
+    <text x="624.0321340602594" y="168" class="vlabel">803×</text>
+    <circle cx="614.0321340602594" cy="164" r="13" class="hit" data-op="pow" data-size="large" data-big="1,889" data-fast="1,517,365" data-ratio="803×"/>
+    <text x="78" y="192" class="oplabel" text-anchor="end">sqrt</text>
+    <line x1="170.98353564063683" y1="188" x2="425.0724144596762" y2="188" class="stem"/>
+    <circle cx="425.0724144596762" cy="188" r="5" class="dot faster"/>
+    <circle cx="425.0724144596762" cy="188" r="13" class="hit" data-op="sqrt" data-size="large" data-big="5,358" data-fast="248,239" data-ratio="46.33×"/>
+    <text x="78" y="216" class="oplabel" text-anchor="end">cmp</text>
+    <line x1="170.98353564063683" y1="212" x2="191.18515052005205" y2="212" class="stem"/>
+    <circle cx="191.18515052005205" cy="212" r="5" class="dot faster"/>
+    <circle cx="191.18515052005205" cy="212" r="13" class="hit" data-op="cmp" data-size="large" data-big="12,579,925" data-fast="17,065,800" data-ratio="1.36×"/>
+    <text x="78" y="240" class="oplabel" text-anchor="end">round</text>
+    <line x1="170.98353564063683" y1="236" x2="131.2243405236956" y2="236" class="stem"/>
+    <circle cx="131.2243405236956" cy="236" r="5" class="dot slower"/>
+    <text x="121.22434052369559" y="240" class="vlabel" text-anchor="end">0.55×</text>
+    <circle cx="131.2243405236956" cy="236" r="13" class="hit" data-op="round" data-size="large" data-big="4,701,790" data-fast="2,579,815" data-ratio="0.55×"/>
+    <text x="78" y="264" class="oplabel" text-anchor="end">toString</text>
+    <line x1="170.98353564063683" y1="260" x2="244.87932641542898" y2="260" class="stem"/>
+    <circle cx="244.87932641542898" cy="260" r="5" class="dot faster"/>
+    <circle cx="244.87932641542898" cy="260" r="13" class="hit" data-op="toString" data-size="large" data-big="963,830" data-fast="2,940,939" data-ratio="3.05×"/>
+    <text x="78" y="288" class="oplabel" text-anchor="end">toFixed</text>
+    <line x1="170.98353564063683" y1="284" x2="188.3050812358697" y2="284" class="stem"/>
+    <circle cx="188.3050812358697" cy="284" r="5" class="dot faster"/>
+    <circle cx="188.3050812358697" cy="284" r="13" class="hit" data-op="toFixed" data-size="large" data-big="1,325,003" data-fast="1,721,007" data-ratio="1.30×"/>
+  </svg>
+</section>
+<section class="panel">
+  <h2>huge <span class="digits">— 500 significant digits per operand</span></h2>
+  <svg viewBox="0 0 760 326" role="img" aria-label="Speedup of fastdecimal over big.js, huge operands">
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="grid"/>
+    <text x="170.98353564063683" y="312" class="tick" text-anchor="middle">1×</text>
+    <line x1="262.81224579366346" y1="8" x2="262.81224579366346" y2="296" class="grid"/>
+    <text x="262.81224579366346" y="312" class="tick" text-anchor="middle">4×</text>
+    <line x1="354.64095594669004" y1="8" x2="354.64095594669004" y2="296" class="grid"/>
+    <text x="354.64095594669004" y="312" class="tick" text-anchor="middle">16×</text>
+    <line x1="446.4696660997167" y1="8" x2="446.4696660997167" y2="296" class="grid"/>
+    <text x="446.4696660997167" y="312" class="tick" text-anchor="middle">64×</text>
+    <line x1="538.2983762527433" y1="8" x2="538.2983762527433" y2="296" class="grid"/>
+    <text x="538.2983762527433" y="312" class="tick" text-anchor="middle">256×</text>
+    <line x1="630.12708640577" y1="8" x2="630.12708640577" y2="296" class="grid"/>
+    <text x="630.12708640577" y="312" class="tick" text-anchor="middle">1024×</text>
+    <line x1="170.98353564063683" y1="8" x2="170.98353564063683" y2="296" class="ref"/>
+    <text x="78" y="24" class="oplabel" text-anchor="end">parse</text>
+    <line x1="170.98353564063683" y1="20" x2="212.17544132521843" y2="20" class="stem"/>
+    <circle cx="212.17544132521843" cy="20" r="5" class="dot faster"/>
+    <circle cx="212.17544132521843" cy="20" r="13" class="hit" data-op="parse" data-size="huge" data-big="305,020" data-fast="568,063" data-ratio="1.86×"/>
+    <text x="78" y="48" class="oplabel" text-anchor="end">plus</text>
+    <line x1="170.98353564063683" y1="44" x2="324.46721685069224" y2="44" class="stem"/>
+    <circle cx="324.46721685069224" cy="44" r="5" class="dot faster"/>
+    <circle cx="324.46721685069224" cy="44" r="13" class="hit" data-op="plus" data-size="huge" data-big="465,342" data-fast="4,721,318" data-ratio="10.15×"/>
+    <text x="78" y="72" class="oplabel" text-anchor="end">minus</text>
+    <line x1="170.98353564063683" y1="68" x2="341.69488101996575" y2="68" class="stem"/>
+    <circle cx="341.69488101996575" cy="68" r="5" class="dot faster"/>
+    <circle cx="341.69488101996575" cy="68" r="13" class="hit" data-op="minus" data-size="huge" data-big="356,667" data-fast="4,693,578" data-ratio="13.16×"/>
+    <text x="78" y="96" class="oplabel" text-anchor="end">times</text>
+    <line x1="170.98353564063683" y1="92" x2="615.538809255884" y2="92" class="stem"/>
+    <circle cx="615.538809255884" cy="92" r="5" class="dot faster"/>
+    <circle cx="615.538809255884" cy="92" r="13" class="hit" data-op="times" data-size="huge" data-big="1,582" data-fast="1,299,557" data-ratio="822×"/>
+    <text x="78" y="120" class="oplabel" text-anchor="end">div</text>
+    <line x1="170.98353564063683" y1="116" x2="570.6874696707873" y2="116" class="stem"/>
+    <circle cx="570.6874696707873" cy="116" r="5" class="dot faster"/>
+    <circle cx="570.6874696707873" cy="116" r="13" class="hit" data-op="div" data-size="huge" data-big="3,386" data-fast="1,413,449" data-ratio="417×"/>
+    <text x="78" y="144" class="oplabel" text-anchor="end">mod</text>
+    <line x1="170.98353564063683" y1="140" x2="414.182827566168" y2="140" class="stem"/>
+    <circle cx="414.182827566168" cy="140" r="5" class="dot faster"/>
+    <circle cx="414.182827566168" cy="140" r="13" class="hit" data-op="mod" data-size="huge" data-big="58,419" data-fast="2,296,406" data-ratio="39.31×"/>
+    <text x="78" y="168" class="oplabel" text-anchor="end">pow</text>
+    <line x1="170.98353564063683" y1="164" x2="663.7119402936403" y2="164" class="stem"/>
+    <circle cx="663.7119402936403" cy="164" r="5" class="dot faster"/>
+    <text x="673.7119402936403" y="168" class="vlabel">1700×</text>
+    <circle cx="663.7119402936403" cy="164" r="13" class="hit" data-op="pow" data-size="huge" data-big="78" data-fast="132,020" data-ratio="1700×"/>
+    <text x="78" y="192" class="oplabel" text-anchor="end">sqrt</text>
+    <line x1="170.98353564063683" y1="188" x2="509.10510778529954" y2="188" class="stem"/>
+    <circle cx="509.10510778529954" cy="188" r="5" class="dot faster"/>
+    <circle cx="509.10510778529954" cy="188" r="13" class="hit" data-op="sqrt" data-size="huge" data-big="380" data-fast="62,630" data-ratio="165×"/>
+    <text x="78" y="216" class="oplabel" text-anchor="end">cmp</text>
+    <line x1="170.98353564063683" y1="212" x2="272.09675892331484" y2="212" class="stem"/>
+    <circle cx="272.09675892331484" cy="212" r="5" class="dot faster"/>
+    <circle cx="272.09675892331484" cy="212" r="13" class="hit" data-op="cmp" data-size="huge" data-big="4,102,678" data-fast="18,879,906" data-ratio="4.60×"/>
+    <text x="78" y="240" class="oplabel" text-anchor="end">round</text>
+    <line x1="170.98353564063683" y1="236" x2="144.50994674705086" y2="236" class="stem"/>
+    <circle cx="144.50994674705086" cy="236" r="5" class="dot slower"/>
+    <text x="134.50994674705086" y="240" class="vlabel" text-anchor="end">0.67×</text>
+    <circle cx="144.50994674705086" cy="236" r="13" class="hit" data-op="round" data-size="huge" data-big="1,729,945" data-fast="1,160,012" data-ratio="0.67×"/>
+    <text x="78" y="264" class="oplabel" text-anchor="end">toString</text>
+    <line x1="170.98353564063683" y1="260" x2="187.18581115463314" y2="260" class="stem"/>
+    <circle cx="187.18581115463314" cy="260" r="5" class="dot faster"/>
+    <circle cx="187.18581115463314" cy="260" r="13" class="hit" data-op="toString" data-size="huge" data-big="189,270" data-fast="241,719" data-ratio="1.28×"/>
+    <text x="78" y="288" class="oplabel" text-anchor="end">toFixed</text>
+    <line x1="170.98353564063683" y1="284" x2="192.92991943613043" y2="284" class="stem"/>
+    <circle cx="192.92991943613043" cy="284" r="5" class="dot faster"/>
+    <circle cx="192.92991943613043" cy="284" r="13" class="hit" data-op="toFixed" data-size="huge" data-big="340,693" data-fast="474,516" data-ratio="1.39×"/>
+  </svg>
+</section>
+  <p class="note">Each dot is one operation's throughput ratio (fastdecimal ops/s ÷ big.js ops/s). Dots left of the 1× line are slower than big.js.</p>
+  <details>
+    <summary>Data table (all 48 measurements)</summary>
+    <table class="data">
+      <tr><th>operation</th><th>size</th><th class="num">big.js (ops/s)</th><th class="num">fastdecimal (ops/s)</th><th class="num">speedup</th></tr>
+      <tr><td>parse</td><td>small</td><td class="num">5,559,597</td><td class="num">6,598,767</td><td class="num">1.19×</td></tr>
+<tr><td>plus</td><td>small</td><td class="num">7,091,691</td><td class="num">9,649,985</td><td class="num">1.36×</td></tr>
+<tr><td>minus</td><td>small</td><td class="num">7,713,977</td><td class="num">7,275,740</td><td class="num">0.94×</td></tr>
+<tr><td>times</td><td>small</td><td class="num">4,490,410</td><td class="num">7,966,866</td><td class="num">1.77×</td></tr>
+<tr><td>div</td><td>small</td><td class="num">218,905</td><td class="num">4,239,233</td><td class="num">19.37×</td></tr>
+<tr><td>mod</td><td>small</td><td class="num">3,154,455</td><td class="num">8,069,120</td><td class="num">2.56×</td></tr>
+<tr><td>pow</td><td>small</td><td class="num">325,542</td><td class="num">5,657,404</td><td class="num">17.38×</td></tr>
+<tr><td>sqrt</td><td>small</td><td class="num">23,818</td><td class="num">466,182</td><td class="num">19.57×</td></tr>
+<tr><td>cmp</td><td>small</td><td class="num">15,935,452</td><td class="num">17,733,316</td><td class="num">1.11×</td></tr>
+<tr><td>round</td><td>small</td><td class="num">10,555,330</td><td class="num">20,888,495</td><td class="num">1.98×</td></tr>
+<tr><td>toString</td><td>small</td><td class="num">3,071,528</td><td class="num">10,360,730</td><td class="num">3.37×</td></tr>
+<tr><td>toFixed</td><td>small</td><td class="num">4,019,230</td><td class="num">7,462,961</td><td class="num">1.86×</td></tr>
+<tr><td>parse</td><td>medium</td><td class="num">2,612,645</td><td class="num">3,367,292</td><td class="num">1.29×</td></tr>
+<tr><td>plus</td><td>medium</td><td class="num">5,912,392</td><td class="num">8,890,301</td><td class="num">1.50×</td></tr>
+<tr><td>minus</td><td>medium</td><td class="num">6,667,770</td><td class="num">7,527,041</td><td class="num">1.13×</td></tr>
+<tr><td>times</td><td>medium</td><td class="num">854,586</td><td class="num">6,286,574</td><td class="num">7.36×</td></tr>
+<tr><td>div</td><td>medium</td><td class="num">75,104</td><td class="num">2,838,057</td><td class="num">37.79×</td></tr>
+<tr><td>mod</td><td>medium</td><td class="num">1,541,514</td><td class="num">5,021,780</td><td class="num">3.26×</td></tr>
+<tr><td>pow</td><td>medium</td><td class="num">42,812</td><td class="num">4,530,011</td><td class="num">106×</td></tr>
+<tr><td>sqrt</td><td>medium</td><td class="num">22,310</td><td class="num">397,266</td><td class="num">17.81×</td></tr>
+<tr><td>cmp</td><td>medium</td><td class="num">14,295,123</td><td class="num">15,117,652</td><td class="num">1.06×</td></tr>
+<tr><td>round</td><td>medium</td><td class="num">7,529,082</td><td class="num">4,411,416</td><td class="num">0.59×</td></tr>
+<tr><td>toString</td><td>medium</td><td class="num">3,357,063</td><td class="num">6,006,315</td><td class="num">1.79×</td></tr>
+<tr><td>toFixed</td><td>medium</td><td class="num">2,860,706</td><td class="num">3,670,804</td><td class="num">1.28×</td></tr>
+<tr><td>parse</td><td>large</td><td class="num">1,099,743</td><td class="num">2,020,043</td><td class="num">1.84×</td></tr>
+<tr><td>plus</td><td>large</td><td class="num">2,059,447</td><td class="num">7,022,056</td><td class="num">3.41×</td></tr>
+<tr><td>minus</td><td>large</td><td class="num">2,569,267</td><td class="num">7,288,705</td><td class="num">2.84×</td></tr>
+<tr><td>times</td><td>large</td><td class="num">35,678</td><td class="num">3,077,945</td><td class="num">86.27×</td></tr>
+<tr><td>div</td><td>large</td><td class="num">15,976</td><td class="num">2,421,154</td><td class="num">152×</td></tr>
+<tr><td>mod</td><td>large</td><td class="num">657,090</td><td class="num">4,618,583</td><td class="num">7.03×</td></tr>
+<tr><td>pow</td><td>large</td><td class="num">1,889</td><td class="num">1,517,365</td><td class="num">803×</td></tr>
+<tr><td>sqrt</td><td>large</td><td class="num">5,358</td><td class="num">248,239</td><td class="num">46.33×</td></tr>
+<tr><td>cmp</td><td>large</td><td class="num">12,579,925</td><td class="num">17,065,800</td><td class="num">1.36×</td></tr>
+<tr><td>round</td><td>large</td><td class="num">4,701,790</td><td class="num">2,579,815</td><td class="num">0.55×</td></tr>
+<tr><td>toString</td><td>large</td><td class="num">963,830</td><td class="num">2,940,939</td><td class="num">3.05×</td></tr>
+<tr><td>toFixed</td><td>large</td><td class="num">1,325,003</td><td class="num">1,721,007</td><td class="num">1.30×</td></tr>
+<tr><td>parse</td><td>huge</td><td class="num">305,020</td><td class="num">568,063</td><td class="num">1.86×</td></tr>
+<tr><td>plus</td><td>huge</td><td class="num">465,342</td><td class="num">4,721,318</td><td class="num">10.15×</td></tr>
+<tr><td>minus</td><td>huge</td><td class="num">356,667</td><td class="num">4,693,578</td><td class="num">13.16×</td></tr>
+<tr><td>times</td><td>huge</td><td class="num">1,582</td><td class="num">1,299,557</td><td class="num">822×</td></tr>
+<tr><td>div</td><td>huge</td><td class="num">3,386</td><td class="num">1,413,449</td><td class="num">417×</td></tr>
+<tr><td>mod</td><td>huge</td><td class="num">58,419</td><td class="num">2,296,406</td><td class="num">39.31×</td></tr>
+<tr><td>pow</td><td>huge</td><td class="num">78</td><td class="num">132,020</td><td class="num">1700×</td></tr>
+<tr><td>sqrt</td><td>huge</td><td class="num">380</td><td class="num">62,630</td><td class="num">165×</td></tr>
+<tr><td>cmp</td><td>huge</td><td class="num">4,102,678</td><td class="num">18,879,906</td><td class="num">4.60×</td></tr>
+<tr><td>round</td><td>huge</td><td class="num">1,729,945</td><td class="num">1,160,012</td><td class="num">0.67×</td></tr>
+<tr><td>toString</td><td>huge</td><td class="num">189,270</td><td class="num">241,719</td><td class="num">1.28×</td></tr>
+<tr><td>toFixed</td><td>huge</td><td class="num">340,693</td><td class="num">474,516</td><td class="num">1.39×</td></tr>
+    </table>
+  </details>
+</main>
+<div id="tooltip"></div>
+<script>
+  const tip = document.getElementById('tooltip');
+  document.querySelectorAll('.hit').forEach((el) => {
+    el.addEventListener('mouseenter', () => {
+      const d = el.dataset;
+      tip.innerHTML = '<div class="t">' + d.op + ' · ' + d.size + '</div>' +
+        '<table><tr><td>big.js</td><td>' + d.big + ' ops/s</td></tr>' +
+        '<tr><td>fastdecimal</td><td>' + d.fast + ' ops/s</td></tr>' +
+        '<tr><td>speedup</td><td>' + d.ratio + '</td></tr></table>';
+      tip.style.display = 'block';
+    });
+    el.addEventListener('mousemove', (e) => {
+      const pad = 14, r = tip.getBoundingClientRect();
+      tip.style.left = Math.min(e.clientX + pad, innerWidth - r.width - 8) + 'px';
+      tip.style.top = Math.min(e.clientY + pad, innerHeight - r.height - 8) + 'px';
+    });
+    el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
+</script>
+</body>
+</html>

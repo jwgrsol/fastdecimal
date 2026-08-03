@@ -1,0 +1,352 @@
+{
+  "meta": {
+    "date": "2026-08-03",
+    "node": "v24.18.0",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12700",
+    "bigJsVersion": "7.0.1",
+    "sizes": {
+      "small": 7,
+      "medium": 20,
+      "large": 100,
+      "huge": 500
+    }
+  },
+  "results": [
+    {
+      "opName": "parse",
+      "sizeName": "small",
+      "big.js": 5559597.220210308,
+      "fastdecimal": 6598766.700610152,
+      "ratio": 1.1869145262218357
+    },
+    {
+      "opName": "plus",
+      "sizeName": "small",
+      "big.js": 7091691.454168973,
+      "fastdecimal": 9649984.999898396,
+      "ratio": 1.3607451850186583
+    },
+    {
+      "opName": "minus",
+      "sizeName": "small",
+      "big.js": 7713977.042104746,
+      "fastdecimal": 7275739.9999873545,
+      "ratio": 0.9431892213672158
+    },
+    {
+      "opName": "times",
+      "sizeName": "small",
+      "big.js": 4490409.999985388,
+      "fastdecimal": 7966866.016580578,
+      "ratio": 1.7741956784806963
+    },
+    {
+      "opName": "div",
+      "sizeName": "small",
+      "big.js": 218905.18408559726,
+      "fastdecimal": 4239232.880385281,
+      "ratio": 19.365612094081964
+    },
+    {
+      "opName": "mod",
+      "sizeName": "small",
+      "big.js": 3154455.333655225,
+      "fastdecimal": 8069119.9999734275,
+      "ratio": 2.5580073725828716
+    },
+    {
+      "opName": "pow",
+      "sizeName": "small",
+      "big.js": 325542.07012087316,
+      "fastdecimal": 5657404.342631546,
+      "ratio": 17.378412383170513
+    },
+    {
+      "opName": "sqrt",
+      "sizeName": "small",
+      "big.js": 23817.999288050116,
+      "fastdecimal": 466182.4359961449,
+      "ratio": 19.57269501767247
+    },
+    {
+      "opName": "cmp",
+      "sizeName": "small",
+      "big.js": 15935452.03231965,
+      "fastdecimal": 17733316.13343713,
+      "ratio": 1.1128216568611373
+    },
+    {
+      "opName": "round",
+      "sizeName": "small",
+      "big.js": 10555329.999923324,
+      "fastdecimal": 20888494.555893864,
+      "ratio": 1.9789522976586806
+    },
+    {
+      "opName": "toString",
+      "sizeName": "small",
+      "big.js": 3071528.4642284075,
+      "fastdecimal": 10360729.999869773,
+      "ratio": 3.373151224392925
+    },
+    {
+      "opName": "toFixed",
+      "sizeName": "small",
+      "big.js": 4019229.9999537338,
+      "fastdecimal": 7462961.26855753,
+      "ratio": 1.8568136853684507
+    },
+    {
+      "opName": "parse",
+      "sizeName": "medium",
+      "big.js": 2612644.9999868684,
+      "fastdecimal": 3367291.632734371,
+      "ratio": 1.2888439235913396
+    },
+    {
+      "opName": "plus",
+      "sizeName": "medium",
+      "big.js": 5912392.043813202,
+      "fastdecimal": 8890300.554978449,
+      "ratio": 1.5036723696767311
+    },
+    {
+      "opName": "minus",
+      "sizeName": "medium",
+      "big.js": 6667769.999993716,
+      "fastdecimal": 7527041.236414804,
+      "ratio": 1.1288693575846043
+    },
+    {
+      "opName": "times",
+      "sizeName": "medium",
+      "big.js": 854586.1543619387,
+      "fastdecimal": 6286573.608144171,
+      "ratio": 7.356278329641237
+    },
+    {
+      "opName": "div",
+      "sizeName": "medium",
+      "big.js": 75104.24895746655,
+      "fastdecimal": 2838057.1619539475,
+      "ratio": 37.788237035180416
+    },
+    {
+      "opName": "mod",
+      "sizeName": "medium",
+      "big.js": 1541513.8339423381,
+      "fastdecimal": 5021779.99996125,
+      "ratio": 3.257693761410055
+    },
+    {
+      "opName": "pow",
+      "sizeName": "medium",
+      "big.js": 42811.61788214201,
+      "fastdecimal": 4530010.939972515,
+      "ratio": 105.81265469675502
+    },
+    {
+      "opName": "sqrt",
+      "sizeName": "medium",
+      "big.js": 22309.899605450253,
+      "fastdecimal": 397266.2259703266,
+      "ratio": 17.806724055059192
+    },
+    {
+      "opName": "cmp",
+      "sizeName": "medium",
+      "big.js": 14295122.852483712,
+      "fastdecimal": 15117652.441305246,
+      "ratio": 1.0575391759350024
+    },
+    {
+      "opName": "round",
+      "sizeName": "medium",
+      "big.js": 7529082.470949088,
+      "fastdecimal": 4411415.588584908,
+      "ratio": 0.5859167575340454
+    },
+    {
+      "opName": "toString",
+      "sizeName": "medium",
+      "big.js": 3357063.321422495,
+      "fastdecimal": 6006314.999851252,
+      "ratio": 1.7891574941476482
+    },
+    {
+      "opName": "toFixed",
+      "sizeName": "medium",
+      "big.js": 2860705.7089549988,
+      "fastdecimal": 3670804.4938692744,
+      "ratio": 1.283181447982708
+    },
+    {
+      "opName": "parse",
+      "sizeName": "large",
+      "big.js": 1099743.3504074765,
+      "fastdecimal": 2020042.9799677846,
+      "ratio": 1.8368312745144755
+    },
+    {
+      "opName": "plus",
+      "sizeName": "large",
+      "big.js": 2059446.9108515796,
+      "fastdecimal": 7022056.488891466,
+      "ratio": 3.4096807506379716
+    },
+    {
+      "opName": "minus",
+      "sizeName": "large",
+      "big.js": 2569267.4307426955,
+      "fastdecimal": 7288704.999965538,
+      "ratio": 2.8368806270426274
+    },
+    {
+      "opName": "times",
+      "sizeName": "large",
+      "big.js": 35678.18041281113,
+      "fastdecimal": 3077944.9999721805,
+      "ratio": 86.26967419187578
+    },
+    {
+      "opName": "div",
+      "sizeName": "large",
+      "big.js": 15976.221623594896,
+      "fastdecimal": 2421153.7894286057,
+      "ratio": 151.54733368576098
+    },
+    {
+      "opName": "mod",
+      "sizeName": "large",
+      "big.js": 657089.6714551738,
+      "fastdecimal": 4618582.690725523,
+      "ratio": 7.028846885535926
+    },
+    {
+      "opName": "pow",
+      "sizeName": "large",
+      "big.js": 1889.3576184096096,
+      "fastdecimal": 1517365.4479217972,
+      "ratio": 803.1118265471936
+    },
+    {
+      "opName": "sqrt",
+      "sizeName": "large",
+      "big.js": 5357.693512943835,
+      "fastdecimal": 248239.13116304515,
+      "ratio": 46.33320860241739
+    },
+    {
+      "opName": "cmp",
+      "sizeName": "large",
+      "big.js": 12579924.999879876,
+      "fastdecimal": 17065799.999960247,
+      "ratio": 1.356589963781438
+    },
+    {
+      "opName": "round",
+      "sizeName": "large",
+      "big.js": 4701789.999961563,
+      "fastdecimal": 2579814.840386436,
+      "ratio": 0.5486878062200833
+    },
+    {
+      "opName": "toString",
+      "sizeName": "large",
+      "big.js": 963829.5180821342,
+      "fastdecimal": 2940938.5295421937,
+      "ratio": 3.051305728210305
+    },
+    {
+      "opName": "toFixed",
+      "sizeName": "large",
+      "big.js": 1325003.0125085956,
+      "fastdecimal": 1721007.488230173,
+      "ratio": 1.2988706229217033
+    },
+    {
+      "opName": "parse",
+      "sizeName": "huge",
+      "big.js": 305020.1196782422,
+      "fastdecimal": 568063.0117776288,
+      "ratio": 1.8623788239833612
+    },
+    {
+      "opName": "plus",
+      "sizeName": "huge",
+      "big.js": 465342.2079474816,
+      "fastdecimal": 4721317.639322051,
+      "ratio": 10.145904580946368
+    },
+    {
+      "opName": "minus",
+      "sizeName": "huge",
+      "big.js": 356666.9683309667,
+      "fastdecimal": 4693578.003569039,
+      "ratio": 13.159553365798832
+    },
+    {
+      "opName": "times",
+      "sizeName": "huge",
+      "big.js": 1581.7613436491533,
+      "fastdecimal": 1299556.7511070566,
+      "ratio": 821.5883871007712
+    },
+    {
+      "opName": "div",
+      "sizeName": "huge",
+      "big.js": 3385.9943686637725,
+      "fastdecimal": 1413448.5865560388,
+      "ratio": 417.4397334021064
+    },
+    {
+      "opName": "mod",
+      "sizeName": "huge",
+      "big.js": 58418.719987545104,
+      "fastdecimal": 2296405.6637676433,
+      "ratio": 39.30941424696121
+    },
+    {
+      "opName": "pow",
+      "sizeName": "huge",
+      "big.js": 77.65056566010672,
+      "fastdecimal": 132019.53793126906,
+      "ratio": 1700.1748385085443
+    },
+    {
+      "opName": "sqrt",
+      "sizeName": "huge",
+      "big.js": 380.13747153286545,
+      "fastdecimal": 62629.61385311926,
+      "ratio": 164.75517028240273
+    },
+    {
+      "opName": "cmp",
+      "sizeName": "huge",
+      "big.js": 4102677.948710754,
+      "fastdecimal": 18879905.560374606,
+      "ratio": 4.601849279031887
+    },
+    {
+      "opName": "round",
+      "sizeName": "huge",
+      "big.js": 1729944.9999973525,
+      "fastdecimal": 1160012.0999766134,
+      "ratio": 0.6705485434383108
+    },
+    {
+      "opName": "toString",
+      "sizeName": "huge",
+      "big.js": 189270.45750984934,
+      "fastdecimal": 241718.7914055821,
+      "ratio": 1.2771078729653487
+    },
+    {
+      "opName": "toFixed",
+      "sizeName": "huge",
+      "big.js": 340692.95584437466,
+      "fastdecimal": 474516.20386816864,
+      "ratio": 1.3927972261478843
+    }
+  ]
+}

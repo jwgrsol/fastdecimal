@@ -265,6 +265,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/big.js@npm:^7":
+  version: 7.0.0
+  resolution: "@types/big.js@npm:7.0.0"
+  checksum: 10c0/d6cc629c7eefe86e2dcc8beb2c8ee41deaaab3bd761e5d2401b51a23f171caa36753e56002e1e5d9d7e671a922f303dcb52907725e15499faac7f7b533e556f2
+  languageName: node
+  linkType: hard
+
 "@yuku-codegen/binding-darwin-arm64@npm:0.8.1":
   version: 0.8.1
   resolution: "@yuku-codegen/binding-darwin-arm64@npm:0.8.1"
@@ -472,6 +479,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"big.js@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "big.js@npm:7.0.1"
+  checksum: 10c0/2ea2c2e263db37b2d5c6ad6246408eabf13ba07776cfd92bf464db201ef9aa9aa1712accbfe97f4aba5d358567ebefe768e8a50102cde11f35ef3497ddc2747c
+  languageName: node
+  linkType: hard
+
 "cac@npm:^7.0.0":
   version: 7.0.0
   resolution: "cac@npm:7.0.0"
@@ -632,7 +646,10 @@ __metadata:
   resolution: "fastdecimal@workspace:."
   dependencies:
     "@arethetypeswrong/cli": "npm:^0.18.5"
+    "@types/big.js": "npm:^7"
+    big.js: "npm:^7.0.1"
     publint: "npm:^0.3.22"
+    tinybench: "npm:^6.1.2"
     tsdown: "npm:^0.22.0"
     typescript: "npm:^5.9.3"
   languageName: unknown
@@ -1032,6 +1049,13 @@ __metadata:
   dependencies:
     any-promise: "npm:^1.0.0"
   checksum: 10c0/f375aeb2b05c100a456a30bc3ed07ef03a39cbdefe02e0403fb714b8c7e57eeaad1a2f5c4ecfb9ce554ce3db9c2b024eba144843cd9e344566d9fcee73b04767
+  languageName: node
+  linkType: hard
+
+"tinybench@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "tinybench@npm:6.1.2"
+  checksum: 10c0/5573a48afd54ac0506f9dbca8beb46b47032d029e5ee8ff931aba55e65146283b7ef9aa73af7060ccbb8ec88642898feee1bcf7037f45e372530bf4ce194ea4e
   languageName: node
   linkType: hard
 
