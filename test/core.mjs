@@ -114,6 +114,9 @@ eq('sqrt 1e400 (float overflow estimate path)', str(D.sqrtToDecimalPlaces(p('1e4
 eq('sqrt ±0', D.sqrtToDecimalPlaces(p('-0'), 20, 4).sign, -1);
 eq('sqrt negative = NaN', D.isNaN(D.sqrtToDecimalPlaces(p('-4'), 20, 4)), true);
 eq('sqrt +∞', str(D.sqrtToDecimalPlaces(D.infinity(1), 20, 4)), 'Infinity');
+// Iteration cap: upstream big.js hangs forever on this input (result exponent far
+// below -dp makes Newton oscillate); the core terminates with the capped estimate.
+eq('sqrt cap terminates where upstream hangs', str(D.sqrtToDecimalPlaces(p('9.7516778021407e-19'), 3, 0)), '0.001');
 
 // ---- cmp ----
 eq('cmp equal across scales', D.cmp(p('1.20'), p('1.2')), 0);

@@ -32,3 +32,32 @@ jobs:
 
       - name: Package exports check (attw + publint)
         run: yarn check:exports
+
+      - name: Upload dist for engine smoke tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # The source suites import .ts directly (modern node only), so the supported
+  # engines range (>=18) is verified against the built artifacts instead.
+  engine-smoke:
+    needs: verify
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Smoke test dist on node ${{ matrix.node-version }}
+        run: node scripts/smoke-dist.mjs

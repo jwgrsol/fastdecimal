@@ -52,10 +52,17 @@ export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roun
   const guardDigits = decimalPlaces + 4;
   const cmpDigits = exponentOf(result) + guardDigits;
   let prev: DecimalValue;
+  // Iteration cap: when the true root's exponent is far below −decimalPlaces, the
+  // dp-limited division makes the iteration oscillate forever — upstream big.js
+  // hangs on such inputs (found by differential fuzzing). Normal convergence is
+  // quadratic and takes well under 20 iterations, so a generous cap only fires
+  // where upstream would never return; we terminate with the current estimate.
+  let iterations = 0;
   do {
     prev = result;
     result = mul(HALF, add(prev, divToDecimalPlaces(x, prev, guardDigits, roundingMode)));
   } while (
+    ++iterations < 100 &&
     (prev.coefficient as bigint).toString().slice(0, cmpDigits) !==
     (result.coefficient as bigint).toString().slice(0, cmpDigits)
   );
