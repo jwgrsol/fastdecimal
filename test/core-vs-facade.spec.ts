@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import * as core from './index.ts';
-import Big from '../big.ts';
+import * as core from '../src/core/index.ts';
+import Big from '../src/big.ts';
 
 /**
  * Core-vs-facade equivalence (docs/core-contract.md §8.3): seeded random inputs
