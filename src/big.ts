@@ -1,20 +1,37 @@
 /*
- * fastdecimal — BigInt-powered drop-in replacement for big.js
- * Representation: value = s × _coef × 10^_scale
- *   s:      1 | -1 (kept separate from the BigInt so -0 can be represented)
- *   _coef:  non-negative BigInt coefficient
- *   _scale: base-10 exponent of the least significant digit
- * Invariant: if _coef === 0n then _scale === 0, otherwise _coef % 10n !== 0n
- * (trailing zeros are absorbed into _scale — the same normal form as big.js's digit array c)
+ * fastdecimal — big.js facade over the functional core (docs/core-contract.md §6).
+ *
+ * This file contains ONLY the big.js translation layer: its grammar and error
+ * messages, its constructor semantics (new-less calls, the Big() clone factory,
+ * shared prototype), its global settings (DP/RM/NE/PE/strict), its rounding-mode
+ * numbering, and its derived c/e properties. All arithmetic lives in src/core.
+ *
+ * Instances are structurally core Dec values: they carry {sign, coef, scale} as
+ * own fields, so they flow into core functions with zero conversion cost. The
+ * big.js public property `s` is a prototype accessor over `sign`.
  */
+
+import type { Dec, RoundingMode as CoreRoundingMode } from './core/types.ts';
+import { add as coreAdd } from './core/add.ts';
+import { sub as coreSub } from './core/sub.ts';
+import { mul as coreMul } from './core/mul.ts';
+import { divToDp as coreDivToDp } from './core/divToDp.ts';
+import { cmp as coreCmp } from './core/cmp.ts';
+import { roundToDp as coreRoundToDp } from './core/roundToDp.ts';
+import { roundToSd as coreRoundToSd } from './core/roundToSd.ts';
+import { toString as coreToString } from './core/toString.ts';
+import { exponentOf } from './core/_internal/exponentOf.ts';
+import { pow10 } from './core/_internal/pow10.ts';
+import { stripTrailingZeros, stripResult } from './core/_internal/strip.ts';
 
 export type BigSource = number | string | bigint | Big;
 export type RoundingMode = 0 | 1 | 2 | 3;
 
 export interface Big {
+  sign: 1 | -1; // structurally a subset of core Dec's sign (the facade never holds NaN)
+  coef: bigint;
+  scale: number;
   s: number;
-  _coef: bigint;
-  _scale: number;
   readonly c: number[];
   readonly e: number;
   constructor: BigConstructor;
@@ -64,6 +81,7 @@ export interface BigConstructor {
   default: BigConstructor;
 }
 
+// ---- big.js contract constants (error strings are part of the observable API) ----
 const NAME = '[big.js] ';
 const INVALID = NAME + 'Invalid ';
 const INVALID_DP = INVALID + 'decimal places';
@@ -72,43 +90,19 @@ const DIV_BY_ZERO = NAME + 'Division by zero';
 const MAX_DP = 1e6;
 const MAX_POWER = 1e6;
 
-// ---- 10^n BigInt cache ----
-const POWERS_OF_TEN: bigint[] = [1n];
-function pow10(n: number): bigint {
-  if (n < POWERS_OF_TEN.length) return POWERS_OF_TEN[n];
-  if (n <= 4096) {
-    let value = POWERS_OF_TEN[POWERS_OF_TEN.length - 1];
-    for (let i = POWERS_OF_TEN.length; i <= n; i++) POWERS_OF_TEN[i] = value *= 10n;
-    return value;
-  }
-  return 10n ** BigInt(n);
-}
-
-// ---- strip trailing zeros into the scale (requires coef > 0n) ----
-// Returns the stripped coefficient; the adjusted scale is left in `strippedScale`.
-// (An out-parameter instead of a [coef, scale] tuple — this runs on every arithmetic
-// result, and skipping the array allocation is a measurable win.)
-const TEN_16 = 10n ** 16n, TEN_8 = 10n ** 8n, TEN_4 = 10000n, TEN_2 = 100n, TEN_1 = 10n;
-let strippedScale = 0;
-function stripTrailingZeros(coef: bigint, scale: number): bigint {
-  strippedScale = scale;
-  if (coef & 1n) return coef; // an odd number cannot be a multiple of 10 — O(1) early exit
-  if (coef % TEN_1 !== 0n) return coef;
-  while (coef % TEN_16 === 0n) { coef /= TEN_16; scale += 16; }
-  if (coef % TEN_8 === 0n) { coef /= TEN_8; scale += 8; }
-  if (coef % TEN_4 === 0n) { coef /= TEN_4; scale += 4; }
-  if (coef % TEN_2 === 0n) { coef /= TEN_2; scale += 2; }
-  if (coef % TEN_1 === 0n) { coef /= TEN_1; scale += 1; }
-  strippedScale = scale;
-  return coef;
-}
+// big.js rounding numbering → core numbering (contract §3)
+// big 0 roundDown→core 1 DOWN · big 1 roundHalfUp→core 4 · big 2 roundHalfEven→core 6 · big 3 roundUp→core 0
+const TO_CORE_RM: readonly CoreRoundingMode[] = [1, 4, 6, 0];
 
 function invalid(): never { throw Error(INVALID + 'number'); }
 
 // ---- parsing (accepts exactly what big.js's NUMERIC = /^-?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i accepts) ----
+// Stays in the facade: the grammar (no leading '+', no NaN/Infinity literals) and the
+// error message are big.js contract, not core parsing.
 function parseInto(x: Big, str: string): void {
   const len = str.length;
-  let i = 0, sign = 1;
+  let i = 0;
+  let sign: 1 | -1 = 1;
   if (str.charCodeAt(0) === 45 /* '-' */) { sign = -1; i = 1; }
   const digitsStart = i;
   let dotPos = -1, expPos = -1;
@@ -144,12 +138,12 @@ function parseInto(x: Big, str: string): void {
     : str.slice(digitsStart, dotPos) + str.slice(dotPos + 1, mantissaEnd);
   let start = 0, end = digits.length;
   while (start < end && digits.charCodeAt(start) === 48) start++; // leading zeros
-  if (start === end) { x.s = sign; x._coef = 0n; x._scale = 0; return; } // ±0
+  if (start === end) { x.sign = sign; x.coef = 0n; x.scale = 0; return; } // ±0
   let scale = exp - fracLen;
   while (digits.charCodeAt(end - 1) === 48) { end--; scale++; } // trailing zeros
-  x.s = sign;
-  x._coef = BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits);
-  x._scale = scale;
+  x.sign = sign;
+  x.coef = BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits);
+  x.scale = scale;
 }
 
 // ---- shared prototype (shared by every cloned constructor, exactly like big.js) ----
@@ -158,7 +152,7 @@ const bigPrototype: any = {};
 // Internal allocator: a real constructor call gives V8 a stable hidden class and a
 // preallocated shape, measurably faster than Object.create + per-property assignment
 const InternalBig: any = function (this: any, sign: number, coef: bigint, scale: number, Ctor: BigConstructor) {
-  this.s = sign; this._coef = coef; this._scale = scale;
+  this.sign = sign; this.coef = coef; this.scale = scale;
   this.constructor = Ctor;
 };
 InternalBig.prototype = bigPrototype;
@@ -166,156 +160,71 @@ InternalBig.prototype = bigPrototype;
 function makeBig(Ctor: BigConstructor, sign: number, coef: bigint, scale: number): Big {
   return new InternalBig(sign, coef, scale, Ctor);
 }
-function toBig(x: Big, y: BigSource): Big {
-  return y instanceof Object && '_coef' in (y as any) ? (y as Big) : new x.constructor(y as any);
+/** Wrap a core result into a big.js instance. */
+function fromDec(Ctor: BigConstructor, d: Dec): Big {
+  return new InternalBig(d.sign, d.coef, d.scale, Ctor);
 }
-function assertRoundingMode(rm: unknown): asserts rm is RoundingMode {
+function toBig(x: Big, y: BigSource): Big {
+  return y instanceof Object && 'coef' in (y as any) ? (y as Big) : new x.constructor(y as any);
+}
+function checkRM(rm: unknown): asserts rm is RoundingMode {
   if (rm !== 0 && rm !== 1 && rm !== 2 && rm !== 3) throw Error(INVALID_RM);
 }
 
-// Apply rounding to a truncated quotient (operates on magnitude; sign is handled by callers)
-function applyRound(truncated: bigint, remainder: bigint, divisor: bigint, rm: RoundingMode): bigint {
-  if (remainder === 0n || rm === 0) return truncated;
-  if (rm === 3) return truncated + 1n;
-  const doubled = remainder * 2n;
-  if (rm === 1) return doubled >= divisor ? truncated + 1n : truncated;
-  // half-even: round half to the nearest even quotient
-  return doubled > divisor ? truncated + 1n
-    : doubled < divisor ? truncated
-    : (truncated & 1n) ? truncated + 1n : truncated;
-}
+function digitsOf(x: Big | Dec): string { return (x.coef as bigint).toString(); }
 
-// Round to dp decimal places (negative dp allowed). A zero result keeps its sign (-0)
-function roundToDp(x: Big, dp: number, rm: RoundingMode): Big {
-  const Ctor = x.constructor;
-  const shift = -dp - x._scale; // how many digits to drop
-  if (shift <= 0 || x._coef === 0n) return makeBig(Ctor, x.s, x._coef, x._scale);
-  const divisor = pow10(shift);
-  const truncated = x._coef / divisor;
-  const rounded = applyRound(truncated, x._coef - truncated * divisor, divisor, rm);
-  if (rounded === 0n) return makeBig(Ctor, x.s, 0n, 0);
-  const coef = stripTrailingZeros(rounded, -dp);
-  return makeBig(Ctor, x.s, coef, strippedScale);
-}
-
-// Round to sd significant digits (equivalent to big.js's internal round(x, sd, rm))
-function roundToSd(x: Big, sd: number, rm: RoundingMode): Big {
-  if (x._coef === 0n) return makeBig(x.constructor, x.s, 0n, 0);
-  return roundToDp(x, sd - exponentOf(x) - 1, rm);
-}
-
-function digitsOf(x: Big): string { return x._coef.toString(); }
-// Base-10 exponent of the most significant digit (big.js's e)
-function exponentOf(x: Big): number { return x._coef === 0n ? 0 : digitsOf(x).length - 1 + x._scale; }
-
-// Signed addition on magnitudes: compare and subtract smaller from larger instead of
-// negating BigInts — avoids up to two negation allocations per call (hot for minus)
-function addSigned(x: Big, y: Big, ySign: number): Big {
-  const Ctor = x.constructor;
-  if (x._coef === 0n && y._coef === 0n) return makeBig(Ctor, x.s < 0 && ySign < 0 ? -1 : 1, 0n, 0);
-  const scaleDiff = x._scale - y._scale;
-  let xMag = x._coef, yMag = y._coef, scale = x._scale;
-  if (scaleDiff > 0) { xMag *= pow10(scaleDiff); scale = y._scale; }
-  else if (scaleDiff < 0) { yMag *= pow10(-scaleDiff); }
-  let sign: number, magnitude: bigint;
-  if (x.s === ySign) { sign = ySign; magnitude = xMag + yMag; }
-  else if (xMag === yMag) return makeBig(Ctor, 1, 0n, 0); // exact cancellation → +0 (like big.js)
-  else if (xMag > yMag) { sign = x.s; magnitude = xMag - yMag; }
-  else { sign = ySign; magnitude = yMag - xMag; }
-  const coef = stripTrailingZeros(magnitude, scale);
-  return makeBig(Ctor, sign, coef, strippedScale);
-}
-
-// ---- string formatting ----
-// digits: digit string (may be padded), exponent: base-10 exponent of the most significant digit
-function formatExponential(digits: string, exponent: number): string {
-  return digits[0]
-    + (digits.length > 1 ? '.' + digits.slice(1) : '')
-    + (exponent < 0 ? 'e' : 'e+') + exponent;
-}
-function formatPlain(digits: string, exponent: number): string {
-  if (exponent < 0) return '0.' + '0'.repeat(-exponent - 1) + digits;
-  const intLen = exponent + 1;
-  if (intLen > digits.length) return digits + '0'.repeat(intLen - digits.length);
-  if (intLen < digits.length) return digits.slice(0, intLen) + '.' + digits.slice(intLen);
-  return digits;
-}
-// forceSign: emit '-' even for negative zero (big.js's stringify "full precision" paths)
-function stringify(x: Big, forceSign: boolean): string {
-  const Ctor = x.constructor;
-  const digits = digitsOf(x);
-  const exponent = x._coef === 0n ? 0 : digits.length - 1 + x._scale;
-  const body = exponent <= Ctor.NE || exponent >= Ctor.PE
-    ? formatExponential(digits, exponent)
-    : formatPlain(digits, exponent);
-  return x.s < 0 && (forceSign || x._coef !== 0n) ? '-' + body : body;
+// big.js's stringify: exponential form outside (NE, PE); forceSign emits '-' even for -0
+function stringify(x: Big | Dec, forceSign: boolean): string {
+  const Ctor = (x as Big).constructor;
+  return coreToString(x as Dec, Ctor.NE, Ctor.PE, forceSign);
 }
 
 // ---- instance methods ----
 
 bigPrototype.abs = function (this: Big): Big {
-  return makeBig(this.constructor, 1, this._coef, this._scale);
+  return makeBig(this.constructor, 1, this.coef, this.scale);
 };
 bigPrototype.neg = function (this: Big): Big {
-  return makeBig(this.constructor, -this.s, this._coef, this._scale);
+  return makeBig(this.constructor, -this.sign, this.coef, this.scale);
 };
 
 bigPrototype.plus = bigPrototype.add = function (this: Big, y: BigSource): Big {
-  const other = toBig(this, y);
-  return addSigned(this, other, other.s);
+  return fromDec(this.constructor, coreAdd(this, toBig(this, y)));
 };
 bigPrototype.minus = bigPrototype.sub = function (this: Big, y: BigSource): Big {
-  const other = toBig(this, y);
-  return addSigned(this, other, -other.s);
+  return fromDec(this.constructor, coreSub(this, toBig(this, y)));
 };
-
 bigPrototype.times = bigPrototype.mul = function (this: Big, y: BigSource): Big {
-  const other = toBig(this, y);
-  const Ctor = this.constructor;
-  const sign = this.s === other.s ? 1 : -1;
-  if (this._coef === 0n || other._coef === 0n) return makeBig(Ctor, sign, 0n, 0);
-  const coef = stripTrailingZeros(this._coef * other._coef, this._scale + other._scale);
-  return makeBig(Ctor, sign, coef, strippedScale);
+  return fromDec(this.constructor, coreMul(this, toBig(this, y)));
 };
 
 bigPrototype.div = function (this: Big, y: BigSource): Big {
   const Ctor = this.constructor, dp = Ctor.DP;
   if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
   const other = toBig(this, y);
-  if (other._coef === 0n) throw Error(DIV_BY_ZERO);
-  const sign = this.s === other.s ? 1 : -1;
-  if (this._coef === 0n) return makeBig(Ctor, sign, 0n, 0);
+  if (other.coef === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return ±∞
   const rm = Ctor.RM;
-  assertRoundingMode(rm);
-  // Scale the integer division so the quotient carries exactly dp decimal places
-  const shift = this._scale - other._scale + dp;
-  let numerator = this._coef, denominator = other._coef;
-  if (shift > 0) numerator *= pow10(shift); else if (shift < 0) denominator *= pow10(-shift);
-  const truncated = numerator / denominator;
-  // one division + multiply-subtract (replaces a second remainder division)
-  const rounded = applyRound(truncated, numerator - truncated * denominator, denominator, rm);
-  if (rounded === 0n) return makeBig(Ctor, sign, 0n, 0);
-  const coef = stripTrailingZeros(rounded, -dp);
-  return makeBig(Ctor, sign, coef, strippedScale);
+  checkRM(rm);
+  return fromDec(Ctor, coreDivToDp(this, other, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.mod = function (this: Big, y: BigSource): Big {
   const Ctor = this.constructor;
   const other = toBig(this, y);
-  if (other._coef === 0n) throw Error(DIV_BY_ZERO);
-  if (this._coef === 0n) return makeBig(Ctor, this.s, 0n, 0); // preserve ±0
-  const scaleDiff = this._scale - other._scale;
-  let xVal = this.s < 0 ? -this._coef : this._coef;
-  let yVal = other.s < 0 ? -other._coef : other._coef;
-  let scale = this._scale;
-  if (scaleDiff > 0) { xVal *= pow10(scaleDiff); scale = other._scale; }
+  if (other.coef === 0n) throw Error(DIV_BY_ZERO);
+  if (this.coef === 0n) return makeBig(Ctor, this.sign, 0n, 0); // preserve ±0
+  const scaleDiff = this.scale - other.scale;
+  let xVal = this.sign < 0 ? -this.coef : this.coef;
+  let yVal = other.sign < 0 ? -other.coef : other.coef;
+  let scale = this.scale;
+  if (scaleDiff > 0) { xVal *= pow10(scaleDiff); scale = other.scale; }
   else if (scaleDiff < 0) { yVal *= pow10(-scaleDiff); }
   const quotient = xVal / yVal; // truncating division (same as big.js with DP=0/RM=0)
   const remainder = xVal - quotient * yVal;
   if (remainder === 0n) return makeBig(Ctor, 1, 0n, 0); // big.js computes this via minus, so the result is +0
   const sign = remainder < 0n ? -1 : 1;
   const coef = stripTrailingZeros(sign < 0 ? -remainder : remainder, scale);
-  return makeBig(Ctor, sign, coef, strippedScale);
+  return makeBig(Ctor, sign, coef, stripResult.scale);
 };
 
 bigPrototype.pow = function (this: Big, n: number): Big {
@@ -324,20 +233,20 @@ bigPrototype.pow = function (this: Big, n: number): Big {
   if (n === 0) return new Ctor(1);
   const isNegativeExp = n < 0;
   if (isNegativeExp) n = -n;
-  const sign = this.s < 0 && (n & 1) ? -1 : 1;
+  const sign = this.sign < 0 && (n & 1) ? -1 : 1;
   let result: Big;
-  if (this._coef === 0n) result = makeBig(Ctor, sign, 0n, 0);
+  if (this.coef === 0n) result = makeBig(Ctor, sign, 0n, 0);
   else {
-    const coef = stripTrailingZeros(this._coef ** BigInt(n), this._scale * n);
-    result = makeBig(Ctor, sign, coef, strippedScale);
+    const coef = stripTrailingZeros(this.coef ** BigInt(n), this.scale * n);
+    result = makeBig(Ctor, sign, coef, stripResult.scale);
   }
   return isNegativeExp ? new Ctor(1).div(result) : result;
 };
 
 bigPrototype.sqrt = function (this: Big): Big {
   const Ctor = this.constructor;
-  if (this._coef === 0n) return makeBig(Ctor, this.s, 0n, 0);
-  if (this.s < 0) throw Error(NAME + 'No square root');
+  if (this.coef === 0n) return makeBig(Ctor, this.sign, 0n, 0);
+  if (this.sign < 0) throw Error(NAME + 'No square root');
   // Initial estimate via float sqrt (same strategy as big.js)
   let estimate = Math.sqrt(Number(stringify(this, true)));
   let result: Big;
@@ -371,18 +280,11 @@ bigPrototype.sqrt = function (this: Big): Big {
   } finally {
     Ctor.DP = DP;
   }
-  return roundToSd(result, DP + exponentOf(result) + 1, Ctor.RM);
+  return fromDec(Ctor, coreRoundToSd(result, DP + exponentOf(result) + 1, TO_CORE_RM[Ctor.RM]));
 };
 
 bigPrototype.cmp = function (this: Big, y: BigSource): number {
-  const other = toBig(this, y);
-  if (this._coef === 0n) return other._coef === 0n ? 0 : -other.s;
-  if (other._coef === 0n) return this.s;
-  if (this.s !== other.s) return this.s;
-  const scaleDiff = this._scale - other._scale;
-  let xAligned = this._coef, yAligned = other._coef;
-  if (scaleDiff > 0) xAligned *= pow10(scaleDiff); else if (scaleDiff < 0) yAligned *= pow10(-scaleDiff);
-  return xAligned === yAligned ? 0 : (xAligned > yAligned ? 1 : -1) * this.s;
+  return coreCmp(this, toBig(this, y));
 };
 bigPrototype.eq = function (this: Big, y: BigSource): boolean { return this.cmp(y) === 0; };
 bigPrototype.gt = function (this: Big, y: BigSource): boolean { return this.cmp(y) > 0; };
@@ -394,45 +296,47 @@ bigPrototype.round = function (this: Big, dp?: number, rm?: RoundingMode): Big {
   if (dp === undefined) dp = 0;
   else if (dp !== ~~dp || dp < -MAX_DP || dp > MAX_DP) throw Error(INVALID_DP);
   if (rm === undefined) rm = this.constructor.RM;
-  assertRoundingMode(rm);
-  return roundToDp(this, dp, rm);
+  checkRM(rm);
+  return fromDec(this.constructor, coreRoundToDp(this, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.prec = function (this: Big, sd: number, rm?: RoundingMode): Big {
   if (sd !== ~~sd || sd < 1 || sd > MAX_DP) throw Error(INVALID + 'precision');
   if (rm === undefined) rm = this.constructor.RM;
-  assertRoundingMode(rm);
-  return roundToSd(this, sd, rm);
+  checkRM(rm);
+  return fromDec(this.constructor, coreRoundToSd(this, sd, TO_CORE_RM[rm]));
 };
 
 bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode): string {
-  const wasNonzero = this._coef !== 0n; // big.js decides the sign from the pre-rounding original
-  let x: Big = this, pad = 0;
+  const wasNonzero = this.coef !== 0n; // big.js decides the sign from the pre-rounding original
+  let x: Big | Dec = this, pad = 0;
   if (dp !== undefined) {
     if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
     if (rm === undefined) rm = this.constructor.RM;
-    assertRoundingMode(rm);
-    x = roundToSd(this, dp + 1, rm);
+    checkRM(rm);
+    x = coreRoundToSd(this, dp + 1, TO_CORE_RM[rm]);
     pad = dp + 1;
   }
   let digits = digitsOf(x);
   if (pad > digits.length) digits = digits.padEnd(pad, '0');
-  const exponent = x._coef === 0n ? 0 : digitsOf(x).length - 1 + x._scale;
-  const body = formatExponential(digits, exponent);
-  return x.s < 0 && wasNonzero ? '-' + body : body;
+  const exponent = x.coef === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
+  const body = digits[0]
+    + (digits.length > 1 ? '.' + digits.slice(1) : '')
+    + (exponent < 0 ? 'e' : 'e+') + exponent;
+  return x.sign < 0 && wasNonzero ? '-' + body : body;
 };
 
 bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): string {
-  const wasNonzero = this._coef !== 0n; // big.js decides the sign from the pre-rounding original
-  let x: Big = this;
+  const wasNonzero = this.coef !== 0n; // big.js decides the sign from the pre-rounding original
+  let x: Big | Dec = this;
   if (dp !== undefined) {
     if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
     if (rm === undefined) rm = this.constructor.RM;
-    assertRoundingMode(rm);
-    x = roundToDp(this, dp, rm);
-  } else dp = Math.max(0, -x._scale);
+    checkRM(rm);
+    x = coreRoundToDp(this, dp, TO_CORE_RM[rm]);
+  } else dp = Math.max(0, -x.scale);
   // exactly dp digits after the decimal point, never exponential notation
-  let coef = x._coef, scale = x._scale;
+  let coef = x.coef as bigint, scale = x.scale;
   if (scale > -dp) { coef *= pow10(scale + dp); scale = -dp; } // align digits (rounding guarantees scale >= -dp)
   const digits = coef.toString();
   let body: string;
@@ -441,24 +345,34 @@ bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): str
     const padded = digits.padStart(dp + 1, '0');
     body = padded.slice(0, padded.length - dp) + '.' + padded.slice(padded.length - dp);
   }
-  return x.s < 0 && wasNonzero ? '-' + body : body;
+  return x.sign < 0 && wasNonzero ? '-' + body : body;
 };
 
 bigPrototype.toPrecision = function (this: Big, sd?: number, rm?: RoundingMode): string {
   if (sd === undefined) return this.toString();
   const Ctor = this.constructor;
-  const wasNonzero = this._coef !== 0n;
+  const wasNonzero = this.coef !== 0n;
   if (sd !== ~~sd || sd < 1 || sd > MAX_DP) throw Error(INVALID + 'precision');
   if (rm === undefined) rm = Ctor.RM;
-  assertRoundingMode(rm);
-  const x = roundToSd(this, sd, rm);
+  checkRM(rm);
+  const x = coreRoundToSd(this, sd, TO_CORE_RM[rm]);
   let digits = digitsOf(x);
   if (sd > digits.length) digits = digits.padEnd(sd, '0');
-  const exponent = x._coef === 0n ? 0 : digitsOf(x).length - 1 + x._scale;
-  const body = sd <= exponent || exponent <= Ctor.NE || exponent >= Ctor.PE
-    ? formatExponential(digits, exponent)
-    : formatPlain(digits, exponent);
-  return x.s < 0 && wasNonzero ? '-' + body : body;
+  const exponent = x.coef === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
+  let body: string;
+  if (sd <= exponent || exponent <= Ctor.NE || exponent >= Ctor.PE) {
+    body = digits[0]
+      + (digits.length > 1 ? '.' + digits.slice(1) : '')
+      + (exponent < 0 ? 'e' : 'e+') + exponent;
+  } else if (exponent < 0) {
+    body = '0.' + '0'.repeat(-exponent - 1) + digits;
+  } else {
+    const intLen = exponent + 1;
+    body = intLen >= digits.length
+      ? digits + '0'.repeat(intLen - digits.length)
+      : digits.slice(0, intLen) + '.' + digits.slice(intLen);
+  }
+  return x.sign < 0 && wasNonzero ? '-' + body : body;
 };
 
 bigPrototype.toString = bigPrototype.toJSON = function (this: Big): string {
@@ -474,9 +388,17 @@ bigPrototype.toNumber = function (this: Big): number {
   return n;
 };
 
-// big.js ecosystem compatibility: c (digit array) and e (MSD exponent) are derived from
-// (_coef, _scale) on read, and writable — assigning them updates the underlying value like
-// big.js's plain properties would (setting c keeps e; setting e keeps the digits).
+// ---- big.js public properties as accessors over the core representation ----
+
+// s: the big.js sign property (1 | -1), read and written by user code
+Object.defineProperty(bigPrototype, 's', {
+  get(this: Big): number { return this.sign; },
+  set(this: Big, value: number): void { this.sign = value as 1 | -1; },
+});
+
+// c (digit array) and e (MSD exponent) are derived on read and writable —
+// assigning them updates the underlying value like big.js's plain properties
+// would (setting c keeps e; setting e keeps the digits).
 Object.defineProperty(bigPrototype, 'c', {
   get(this: Big): number[] {
     const digits = digitsOf(this);
@@ -485,18 +407,18 @@ Object.defineProperty(bigPrototype, 'c', {
     return result;
   },
   set(this: Big, value: number[]): void {
-    const exponent = exponentOf(this);
+    const exponent = this.coef === 0n ? 0 : exponentOf(this);
     const digits = value.join('');
     const coef = BigInt(digits);
-    if (coef === 0n) { this._coef = 0n; this._scale = 0; return; }
-    this._coef = stripTrailingZeros(coef, exponent - (digits.length - 1));
-    this._scale = strippedScale;
+    if (coef === 0n) { this.coef = 0n; this.scale = 0; return; }
+    this.coef = stripTrailingZeros(coef, exponent - (digits.length - 1));
+    this.scale = stripResult.scale;
   },
 });
 Object.defineProperty(bigPrototype, 'e', {
-  get(this: Big): number { return exponentOf(this); },
+  get(this: Big): number { return this.coef === 0n ? 0 : exponentOf(this); },
   set(this: Big, exponent: number): void {
-    if (this._coef !== 0n) this._scale = exponent - (digitsOf(this).length - 1);
+    if (this.coef !== 0n) this.scale = exponent - (digitsOf(this).length - 1);
   },
 });
 
@@ -506,9 +428,9 @@ function createBig(): BigConstructor {
     if (!(this instanceof Big)) {
       return value === undefined && arguments.length === 0 ? createBig() : new (Big as any)(value);
     }
-    if (value instanceof Object && '_coef' in (value as any)) {
+    if (value instanceof Object && 'coef' in (value as any)) {
       const other = value as Big;
-      this.s = other.s; this._coef = other._coef; this._scale = other._scale;
+      this.sign = other.sign; this.coef = other.coef; this.scale = other.scale;
     } else {
       if (typeof value !== 'string') {
         // strict mode accepts strings, bigints, and Big instances — exactly like big.js (big.js:103)
