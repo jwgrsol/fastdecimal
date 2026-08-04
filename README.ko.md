@@ -37,7 +37,8 @@ fastdecimal의 목표는 big.js와의 **100% 동작 호환**입니다: 같은 AP
   - `{ ...x }`, `Object.assign({}, x)`, `Object.keys(x)`
   - `x.hasOwnProperty('c')` (fastdecimal은 `false`, big.js는 `true`)
   - deep-equality 헬퍼(예: lodash `isEqual`)로 fastdecimal 인스턴스와 big.js 인스턴스를 직접 비교하는 경우
-- `_` 접두사가 붙은 내부 필드는 구현 세부사항이며, 어떤 릴리스에서든 바뀔 수 있습니다.
+- 내부 인스턴스 필드(`sign`, `coefficient`, `scale`)는 구현 세부사항이며, 어떤 릴리스에서든 바뀔 수 있습니다.
+- **의도적 차이 — 충실한 재현보다 종료를 우선:** 원본 big.js는 결과의 지수가 `-DP`보다 훨씬 작은 `sqrt`에서 영원히 멈출 수 있습니다(수렴하지 않는 뉴턴 반복 — 예: `Big.DP = 3; new Big('9.75e-19').sqrt()`). fastdecimal은 대신 반복 상한에서 추정값으로 종료합니다. big.js가 정상 종료하는 모든 입력에서는 결과가 동일합니다.
 
 **마이그레이션 전에** 코드베이스에서 Big 값에 대한 인스턴스 스프레드와 `hasOwnProperty('c'|'e')` 사용을 검색해보세요 — 없다면(압도적으로 흔한 경우) import 경로만 바꾸면 끝입니다. 값 비교에는 `x.eq(y)`, 직렬화에는 `x.toJSON()` / `x.toString()`을 사용하세요 — 두 라이브러리에서 동일하게 동작합니다.
 

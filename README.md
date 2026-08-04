@@ -37,7 +37,8 @@ fastdecimal aims for **100% behavioral compatibility** with big.js: same API, sa
   - `{ ...x }`, `Object.assign({}, x)`, `Object.keys(x)`
   - `x.hasOwnProperty('c')` (`false` here, `true` in big.js)
   - deep-equality helpers (e.g. lodash `isEqual`) comparing a fastdecimal instance against a big.js instance
-- Internal fields prefixed with `_` are implementation details and may change in any release.
+- Internal instance fields (`sign`, `coefficient`, `scale`) are implementation details and may change in any release.
+- **Intentional divergence — termination over faithfulness:** upstream big.js can hang forever (a non-converging Newton iteration) on `sqrt` when the result's exponent sits far below `-DP` (e.g. `Big.DP = 3; new Big('9.75e-19').sqrt()`). fastdecimal terminates with a capped estimate instead. Every input on which big.js terminates produces the identical result.
 
 **Before migrating**, check your codebase for instance spreads and `hasOwnProperty('c'|'e')` on Big values — if there are none (the overwhelmingly common case), swapping the import is all you need. Use `x.eq(y)` for value comparison and `x.toJSON()` / `x.toString()` for serialization; these work identically in both libraries.
 

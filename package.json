@@ -1,7 +1,7 @@
 {
   "name": "fastdecimal",
   "version": "0.1.0",
-  "description": "BigInt-powered drop-in replacement for big.js — faster on every operand size, smaller, 100% compatible with the original test suite",
+  "description": "BigInt-powered drop-in replacement for big.js with a tree-shakable functional core — dramatically faster arithmetic at every operand size, verified against big.js's own test suite",
   "license": "MIT",
   "repository": "github:jwgrsol/fastdecimal",
   "engines": {
@@ -26,7 +26,7 @@
     "build": "tsdown && node scripts/postbuild-cjs-dts.mjs",
     "check:exports": "yarn pack -o .pack-check.tgz && attw .pack-check.tgz && publint --pack yarn && rm -f .pack-check.tgz",
     "prepack": "yarn build",
-    "test": "node test/run-vendored.mjs && node test/core.mjs",
+    "test": "node test/run-vendored.mjs && node test/core.mjs && node test/differential.mjs",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
