@@ -1,0 +1,13 @@
+{
+  "name": "bench",
+  "private": true,
+  "description": "Benchmark workspace — competitor libraries and bench tooling live here, isolated from the published package's dependencies",
+  "scripts": {
+    "bench": "node run.mjs",
+    "report": "node report.mjs"
+  },
+  "dependencies": {
+    "big.js": "^7.0.1",
+    "tinybench": "^6.1.2"
+  }
+}
