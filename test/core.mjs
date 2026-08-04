@@ -80,6 +80,41 @@ eq('999 sd1 → 1000', str(D.roundToSd(p('999'), 1, 4)), '1000');
 eq('0.0001234 sd2', str(D.roundToSd(p('0.0001234'), 2, 4)), '0.00012');
 eq('sd on zero', str(D.roundToSd(p('0'), 3, 4)), '0');
 
+// ---- mod: modulo modes (bignumber MODULO_MODE semantics) ----
+eq('mod -7,3 DOWN (trunc, big.js)', str(D.mod(p('-7'), p('3'), 1)), '-1');
+eq('mod 7,3 DOWN', str(D.mod(p('7'), p('3'), 1)), '1');
+eq('mod -7,3 FLOOR (divisor sign)', str(D.mod(p('-7'), p('3'), 3)), '2');
+eq('mod 7,-3 FLOOR', str(D.mod(p('7'), p('-3'), 3)), '-2');
+eq('mod -7,3 EUCLID ≥ 0', str(D.mod(p('-7'), p('3'), 9)), '2');
+eq('mod 7,-3 EUCLID ≥ 0', str(D.mod(p('7'), p('-3'), 9)), '1');
+eq('mod -7,3 HALF_EVEN', str(D.mod(p('-7'), p('3'), 6)), '-1');
+eq('mod exact → +0', str(D.mod(p('6'), p('3'), 1)), '0');
+eq('mod 0,y keeps sign', D.mod(p('-0'), p('3'), 1).sign, -1);
+eq('mod x,0 = NaN', D.isNaN(D.mod(p('1'), p('0'), 1)), true);
+eq('mod ∞,y = NaN', D.isNaN(D.mod(D.infinity(1), p('3'), 1)), true);
+eq('mod x,∞ = x', str(D.mod(p('-7.5'), D.infinity(1), 1)), '-7.5');
+eq('mod fractional', str(D.mod(p('5.5'), p('1.2'), 1)), '0.7');
+
+// ---- powInt ----
+eq('2^10', str(D.powInt(p('2'), 10)), '1024');
+eq('(-2)^3', str(D.powInt(p('-2'), 3)), '-8');
+eq('(-2)^4', str(D.powInt(p('-2'), 4)), '16');
+eq('0^5 keeps sign rule', str(D.powInt(p('-0'), 5))[0], '-');
+eq('(0.5)^3', str(D.powInt(p('0.5'), 3)), '0.125');
+eq('∞^2', str(D.powInt(D.infinity(1), 2)), 'Infinity');
+eq('(−∞)^3', str(D.powInt(D.infinity(-1), 3)), '-Infinity');
+eq('NaN^2', D.isNaN(D.powInt(D.nan(), 2)), true);
+
+// ---- sqrtToDp ----
+eq('sqrt 2 dp20', str(D.sqrtToDp(p('2'), 20, 4)), '1.4142135623730950488');
+eq('sqrt 16', str(D.sqrtToDp(p('16'), 20, 4)), '4');
+// DP model: sqrt(1e-300) = 1e-150 is not representable within 20 decimal places → 0 (matches upstream big.js)
+eq('sqrt 1e-300 underflows to 0 at dp20', str(D.sqrtToDp(p('1e-300'), 20, 4)), '0');
+eq('sqrt 1e400 (float overflow estimate path)', str(D.sqrtToDp(p('1e400'), 20, 4)), '1e+200');
+eq('sqrt ±0', D.sqrtToDp(p('-0'), 20, 4).sign, -1);
+eq('sqrt negative = NaN', D.isNaN(D.sqrtToDp(p('-4'), 20, 4)), true);
+eq('sqrt +∞', str(D.sqrtToDp(D.infinity(1), 20, 4)), 'Infinity');
+
 // ---- cmp ----
 eq('cmp equal across scales', D.cmp(p('1.20'), p('1.2')), 0);
 eq('cmp -0 vs 0', D.cmp(p('-0'), p('0')), 0);

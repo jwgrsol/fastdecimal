@@ -16,6 +16,9 @@ import { add as coreAdd } from './core/add.ts';
 import { sub as coreSub } from './core/sub.ts';
 import { mul as coreMul } from './core/mul.ts';
 import { divToDp as coreDivToDp } from './core/divToDp.ts';
+import { mod as coreMod } from './core/mod.ts';
+import { powInt as corePowInt } from './core/powInt.ts';
+import { sqrtToDp as coreSqrtToDp } from './core/sqrtToDp.ts';
 import { cmp as coreCmp } from './core/cmp.ts';
 import { roundToDp as coreRoundToDp } from './core/roundToDp.ts';
 import { roundToSd as coreRoundToSd } from './core/roundToSd.ts';
@@ -209,78 +212,29 @@ bigPrototype.div = function (this: Big, y: BigSource): Big {
 };
 
 bigPrototype.mod = function (this: Big, y: BigSource): Big {
-  const Ctor = this.constructor;
   const other = toBig(this, y);
-  if (other.coef === 0n) throw Error(DIV_BY_ZERO);
-  if (this.coef === 0n) return makeBig(Ctor, this.sign, 0n, 0); // preserve ±0
-  const scaleDiff = this.scale - other.scale;
-  let xVal = this.sign < 0 ? -this.coef : this.coef;
-  let yVal = other.sign < 0 ? -other.coef : other.coef;
-  let scale = this.scale;
-  if (scaleDiff > 0) { xVal *= pow10(scaleDiff); scale = other.scale; }
-  else if (scaleDiff < 0) { yVal *= pow10(-scaleDiff); }
-  const quotient = xVal / yVal; // truncating division (same as big.js with DP=0/RM=0)
-  const remainder = xVal - quotient * yVal;
-  if (remainder === 0n) return makeBig(Ctor, 1, 0n, 0); // big.js computes this via minus, so the result is +0
-  const sign = remainder < 0n ? -1 : 1;
-  const coef = stripTrailingZeros(sign < 0 ? -remainder : remainder, scale);
-  return makeBig(Ctor, sign, coef, stripResult.scale);
+  if (other.coef === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return NaN
+  return fromDec(this.constructor, coreMod(this, other, 1)); // mode 1 = truncated division (big.js semantics)
 };
 
 bigPrototype.pow = function (this: Big, n: number): Big {
   if (n !== ~~n || n < -MAX_POWER || n > MAX_POWER) throw Error(INVALID + 'exponent');
   const Ctor = this.constructor;
-  if (n === 0) return new Ctor(1);
+  if (n === 0) return new Ctor(1); // big.js: x^0 = 1 unconditionally (facade policy)
   const isNegativeExp = n < 0;
-  if (isNegativeExp) n = -n;
-  const sign = this.sign < 0 && (n & 1) ? -1 : 1;
-  let result: Big;
-  if (this.coef === 0n) result = makeBig(Ctor, sign, 0n, 0);
-  else {
-    const coef = stripTrailingZeros(this.coef ** BigInt(n), this.scale * n);
-    result = makeBig(Ctor, sign, coef, stripResult.scale);
-  }
-  return isNegativeExp ? new Ctor(1).div(result) : result;
+  const result = fromDec(Ctor, corePowInt(this, isNegativeExp ? -n : n));
+  return isNegativeExp ? new Ctor(1).div(result) : result; // 1 ÷ x^n at the facade's DP/RM
 };
 
 bigPrototype.sqrt = function (this: Big): Big {
   const Ctor = this.constructor;
   if (this.coef === 0n) return makeBig(Ctor, this.sign, 0n, 0);
-  if (this.sign < 0) throw Error(NAME + 'No square root');
-  // Initial estimate via float sqrt (same strategy as big.js)
-  let estimate = Math.sqrt(Number(stringify(this, true)));
-  let result: Big;
-  if (estimate === 0 || estimate === Infinity) {
-    // Value out of float range: estimate from the digits and halve the exponent
-    let digits = digitsOf(this);
-    const exponent = exponentOf(this);
-    if (!((digits.length + exponent) & 1)) digits += '0';
-    estimate = Math.sqrt(Number(digits));
-    const halfExp = (((exponent + 1) / 2) | 0) - (exponent < 0 || exponent & 1 ? 1 : 0);
-    let mantissa: string;
-    if (estimate === Infinity) mantissa = '5e';
-    else {
-      const text = estimate.toExponential();
-      mantissa = text.slice(0, text.indexOf('e') + 1);
-    }
-    result = new Ctor(mantissa + halfExp);
-  } else {
-    result = new Ctor(String(estimate));
-  }
-  // Newton–Raphson at DP+4 guard digits, then round back to DP
-  const DP = Ctor.DP;
-  const cmpDigits = exponentOf(result) + (Ctor.DP = DP + 4);
-  const half = new Ctor('0.5');
-  let prev: Big;
-  try {
-    do {
-      prev = result;
-      result = half.times(prev.plus(this.div(prev)));
-    } while (digitsOf(prev).slice(0, cmpDigits) !== digitsOf(result).slice(0, cmpDigits));
-  } finally {
-    Ctor.DP = DP;
-  }
-  return fromDec(Ctor, coreRoundToSd(result, DP + exponentOf(result) + 1, TO_CORE_RM[Ctor.RM]));
+  if (this.sign < 0) throw Error(NAME + 'No square root'); // big.js throws; the core would return NaN
+  const dp = Ctor.DP;
+  if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP); // big.js validates via its inner div
+  const rm = Ctor.RM;
+  checkRM(rm);
+  return fromDec(Ctor, coreSqrtToDp(this, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.cmp = function (this: Big, y: BigSource): number {

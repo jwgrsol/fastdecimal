@@ -34,3 +34,11 @@ export interface Dec {
  * 8 HALF_FLOOR ties toward −Infinity
  */
 export type RoundingMode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+/**
+ * Modulo modes (bignumber.js MODULO_MODE): the quotient is rounded to an integer
+ * with the corresponding RoundingMode, and the remainder is x − y·q. Mode 9
+ * (EUCLID) always yields a non-negative remainder: q = sign(y) · floor(x ÷ |y|).
+ * big.js's mod is mode 1 (truncated division, remainder takes the dividend's sign).
+ */
+export type ModuloMode = RoundingMode | 9;
