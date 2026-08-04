@@ -14,10 +14,10 @@ export function roundUp(
   remainder: bigint,
   divisor: bigint,
   sign: number,
-  rm: RoundingMode,
+  roundingMode: RoundingMode,
 ): boolean {
   if (remainder === 0n) return false;
-  switch (rm) {
+  switch (roundingMode) {
     case 0: return true;                    // UP — away from zero
     case 1: return false;                   // DOWN — truncate
     case 2: return sign > 0;                // CEIL
@@ -27,7 +27,7 @@ export function roundUp(
   if (doubled > divisor) return true;
   if (doubled < divisor) return false;
   // exact tie
-  switch (rm) {
+  switch (roundingMode) {
     case 4: return true;                    // HALF_UP — ties away from zero
     case 5: return false;                   // HALF_DOWN — ties toward zero
     case 6: return (truncated & 1n) === 1n; // HALF_EVEN — ties to even

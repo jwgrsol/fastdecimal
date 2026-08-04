@@ -1,4 +1,4 @@
-import type { Dec, ModuloMode, RoundingMode } from './types.ts';
+import type { DecimalValue, ModuloMode, RoundingMode } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
@@ -12,18 +12,18 @@ import { nan, zero } from './make.ts';
  * Special values: NaN operand → NaN · ±∞ mod y = NaN · finite x mod ±∞ = x ·
  * x mod 0 = NaN · 0 mod y = ±0 (dividend's sign). An exact zero remainder is +0.
  */
-export function mod(x: Dec, y: Dec, mode: ModuloMode): Dec {
-  if (x.coef === null || y.coef === null) {
+export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): DecimalValue {
+  if (x.coefficient === null || y.coefficient === null) {
     if (x.sign === 0 || y.sign === 0) return nan();  // NaN operand
-    if (x.coef === null) return nan();               // ±∞ mod y
-    return { sign: x.sign, coef: x.coef, scale: x.scale }; // finite mod ±∞ = x
+    if (x.coefficient === null) return nan();               // ±∞ mod y
+    return { sign: x.sign, coefficient: x.coefficient, scale: x.scale }; // finite mod ±∞ = x
   }
-  if (y.coef === 0n) return nan();
-  if (x.coef === 0n) return zero(x.sign as 1 | -1);
+  if (y.coefficient === 0n) return nan();
+  if (x.coefficient === 0n) return zero(x.sign as 1 | -1);
 
   // Align both operands to a common scale so the division is over integers
   const scaleDiff = x.scale - y.scale;
-  let xMag = x.coef, yMag = y.coef, scale = x.scale;
+  let xMag = x.coefficient, yMag = y.coefficient, scale = x.scale;
   if (scaleDiff > 0) { xMag *= pow10(scaleDiff); scale = y.scale; }
   else if (scaleDiff < 0) { yMag *= pow10(-scaleDiff); }
 
@@ -45,6 +45,6 @@ export function mod(x: Dec, y: Dec, mode: ModuloMode): Dec {
   let sign: 1 | -1 = x.sign as 1 | -1;
   if (remainder === 0n) return zero(1);
   if (remainder < 0n) { remainder = -remainder; sign = -sign as 1 | -1; }
-  const coef = stripTrailingZeros(remainder, scale);
-  return { sign, coef, scale: stripResult.scale };
+  const coefficient = stripTrailingZeros(remainder, scale);
+  return { sign, coefficient, scale: stripResult.scale };
 }

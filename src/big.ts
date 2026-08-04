@@ -6,22 +6,22 @@
  * shared prototype), its global settings (DP/RM/NE/PE/strict), its rounding-mode
  * numbering, and its derived c/e properties. All arithmetic lives in src/core.
  *
- * Instances are structurally core Dec values: they carry {sign, coef, scale} as
+ * Instances are structurally core DecimalValue values: they carry {sign, coefficient, scale} as
  * own fields, so they flow into core functions with zero conversion cost. The
  * big.js public property `s` is a prototype accessor over `sign`.
  */
 
-import type { Dec, RoundingMode as CoreRoundingMode } from './core/types.ts';
+import type { DecimalValue, RoundingMode as CoreRoundingMode } from './core/types.ts';
 import { add as coreAdd } from './core/add.ts';
 import { sub as coreSub } from './core/sub.ts';
 import { mul as coreMul } from './core/mul.ts';
-import { divToDp as coreDivToDp } from './core/divToDp.ts';
+import { divToDecimalPlaces as coreDivToDecimalPlaces } from './core/divToDecimalPlaces.ts';
 import { mod as coreMod } from './core/mod.ts';
 import { powInt as corePowInt } from './core/powInt.ts';
-import { sqrtToDp as coreSqrtToDp } from './core/sqrtToDp.ts';
+import { sqrtToDecimalPlaces as coreSqrtToDecimalPlaces } from './core/sqrtToDecimalPlaces.ts';
 import { cmp as coreCmp } from './core/cmp.ts';
-import { roundToDp as coreRoundToDp } from './core/roundToDp.ts';
-import { roundToSd as coreRoundToSd } from './core/roundToSd.ts';
+import { roundToDecimalPlaces as coreRoundToDecimalPlaces } from './core/roundToDecimalPlaces.ts';
+import { roundToSignificantDigits as coreRoundToSignificantDigits } from './core/roundToSignificantDigits.ts';
 import { toString as coreToString } from './core/toString.ts';
 import { exponentOf } from './core/_internal/exponentOf.ts';
 import { pow10 } from './core/_internal/pow10.ts';
@@ -31,8 +31,8 @@ export type BigSource = number | string | bigint | Big;
 export type RoundingMode = 0 | 1 | 2 | 3;
 
 export interface Big {
-  sign: 1 | -1; // structurally a subset of core Dec's sign (the facade never holds NaN)
-  coef: bigint;
+  sign: 1 | -1; // structurally a subset of core DecimalValue's sign (the facade never holds NaN)
+  coefficient: bigint;
   scale: number;
   s: number;
   readonly c: number[];
@@ -141,11 +141,11 @@ function parseInto(x: Big, str: string): void {
     : str.slice(digitsStart, dotPos) + str.slice(dotPos + 1, mantissaEnd);
   let start = 0, end = digits.length;
   while (start < end && digits.charCodeAt(start) === 48) start++; // leading zeros
-  if (start === end) { x.sign = sign; x.coef = 0n; x.scale = 0; return; } // ±0
+  if (start === end) { x.sign = sign; x.coefficient = 0n; x.scale = 0; return; } // ±0
   let scale = exp - fracLen;
   while (digits.charCodeAt(end - 1) === 48) { end--; scale++; } // trailing zeros
   x.sign = sign;
-  x.coef = BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits);
+  x.coefficient = BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits);
   x.scale = scale;
 }
 
@@ -154,41 +154,41 @@ const bigPrototype: any = {};
 
 // Internal allocator: a real constructor call gives V8 a stable hidden class and a
 // preallocated shape, measurably faster than Object.create + per-property assignment
-const InternalBig: any = function (this: any, sign: number, coef: bigint, scale: number, Ctor: BigConstructor) {
-  this.sign = sign; this.coef = coef; this.scale = scale;
+const InternalBig: any = function (this: any, sign: number, coefficient: bigint, scale: number, Ctor: BigConstructor) {
+  this.sign = sign; this.coefficient = coefficient; this.scale = scale;
   this.constructor = Ctor;
 };
 InternalBig.prototype = bigPrototype;
 
-function makeBig(Ctor: BigConstructor, sign: number, coef: bigint, scale: number): Big {
-  return new InternalBig(sign, coef, scale, Ctor);
+function makeBig(Ctor: BigConstructor, sign: number, coefficient: bigint, scale: number): Big {
+  return new InternalBig(sign, coefficient, scale, Ctor);
 }
 /** Wrap a core result into a big.js instance. */
-function fromDec(Ctor: BigConstructor, d: Dec): Big {
-  return new InternalBig(d.sign, d.coef, d.scale, Ctor);
+function fromDec(Ctor: BigConstructor, d: DecimalValue): Big {
+  return new InternalBig(d.sign, d.coefficient, d.scale, Ctor);
 }
 function toBig(x: Big, y: BigSource): Big {
-  return y instanceof Object && 'coef' in (y as any) ? (y as Big) : new x.constructor(y as any);
+  return y instanceof Object && 'coefficient' in (y as any) ? (y as Big) : new x.constructor(y as any);
 }
 function checkRM(rm: unknown): asserts rm is RoundingMode {
   if (rm !== 0 && rm !== 1 && rm !== 2 && rm !== 3) throw Error(INVALID_RM);
 }
 
-function digitsOf(x: Big | Dec): string { return (x.coef as bigint).toString(); }
+function digitsOf(x: Big | DecimalValue): string { return (x.coefficient as bigint).toString(); }
 
 // big.js's stringify: exponential form outside (NE, PE); forceSign emits '-' even for -0
-function stringify(x: Big | Dec, forceSign: boolean): string {
+function stringify(x: Big | DecimalValue, forceSign: boolean): string {
   const Ctor = (x as Big).constructor;
-  return coreToString(x as Dec, Ctor.NE, Ctor.PE, forceSign);
+  return coreToString(x as DecimalValue, Ctor.NE, Ctor.PE, forceSign);
 }
 
 // ---- instance methods ----
 
 bigPrototype.abs = function (this: Big): Big {
-  return makeBig(this.constructor, 1, this.coef, this.scale);
+  return makeBig(this.constructor, 1, this.coefficient, this.scale);
 };
 bigPrototype.neg = function (this: Big): Big {
-  return makeBig(this.constructor, -this.sign, this.coef, this.scale);
+  return makeBig(this.constructor, -this.sign, this.coefficient, this.scale);
 };
 
 bigPrototype.plus = bigPrototype.add = function (this: Big, y: BigSource): Big {
@@ -205,15 +205,15 @@ bigPrototype.div = function (this: Big, y: BigSource): Big {
   const Ctor = this.constructor, dp = Ctor.DP;
   if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
   const other = toBig(this, y);
-  if (other.coef === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return ±∞
+  if (other.coefficient === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return ±∞
   const rm = Ctor.RM;
   checkRM(rm);
-  return fromDec(Ctor, coreDivToDp(this, other, dp, TO_CORE_RM[rm]));
+  return fromDec(Ctor, coreDivToDecimalPlaces(this, other, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.mod = function (this: Big, y: BigSource): Big {
   const other = toBig(this, y);
-  if (other.coef === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return NaN
+  if (other.coefficient === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return NaN
   return fromDec(this.constructor, coreMod(this, other, 1)); // mode 1 = truncated division (big.js semantics)
 };
 
@@ -228,13 +228,13 @@ bigPrototype.pow = function (this: Big, n: number): Big {
 
 bigPrototype.sqrt = function (this: Big): Big {
   const Ctor = this.constructor;
-  if (this.coef === 0n) return makeBig(Ctor, this.sign, 0n, 0);
+  if (this.coefficient === 0n) return makeBig(Ctor, this.sign, 0n, 0);
   if (this.sign < 0) throw Error(NAME + 'No square root'); // big.js throws; the core would return NaN
   const dp = Ctor.DP;
   if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP); // big.js validates via its inner div
   const rm = Ctor.RM;
   checkRM(rm);
-  return fromDec(Ctor, coreSqrtToDp(this, dp, TO_CORE_RM[rm]));
+  return fromDec(Ctor, coreSqrtToDecimalPlaces(this, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.cmp = function (this: Big, y: BigSource): number {
@@ -251,29 +251,29 @@ bigPrototype.round = function (this: Big, dp?: number, rm?: RoundingMode): Big {
   else if (dp !== ~~dp || dp < -MAX_DP || dp > MAX_DP) throw Error(INVALID_DP);
   if (rm === undefined) rm = this.constructor.RM;
   checkRM(rm);
-  return fromDec(this.constructor, coreRoundToDp(this, dp, TO_CORE_RM[rm]));
+  return fromDec(this.constructor, coreRoundToDecimalPlaces(this, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.prec = function (this: Big, sd: number, rm?: RoundingMode): Big {
   if (sd !== ~~sd || sd < 1 || sd > MAX_DP) throw Error(INVALID + 'precision');
   if (rm === undefined) rm = this.constructor.RM;
   checkRM(rm);
-  return fromDec(this.constructor, coreRoundToSd(this, sd, TO_CORE_RM[rm]));
+  return fromDec(this.constructor, coreRoundToSignificantDigits(this, sd, TO_CORE_RM[rm]));
 };
 
 bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode): string {
-  const wasNonzero = this.coef !== 0n; // big.js decides the sign from the pre-rounding original
-  let x: Big | Dec = this, pad = 0;
+  const wasNonzero = this.coefficient !== 0n; // big.js decides the sign from the pre-rounding original
+  let x: Big | DecimalValue = this, pad = 0;
   if (dp !== undefined) {
     if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
     if (rm === undefined) rm = this.constructor.RM;
     checkRM(rm);
-    x = coreRoundToSd(this, dp + 1, TO_CORE_RM[rm]);
+    x = coreRoundToSignificantDigits(this, dp + 1, TO_CORE_RM[rm]);
     pad = dp + 1;
   }
   let digits = digitsOf(x);
   if (pad > digits.length) digits = digits.padEnd(pad, '0');
-  const exponent = x.coef === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
+  const exponent = x.coefficient === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
   const body = digits[0]
     + (digits.length > 1 ? '.' + digits.slice(1) : '')
     + (exponent < 0 ? 'e' : 'e+') + exponent;
@@ -281,18 +281,18 @@ bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode
 };
 
 bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): string {
-  const wasNonzero = this.coef !== 0n; // big.js decides the sign from the pre-rounding original
-  let x: Big | Dec = this;
+  const wasNonzero = this.coefficient !== 0n; // big.js decides the sign from the pre-rounding original
+  let x: Big | DecimalValue = this;
   if (dp !== undefined) {
     if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
     if (rm === undefined) rm = this.constructor.RM;
     checkRM(rm);
-    x = coreRoundToDp(this, dp, TO_CORE_RM[rm]);
+    x = coreRoundToDecimalPlaces(this, dp, TO_CORE_RM[rm]);
   } else dp = Math.max(0, -x.scale);
   // exactly dp digits after the decimal point, never exponential notation
-  let coef = x.coef as bigint, scale = x.scale;
-  if (scale > -dp) { coef *= pow10(scale + dp); scale = -dp; } // align digits (rounding guarantees scale >= -dp)
-  const digits = coef.toString();
+  let coefficient = x.coefficient as bigint, scale = x.scale;
+  if (scale > -dp) { coefficient *= pow10(scale + dp); scale = -dp; } // align digits (rounding guarantees scale >= -dp)
+  const digits = coefficient.toString();
   let body: string;
   if (dp === 0) body = digits + (scale > 0 ? '0'.repeat(scale) : '');
   else {
@@ -305,14 +305,14 @@ bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): str
 bigPrototype.toPrecision = function (this: Big, sd?: number, rm?: RoundingMode): string {
   if (sd === undefined) return this.toString();
   const Ctor = this.constructor;
-  const wasNonzero = this.coef !== 0n;
+  const wasNonzero = this.coefficient !== 0n;
   if (sd !== ~~sd || sd < 1 || sd > MAX_DP) throw Error(INVALID + 'precision');
   if (rm === undefined) rm = Ctor.RM;
   checkRM(rm);
-  const x = coreRoundToSd(this, sd, TO_CORE_RM[rm]);
+  const x = coreRoundToSignificantDigits(this, sd, TO_CORE_RM[rm]);
   let digits = digitsOf(x);
   if (sd > digits.length) digits = digits.padEnd(sd, '0');
-  const exponent = x.coef === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
+  const exponent = x.coefficient === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
   let body: string;
   if (sd <= exponent || exponent <= Ctor.NE || exponent >= Ctor.PE) {
     body = digits[0]
@@ -361,18 +361,18 @@ Object.defineProperty(bigPrototype, 'c', {
     return result;
   },
   set(this: Big, value: number[]): void {
-    const exponent = this.coef === 0n ? 0 : exponentOf(this);
+    const exponent = this.coefficient === 0n ? 0 : exponentOf(this);
     const digits = value.join('');
-    const coef = BigInt(digits);
-    if (coef === 0n) { this.coef = 0n; this.scale = 0; return; }
-    this.coef = stripTrailingZeros(coef, exponent - (digits.length - 1));
+    const coefficient = BigInt(digits);
+    if (coefficient === 0n) { this.coefficient = 0n; this.scale = 0; return; }
+    this.coefficient = stripTrailingZeros(coefficient, exponent - (digits.length - 1));
     this.scale = stripResult.scale;
   },
 });
 Object.defineProperty(bigPrototype, 'e', {
-  get(this: Big): number { return this.coef === 0n ? 0 : exponentOf(this); },
+  get(this: Big): number { return this.coefficient === 0n ? 0 : exponentOf(this); },
   set(this: Big, exponent: number): void {
-    if (this.coef !== 0n) this.scale = exponent - (digitsOf(this).length - 1);
+    if (this.coefficient !== 0n) this.scale = exponent - (digitsOf(this).length - 1);
   },
 });
 
@@ -382,9 +382,9 @@ function createBig(): BigConstructor {
     if (!(this instanceof Big)) {
       return value === undefined && arguments.length === 0 ? createBig() : new (Big as any)(value);
     }
-    if (value instanceof Object && 'coef' in (value as any)) {
+    if (value instanceof Object && 'coefficient' in (value as any)) {
       const other = value as Big;
-      this.sign = other.sign; this.coef = other.coef; this.scale = other.scale;
+      this.sign = other.sign; this.coefficient = other.coefficient; this.scale = other.scale;
     } else {
       if (typeof value !== 'string') {
         // strict mode accepts strings, bigints, and Big instances — exactly like big.js (big.js:103)

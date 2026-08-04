@@ -17,18 +17,18 @@
 ## 1. 값 표현 (Representation)
 
 ```ts
-interface Dec {
+interface DecimalValue {
   sign: 1 | -1 | 0;      // 0은 NaN 전용 (bignumber.js의 s === null에 대응)
-  coef: bigint | null;   // 유한수: 음이 아닌 계수 / null: special 값 (NaN, ±Infinity)
-  scale: number;         // 최하위 자리의 10진 지수 — 값 = sign × coef × 10^scale
+  coefficient: bigint | null;   // 유한수: 음이 아닌 계수 / null: special 값 (NaN, ±Infinity)
+  scale: number;         // 최하위 자리의 10진 지수 — 값 = sign × coefficient × 10^scale
 }
 ```
 
-- **정규형(불변식)**: 유한수에서 `coef === 0n`이면 `scale === 0`, 아니면 `coef % 10n !== 0n`
+- **정규형(불변식)**: 유한수에서 `coefficient === 0n`이면 `scale === 0`, 아니면 `coefficient % 10n !== 0n`
   (끝자리 0은 scale로 흡수). 같은 수학적 값은 항상 같은 표현을 가진다.
 - **special 값 인코딩** (bignumber/decimal의 `c === null`/`d === null` 관례를 따름):
 
-  | 값 | sign | coef | scale |
+  | 값 | sign | coefficient | scale |
   |---|---|---|---|
   | NaN | 0 | null | 0 |
   | +Infinity | 1 | null | 0 |
@@ -51,17 +51,17 @@ interface Dec {
 
 ```ts
 // 소수 자릿수(DP) 모델 — big.js, bignumber.js 파사드가 사용
-divToDp(x: Dec, y: Dec, dp: number, rm: RoundingMode): Dec
-roundToDp(x: Dec, dp: number, rm: RoundingMode): Dec
+divToDecimalPlaces(x: DecimalValue, y: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue
+roundToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue
 
 // 유효숫자(SD) 모델 — decimal.js 파사드가 사용
-divToSd(x: Dec, y: Dec, sd: number, rm: RoundingMode): Dec
-roundToSd(x: Dec, sd: number, rm: RoundingMode): Dec
+divToSignificantDigits(x: DecimalValue, y: DecimalValue, significantDigits: number, roundingMode: RoundingMode): DecimalValue
+roundToSignificantDigits(x: DecimalValue, significantDigits: number, roundingMode: RoundingMode): DecimalValue
 ```
 
 - 정확한 연산(add, sub, mul, cmp, abs, neg)은 정밀도 인자를 받지 않는다 — 항상 정확한 결과.
   (decimal.js는 add/mul에도 precision을 적용하므로, decimal 파사드는 정확 연산 후
-  `roundToSd`를 합성한다. 합성 경로의 성능이 문제로 측정되면 융합 변형을 그때 추가한다.)
+  `roundToSignificantDigits`를 합성한다. 합성 경로의 성능이 문제로 측정되면 융합 변형을 그때 추가한다.)
 - sqrt, pow(음수 지수) 등 본질적으로 라운딩이 필요한 연산은 정밀도 인자가 필수다.
 
 ## 3. 라운딩 모드 (Rounding)
@@ -82,7 +82,7 @@ big.js의 0–3은 다른 체계이므로 big 파사드가 매핑한다.
 | 8 ROUND_HALF_FLOOR | 반은 −∞ 방향 | — |
 
 - **코어의 라운딩 프리미티브는 부호를 인지해야 한다.** CEIL/FLOOR 계열(2,3,7,8)은 값의
-  부호에 따라 방향이 달라진다. (현 big.ts의 `applyRound`는 크기만 받는 구조라 v1에서 재설계.)
+  부호에 따라 방향이 달라진다. (`core/_internal/roundUp.ts`가 이 계약의 구현.)
 - **나머지 연산 모드**: bignumber의 MODULO_MODE 0–9 (위 표의 0–8 + `9 EUCLID`)를
   `mod(x, y, mode)`의 인자로 받는다.
 
@@ -106,12 +106,13 @@ big.js의 0–3은 다른 체계이므로 big 파사드가 매핑한다.
 
 ## 6. 파사드 경계 규칙
 
-- **변환 비용 0 원칙**: 파사드 인스턴스는 코어 표현을 그대로 필드로 보유한다
-  (현 big.ts의 `s`/`_coef`/`_scale`이 이미 이 구조). wrap은 프로토타입 부착뿐이다.
+- **변환 비용 0 원칙**: 파사드 인스턴스는 코어 표현(`sign`/`coefficient`/`scale`)을 그대로
+  own 필드로 보유해 구조적으로 DecimalValue 그 자체다. wrap은 프로토타입 부착뿐이다.
+  (레거시 공개 속성 — big.js의 `s` 등 — 은 프로토타입 접근자로 제공한다.)
 - 레거시 파생 속성(big의 `c`/`e`, bignumber의 base-1e14 `c`, decimal의 base-1e7 `d`)은
   파사드의 getter/setter로 lazy 파생한다. 코어는 이들을 모른다.
 - 함수형 코어 사용자와 파사드 사용자가 한 코드베이스에서 공존할 수 있도록,
-  파사드 인스턴스 ↔ `Dec` 변환 헬퍼를 각 파사드가 제공한다.
+  파사드 인스턴스 ↔ `DecimalValue` 변환 헬퍼를 각 파사드가 제공한다.
 
 ## 7. 모듈 구조와 이름
 
@@ -119,13 +120,13 @@ big.js의 0–3은 다른 체계이므로 big 파사드가 매핑한다.
 src/
   core/            # 함수형 코어 — 이 문서의 계약을 구현
     _internal/     # export 맵에 노출되지 않는 내부 헬퍼 (pow10, strip 등)
-    add.ts, mul.ts, divToDp.ts, ...   # 함수 하나 = 파일 하나 (es-toolkit 방식)
+    add.ts, mul.ts, divToDecimalPlaces.ts, ...   # 함수 하나 = 파일 하나 (es-toolkit 방식)
   big.ts           # big.js 파사드 (v1.0)
   bignumber.ts     # bignumber.js 파사드 (v1.x)
   decimal.ts       # decimal.js 파사드 (v2) — 초월함수는 별도 모듈로 분리
 ```
 
-- 이름은 서술적으로: `sign`/`coef`/`scale`, `stripTrailingZeros` 등. 축약 금지.
+- 이름은 서술적으로: `sign`/`coefficient`/`scale`, `stripTrailingZeros` 등. 축약 금지.
 - 코어의 plain 객체 필드에는 밑줄을 붙이지 않는다 (공개 데이터 구조).
   밑줄 필드는 상태를 가진 파사드 인스턴스의 내부 저장에만 쓴다.
 - 초월함수(ln/exp/trig, v2)는 decimal 파사드만 import하는 분리 모듈로 두어
@@ -148,7 +149,7 @@ src/
 
 - **인스턴스 own-property 모양 재현은 non-goal이다** (README 호환성 섹션 참조).
 - **Number 고속 경로 (예약, v1.x)**: 계수가 2^53 미만(≤15자리)일 때 BigInt를 우회하는
-  Java `intCompact`식 이중 경로. 표현 계약은 이를 막지 않도록 유지하되(coef는 항상 bigint,
+  Java `intCompact`식 이중 경로. 표현 계약은 이를 막지 않도록 유지하되(coefficient는 항상 bigint,
   고속 경로는 연산 내부 구현 세부사항으로만 존재), 구현은 아키텍처 전환과 분리해
   v1.x에서 벤치마크와 함께 진행한다.
 - **round의 표현 기인 열세는 수용한다**: DP 라운딩은 BigInt 나눗셈 1회가 하한이다.
@@ -161,7 +162,7 @@ src/
 | 결정 | 선택 | 근거 |
 |---|---|---|
 | 계수 표현 | 이진 BigInt (십진 림 아님) | JS 루프로는 네이티브 BigInt를 못 이김 — 십진 림 방식(libmpdec/bignumber)은 JS에서는 경쟁 상대이지 선택지가 아님 |
-| special 인코딩 | `coef: null` + `sign: 0`(NaN) | bignumber/decimal 관례와 정합, 3필드 shape 유지 |
+| special 인코딩 | `coefficient: null` + `sign: 0`(NaN) | bignumber/decimal 관례와 정합, 3필드 shape 유지 |
 | 정밀도 전달 | 연산 인자 (Java 모델) | 전역 컨텍스트(Python 모델)는 파사드에서 재현 가능, 역방향은 불가 |
 | dp/sd 분리 | 별도 함수 진입점 | 단형성, tree-shaking, 파사드별 필요 함수만 번들 |
 | 라운딩 번호 | bignumber/decimal의 0–8 + EUCLID 9 | 두 라이브러리가 이미 공유하는 체계, big.js만 매핑 필요 |

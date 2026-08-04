@@ -1,17 +1,17 @@
-import type { Dec } from './types.ts';
+import type { DecimalValue } from './types.ts';
 
-export function isFinite(x: Dec): boolean {
-  return x.coef !== null;
+export function isFinite(x: DecimalValue): boolean {
+  return x.coefficient !== null;
 }
 
-export function isNaN(x: Dec): boolean {
-  return x.coef === null && x.sign === 0;
+export function isNaN(x: DecimalValue): boolean {
+  return x.coefficient === null && x.sign === 0;
 }
 
-export function isInfinite(x: Dec): boolean {
-  return x.coef === null && x.sign !== 0;
+export function isInfinite(x: DecimalValue): boolean {
+  return x.coefficient === null && x.sign !== 0;
 }
 
-export function isZero(x: Dec): boolean {
-  return x.coef === 0n;
+export function isZero(x: DecimalValue): boolean {
+  return x.coefficient === 0n;
 }
