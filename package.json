@@ -12,11 +12,14 @@
   "jsdelivr": "./dist/browser.global.js",
   "unpkg": "./dist/browser.global.js",
   "exports": {
-    ".": "./src/big.ts",
+    ".": "./src/core/index.ts",
+    "./big": "./src/big.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "big.js",
+    "big.d.ts"
   ],
   "scripts": {
     "bench": "node bench/run.mjs",
@@ -46,11 +49,21 @@
   },
   "publishConfig": {
     "access": "public",
-    "main": "./dist/big.js",
-    "module": "./dist/big.mjs",
-    "types": "./dist/big.d.ts",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
     "exports": {
       ".": {
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        },
+        "require": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      },
+      "./big": {
         "import": {
           "types": "./dist/big.d.mts",
           "default": "./dist/big.mjs"

@@ -26,6 +26,20 @@ export default defineConfig([
     },
   },
   {
+    // Functional core — plain named exports, so no CJS module.exports interop needed
+    entry: { index: './src/core/index.ts' },
+    format: ['esm', 'cjs'],
+    outDir: 'dist',
+    platform: 'neutral',
+    fixedExtension: false,
+    dts: true,
+    sourcemap: false,
+    clean: false, // the first config already cleaned dist
+    exports: false,
+    attw: false,
+    publint: false,
+  },
+  {
     entry: { 'browser.global': './src/big.ts' },
     format: 'umd',
     outDir: 'dist',

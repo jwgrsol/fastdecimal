@@ -5,9 +5,17 @@
 BigInt 기반의 [big.js](https://github.com/MikeMcl/big.js) drop-in 대체 라이브러리 — 모든 크기의 피연산자에서 더 빠르고, 더 작으며, big.js 자체 테스트 스위트로 검증되었습니다.
 
 ```js
-import Big from 'fastdecimal';
+// big.js drop-in 대체 — import만 바꾸면 기존 코드 그대로
+import Big from 'fastdecimal/big';
 
 new Big('0.1').plus('0.2').toString(); // '0.3'
+```
+
+```js
+// 새 코드를 위한 함수형 코어 — tree-shaking 지원, import한 함수만 번들에 포함
+import { parse, add, toString } from 'fastdecimal';
+
+toString(add(parse('0.1'), parse('0.2'))); // '0.3'
 ```
 
 ## 호환성

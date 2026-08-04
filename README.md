@@ -5,9 +5,17 @@ English | [한국어](./README.ko.md)
 BigInt-powered drop-in replacement for [big.js](https://github.com/MikeMcl/big.js) — faster on every operand size, smaller, and verified against big.js's own test suite.
 
 ```js
-import Big from 'fastdecimal';
+// Drop-in replacement for big.js — swap the import, keep your code
+import Big from 'fastdecimal/big';
 
 new Big('0.1').plus('0.2').toString(); // '0.3'
+```
+
+```js
+// Functional core for new code — tree-shakable, only what you import is bundled
+import { parse, add, toString } from 'fastdecimal';
+
+toString(add(parse('0.1'), parse('0.2'))); // '0.3'
 ```
 
 ## Compatibility
