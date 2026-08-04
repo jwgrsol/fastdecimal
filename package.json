@@ -23,7 +23,7 @@
     "build": "tsdown && node scripts/postbuild-cjs-dts.mjs",
     "check:exports": "yarn pack -o .pack-check.tgz && attw .pack-check.tgz && publint --pack yarn && rm -f .pack-check.tgz",
     "prepack": "yarn build",
-    "test": "node test/run-vendored.mjs",
+    "test": "node test/run-vendored.mjs && node test/core.mjs",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
