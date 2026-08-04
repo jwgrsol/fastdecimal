@@ -2,7 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-BigInt-powered drop-in replacement for [big.js](https://github.com/MikeMcl/big.js) — faster on every operand size, smaller, and verified against big.js's own test suite.
+BigInt-powered drop-in replacement for [big.js](https://github.com/MikeMcl/big.js) — dramatically faster arithmetic at every operand size, with a tree-shakable functional core, verified against big.js's own test suite.
 
 ```js
 // Drop-in replacement for big.js — swap the import, keep your code
@@ -89,7 +89,7 @@ fastdecimal aims for **100% behavioral compatibility** with big.js: same API, sa
 
 ## Benchmarks
 
-Run `yarn bench` to reproduce the full operation × operand-size matrix against big.js on your machine; results are written to [bench/RESULTS.md](./bench/RESULTS.md). Highlights (Node 24, 500-digit operands): `times` ~870×, `pow` ~1800×, `div` ~440×, `sqrt` ~156× faster. Known trade-off: `round` on operands above ~20 digits runs at 0.4–0.8× of big.js — truncation is nearly free on its digit-array representation, while the BigInt representation must pay for a real division. Every other measured operation is faster, and `round` still exceeds a million calls per second at every size.
+Run `yarn bench` to reproduce the full operation × operand-size matrix against big.js on your machine; results are written to [bench/RESULTS.md](./bench/RESULTS.md). The matrix measures three ways — upstream big.js, the functional core called directly, and the facade — so the wrapper's overhead is always visible. `node bench/bundle-size.mjs` measures real bundled sizes: importing a single core function is ~0.5 KB gzipped, the full core ~2.3 KB (smaller than big.js's ~2.9 KB), while the all-or-nothing `fastdecimal/big` facade is ~3.6 KB — larger than big.js itself, the documented price of the translation layer. Highlights (Node 24, 500-digit operands): `times` ~870×, `pow` ~1800×, `div` ~440×, `sqrt` ~156× faster. Known trade-off: `round` on operands above ~20 digits runs at 0.4–0.8× of big.js — truncation is nearly free on its digit-array representation, while the BigInt representation must pay for a real division. Every other measured operation is faster, and `round` still exceeds a million calls per second at every size.
 
 ## License
 
