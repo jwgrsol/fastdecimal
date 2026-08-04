@@ -18,6 +18,7 @@ import { dirname, join } from 'node:path';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import FastBig from '../src/big.ts';
+import * as core from '../src/core/index.ts';
 
 const require = createRequire(import.meta.url);
 const OrigBig = require('big.js');
@@ -51,19 +52,22 @@ const SIZES = {
 };
 
 // Each op: (Ctor, a, b) → value. `parse` receives strings; the rest receive instances.
+// `core` is the same operation through the functional core directly (operands are
+// pre-parsed DecimalValues) — its gap vs the facade IS the facade's wrap overhead.
+// big.js defaults DP=20/RM=1 map to core (decimalPlaces 20, roundingMode 4 HALF_UP).
 const OPS = {
-  parse: { fn: (B, s) => new B(s), input: 'string' },
-  plus: { fn: (_, a, b) => a.plus(b) },
-  minus: { fn: (_, a, b) => a.minus(b) },
-  times: { fn: (_, a, b) => a.times(b) },
-  div: { fn: (_, a, b) => a.div(b) },       // DP=20, RM=1 (both libraries' defaults)
-  mod: { fn: (_, a, b) => a.mod(b) },
-  pow: { fn: (_, a) => a.pow(8) },
-  sqrt: { fn: (_, a) => a.sqrt() },
-  cmp: { fn: (_, a, b) => a.cmp(b) },
-  round: { fn: (_, a) => a.round(5) },
-  toString: { fn: (_, a) => a.toString() },
-  toFixed: { fn: (_, a) => a.toFixed(5) },
+  parse: { fn: (B, s) => new B(s), core: (s) => core.parse(s), input: 'string' },
+  plus: { fn: (_, a, b) => a.plus(b), core: (a, b) => core.add(a, b) },
+  minus: { fn: (_, a, b) => a.minus(b), core: (a, b) => core.sub(a, b) },
+  times: { fn: (_, a, b) => a.times(b), core: (a, b) => core.mul(a, b) },
+  div: { fn: (_, a, b) => a.div(b), core: (a, b) => core.divToDecimalPlaces(a, b, 20, 4) },
+  mod: { fn: (_, a, b) => a.mod(b), core: (a, b) => core.mod(a, b, 1) },
+  pow: { fn: (_, a) => a.pow(8), core: (a) => core.powInt(a, 8) },
+  sqrt: { fn: (_, a) => a.sqrt(), core: (a) => core.sqrtToDecimalPlaces(a, 20, 4) },
+  cmp: { fn: (_, a, b) => a.cmp(b), core: (a, b) => core.cmp(a, b) },
+  round: { fn: (_, a) => a.round(5), core: (a) => core.roundToDecimalPlaces(a, 5, 4) },
+  toString: { fn: (_, a) => a.toString(), core: (a) => core.toString(a, -7, 21, false) },
+  toFixed: { fn: (_, a) => a.toFixed(5) }, // formatting is facade-only — no core case
 };
 
 // ---- CLI args ----
@@ -107,6 +111,20 @@ for (const sizeName of sizeFilter) {
         },
       });
     }
+    if (op.core) {
+      const pairs = op.input === 'string'
+        ? stringPairs
+        : stringPairs.map(([a, b]) => [core.parse(a), core.parse(b)]);
+      let i = 0;
+      cases.push({
+        name: `${opName} · ${sizeName} · core`,
+        opName, sizeName, libName: 'core',
+        run: () => {
+          const p = pairs[i = (i + 1) & (PAIRS - 1)];
+          sink = op.core(p[0], p[1]);
+        },
+      });
+    }
   }
 }
 
@@ -135,14 +153,18 @@ for (let i = 0; i < cases.length; i++) {
 
 // ---- report ----
 const fmt = (n) => (Number.isFinite(n) ? Math.round(n).toLocaleString('en-US') : 'n/a');
+const fmtRatio = (n) => (Number.isFinite(n) ? `${n.toFixed(2)}×` : 'n/a');
 const rows = [...byCase.values()].map((r) => ({
   ...r,
   ratio: r['fastdecimal'] / r['big.js'],
+  // facade throughput ÷ core throughput — the cost of the big.js wrapper (1.00 = free)
+  facadeOverhead: r['core'] ? r['fastdecimal'] / r['core'] : NaN,
 }));
 
-const header = ['operation', 'size', 'big.js (ops/s)', 'fastdecimal (ops/s)', 'speedup'];
+const header = ['operation', 'size', 'big.js (ops/s)', 'core (ops/s)', 'facade (ops/s)', 'speedup', 'facade/core'];
 const table = [header, ...rows.map((r) => [
-  r.opName, r.sizeName, fmt(r['big.js']), fmt(r['fastdecimal']), `${r.ratio.toFixed(2)}×`,
+  r.opName, r.sizeName, fmt(r['big.js']), fmt(r['core']), fmt(r['fastdecimal']),
+  fmtRatio(r.ratio), fmtRatio(r.facadeOverhead),
 ])];
 const widths = header.map((_, i) => Math.max(...table.map((row) => String(row[i]).length)));
 for (const row of table) {
@@ -179,7 +201,7 @@ if (!quick && !pick('op') && !pick('size')) {
     '',
     `| ${header.join(' | ')} |`,
     `| ${header.map(() => '---').join(' | ')} |`,
-    ...rows.map((r) => `| ${r.opName} | ${r.sizeName} | ${fmt(r['big.js'])} | ${fmt(r['fastdecimal'])} | ${r.ratio.toFixed(2)}× |`),
+    ...rows.map((r) => `| ${r.opName} | ${r.sizeName} | ${fmt(r['big.js'])} | ${fmt(r['core'])} | ${fmt(r['fastdecimal'])} | ${fmtRatio(r.ratio)} | ${fmtRatio(r.facadeOverhead)} |`),
     '',
   ].join('\n');
   const out = join(dirname(fileURLToPath(import.meta.url)), 'RESULTS.md');

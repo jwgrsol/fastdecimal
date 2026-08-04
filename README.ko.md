@@ -2,7 +2,7 @@
 
 [English](./README.md) | 한국어
 
-BigInt 기반의 [big.js](https://github.com/MikeMcl/big.js) drop-in 대체 라이브러리 — 모든 크기의 피연산자에서 더 빠르고, 더 작으며, big.js 자체 테스트 스위트로 검증되었습니다.
+BigInt 기반의 [big.js](https://github.com/MikeMcl/big.js) drop-in 대체 라이브러리 — 모든 크기의 피연산자에서 산술이 극적으로 빠르고, tree-shaking 가능한 함수형 코어를 갖추었으며, big.js 자체 테스트 스위트로 검증되었습니다.
 
 ```js
 // big.js drop-in 대체 — import만 바꾸면 기존 코드 그대로
@@ -83,7 +83,7 @@ fastdecimal의 목표는 big.js와의 **100% 동작 호환**입니다: 같은 AP
 
 ## 벤치마크
 
-`yarn bench`로 big.js 대비 전체 연산 × 피연산자 크기 매트릭스를 직접 재현할 수 있고, 결과는 [bench/RESULTS.md](./bench/RESULTS.md)에 기록됩니다. 하이라이트(Node 24, 500자리 피연산자): `times` 약 870×, `pow` 약 1800×, `div` 약 440×, `sqrt` 약 156× 빠름. 알려진 트레이드오프: 약 20자리를 넘는 피연산자의 `round`는 big.js의 0.4~0.8× 수준입니다 — digit array 표현에서는 절단이 거의 공짜인 반면, BigInt 표현은 실제 나눗셈이 필요하기 때문입니다. 그 외 측정된 모든 연산은 더 빠르며, `round`도 모든 크기에서 초당 100만 회 이상입니다.
+`yarn bench`로 big.js 대비 전체 연산 × 피연산자 크기 매트릭스를 직접 재현할 수 있고, 결과는 [bench/RESULTS.md](./bench/RESULTS.md)에 기록됩니다. 매트릭스는 3방향 — 원본 big.js, 함수형 코어 직접 호출, 파사드 — 으로 측정해 래퍼의 오버헤드가 항상 드러납니다. `node bench/bundle-size.mjs`는 실제 번들 크기를 측정합니다: 코어 함수 하나만 import하면 gzip 약 0.5 KB, 코어 전체 약 2.3 KB(big.js의 약 2.9 KB보다 작음), 반면 all-or-nothing인 `fastdecimal/big` 파사드는 약 3.6 KB로 big.js보다 큽니다 — 번역 계층의 문서화된 대가입니다. 하이라이트(Node 24, 500자리 피연산자): `times` 약 870×, `pow` 약 1800×, `div` 약 440×, `sqrt` 약 156× 빠름. 알려진 트레이드오프: 약 20자리를 넘는 피연산자의 `round`는 big.js의 0.4~0.8× 수준입니다 — digit array 표현에서는 절단이 거의 공짜인 반면, BigInt 표현은 실제 나눗셈이 필요하기 때문입니다. 그 외 측정된 모든 연산은 더 빠르며, `round`도 모든 크기에서 초당 100만 회 이상입니다.
 
 ## 라이선스
 

@@ -15,338 +15,430 @@
     {
       "opName": "parse",
       "sizeName": "small",
-      "big.js": 5318882.340565249,
-      "fastdecimal": 7165024.999996706,
-      "ratio": 1.347092216225874
+      "big.js": 2731732.2682590736,
+      "fastdecimal": 5185379.81462955,
+      "core": 6252249.999992834,
+      "ratio": 1.8982020584082275,
+      "facadeOverhead": 0.829362199949697
     },
     {
       "opName": "plus",
       "sizeName": "small",
-      "big.js": 6727176.6364366105,
-      "fastdecimal": 9538669.999937644,
-      "ratio": 1.417930658795706
+      "big.js": 5638729.361305226,
+      "fastdecimal": 8431543.136901693,
+      "core": 9295610.352197975,
+      "ratio": 1.4952913319021222,
+      "facadeOverhead": 0.9070456718216496
     },
     {
       "opName": "minus",
       "sizeName": "small",
-      "big.js": 7999681.0001697745,
-      "fastdecimal": 6949646.525150462,
-      "ratio": 0.8687404566510805
+      "big.js": 6519317.265943818,
+      "fastdecimal": 6205088.794913582,
+      "core": 7203109.999934878,
+      "ratio": 0.9518004020648404,
+      "facadeOverhead": 0.8614457914664194
     },
     {
       "opName": "times",
       "sizeName": "small",
-      "big.js": 4316027.841978913,
-      "fastdecimal": 7229654.999986736,
-      "ratio": 1.6750714464047376
+      "big.js": 3982981.017004509,
+      "fastdecimal": 6581134.999945485,
+      "core": 7996249.99998881,
+      "ratio": 1.6523139256372796,
+      "facadeOverhead": 0.823027669214281
     },
     {
       "opName": "div",
       "sizeName": "small",
-      "big.js": 211243.62691636328,
-      "fastdecimal": 4042332.9788296,
-      "ratio": 19.13588134154723
+      "big.js": 173722.82846419685,
+      "fastdecimal": 3440113.279944331,
+      "core": 3780261.2197760344,
+      "ratio": 19.802309865414816,
+      "facadeOverhead": 0.9100199906683021
     },
     {
       "opName": "mod",
       "sizeName": "small",
-      "big.js": 3202406.7975960835,
-      "fastdecimal": 7380216.3099402385,
-      "ratio": 2.3045842631486626
+      "big.js": 2675443.662283177,
+      "fastdecimal": 6397771.80109686,
+      "core": 5948609.05141021,
+      "ratio": 2.391293784761333,
+      "facadeOverhead": 1.075507189294978
     },
     {
       "opName": "pow",
       "sizeName": "small",
-      "big.js": 331524.3369510206,
-      "fastdecimal": 5647484.999955278,
-      "ratio": 17.034903234840456
+      "big.js": 283941.876639153,
+      "fastdecimal": 4880074.999975921,
+      "core": 5419777.290121754,
+      "ratio": 17.186880138070492,
+      "facadeOverhead": 0.9004198399204502
     },
     {
       "opName": "sqrt",
       "sizeName": "small",
-      "big.js": 25153.050638582943,
-      "fastdecimal": 498178.2563766226,
-      "ratio": 19.805878163042916
+      "big.js": 19563.405582442603,
+      "fastdecimal": 363198.3656055289,
+      "core": 412068.1456917953,
+      "ratio": 18.56519122271254,
+      "facadeOverhead": 0.8814036450106523
     },
     {
       "opName": "cmp",
       "sizeName": "small",
-      "big.js": 16677319.999989644,
-      "fastdecimal": 18560300.719986103,
-      "ratio": 1.1129066732543136
+      "big.js": 13102249.999981374,
+      "fastdecimal": 13172444.999934943,
+      "core": 17706989.99999733,
+      "ratio": 1.0053574767657212,
+      "facadeOverhead": 0.7439121499440012
     },
     {
       "opName": "round",
       "sizeName": "small",
-      "big.js": 14371564.999932433,
-      "fastdecimal": 20394589.99970832,
-      "ratio": 1.4190931885152525
+      "big.js": 12224973.887702981,
+      "fastdecimal": 18384300.80788951,
+      "core": 20228899.885620244,
+      "ratio": 1.5038314990907387,
+      "facadeOverhead": 0.9088136731033025
     },
     {
       "opName": "toString",
       "sizeName": "small",
-      "big.js": 5493002.253554133,
-      "fastdecimal": 10943699.999767728,
-      "ratio": 1.992298472604273
+      "big.js": 5581522.209245189,
+      "fastdecimal": 10342339.999879312,
+      "core": 10000347.838724801,
+      "ratio": 1.8529604670833957,
+      "facadeOverhead": 1.0341980265756556
     },
     {
       "opName": "toFixed",
       "sizeName": "small",
-      "big.js": 3628823.185581658,
-      "fastdecimal": 7324259.999973759,
-      "ratio": 2.018356813050335
+      "big.js": 3985743.0071979947,
+      "fastdecimal": 7076956.461656948,
+      "ratio": 1.775567679320122,
+      "facadeOverhead": null
     },
     {
       "opName": "parse",
       "sizeName": "medium",
-      "big.js": 2336441.4953278126,
-      "fastdecimal": 3017673.4911455926,
-      "ratio": 1.2915681805771901
+      "big.js": 2259329.9999551005,
+      "fastdecimal": 3353225.6621010303,
+      "core": 3500879.999954358,
+      "ratio": 1.4841681658578734,
+      "facadeOverhead": 0.9578236506663317
     },
     {
       "opName": "plus",
       "sizeName": "medium",
-      "big.js": 5886892.056610831,
-      "fastdecimal": 9048705.475698674,
-      "ratio": 1.5370938329907387
+      "big.js": 5318374.999962446,
+      "fastdecimal": 7809456.095182593,
+      "core": 8888146.11170163,
+      "ratio": 1.4683913968529365,
+      "facadeOverhead": 0.878637231773351
     },
     {
       "opName": "minus",
       "sizeName": "medium",
-      "big.js": 5543042.22849381,
-      "fastdecimal": 7206982.793023662,
-      "ratio": 1.30018543895921
+      "big.js": 6574558.42545987,
+      "fastdecimal": 6729164.999997574,
+      "core": 7287684.068541564,
+      "ratio": 1.0235158872326684,
+      "facadeOverhead": 0.9233612402388675
     },
     {
       "opName": "times",
       "sizeName": "medium",
-      "big.js": 851156.1697983443,
-      "fastdecimal": 6214098.785891615,
-      "ratio": 7.30077394300491
+      "big.js": 776853.0578599818,
+      "fastdecimal": 6252769.99996629,
+      "core": 6776264.999902058,
+      "ratio": 8.048845192411246,
+      "facadeOverhead": 0.9227457899088458
     },
     {
       "opName": "div",
       "sizeName": "medium",
-      "big.js": 63455.08223109563,
-      "fastdecimal": 2459998.769999064,
-      "ratio": 38.76756098179891
+      "big.js": 66211.9542503234,
+      "fastdecimal": 2415952.583989915,
+      "core": 2797468.6012652777,
+      "ratio": 36.488163071823465,
+      "facadeOverhead": 0.8636209832336258
     },
     {
       "opName": "mod",
       "sizeName": "medium",
-      "big.js": 1562417.656377551,
-      "fastdecimal": 4894007.553009004,
-      "ratio": 3.1323299074561857
+      "big.js": 1304750.4333748843,
+      "fastdecimal": 4279560.720460763,
+      "core": 4727202.636288696,
+      "ratio": 3.2799841341237927,
+      "facadeOverhead": 0.9053051137703345
     },
     {
       "opName": "pow",
       "sizeName": "medium",
-      "big.js": 43770.90742017763,
-      "fastdecimal": 4488075.511972975,
-      "ratio": 102.53558302755336
+      "big.js": 42201.9825582327,
+      "fastdecimal": 4405372.797387502,
+      "core": 4599614.999989868,
+      "ratio": 104.38781617211271,
+      "facadeOverhead": 0.9577698997410014
     },
     {
       "opName": "sqrt",
       "sizeName": "medium",
-      "big.js": 22705.22055105347,
-      "fastdecimal": 440109.33983755496,
-      "ratio": 19.38361879586036
+      "big.js": 22327.9904808994,
+      "fastdecimal": 382909.2341831665,
+      "core": 427118.0779717725,
+      "ratio": 17.149292253180075,
+      "facadeOverhead": 0.896495030136543
     },
     {
       "opName": "cmp",
       "sizeName": "medium",
-      "big.js": 14790977.604589326,
-      "fastdecimal": 17740681.129734535,
-      "ratio": 1.199425866497829
+      "big.js": 13122153.439212132,
+      "fastdecimal": 14532172.734393302,
+      "core": 15700583.012890842,
+      "ratio": 1.1074533461076361,
+      "facadeOverhead": 0.9255817266442765
     },
     {
       "opName": "round",
       "sizeName": "medium",
-      "big.js": 8378184.999992828,
-      "fastdecimal": 4335645.664315326,
-      "ratio": 0.5174922330217151
+      "big.js": 7547114.631842901,
+      "fastdecimal": 4450215.549799105,
+      "core": 4998277.500816519,
+      "ratio": 0.5896578715026651,
+      "facadeOverhead": 0.8903498353326955
     },
     {
       "opName": "toString",
       "sizeName": "medium",
-      "big.js": 2321193.0363900997,
-      "fastdecimal": 6402626.798650253,
-      "ratio": 2.758334485014467
+      "big.js": 3366744.9999952964,
+      "fastdecimal": 6027796.986171677,
+      "core": 6101841.949142391,
+      "ratio": 1.7903930907093046,
+      "facadeOverhead": 0.9878651457071711
     },
     {
       "opName": "toFixed",
       "sizeName": "medium",
-      "big.js": 2670762.329222671,
-      "fastdecimal": 3782769.999972623,
-      "ratio": 1.4163633950436927
+      "big.js": 2772492.2275273716,
+      "fastdecimal": 3673621.3264818043,
+      "ratio": 1.3250249324443006,
+      "facadeOverhead": null
     },
     {
       "opName": "parse",
       "sizeName": "large",
-      "big.js": 1240388.1394171268,
-      "fastdecimal": 1852418.1475916659,
-      "ratio": 1.4934181396334048
+      "big.js": 1134752.1631142849,
+      "fastdecimal": 1836081.3278380465,
+      "core": 2032342.9676768775,
+      "ratio": 1.618046113962885,
+      "facadeOverhead": 0.9034308465843376
     },
     {
       "opName": "plus",
       "sizeName": "large",
-      "big.js": 1902832.8745208716,
-      "fastdecimal": 7195954.999821454,
-      "ratio": 3.7817062634223078
+      "big.js": 1764333.2356905148,
+      "fastdecimal": 6757216.621435575,
+      "core": 7616673.575005968,
+      "ratio": 3.8298981647823314,
+      "facadeOverhead": 0.8871611150055463
     },
     {
       "opName": "minus",
       "sizeName": "large",
-      "big.js": 2484318.757805794,
-      "fastdecimal": 6707301.646279616,
-      "ratio": 2.6998554936660604
+      "big.js": 2221417.7785723787,
+      "fastdecimal": 6687424.999944316,
+      "core": 7080939.999918916,
+      "ratio": 3.0104310249295256,
+      "facadeOverhead": 0.9444261637608699
     },
     {
       "opName": "times",
       "sizeName": "large",
-      "big.js": 38147.36783159875,
-      "fastdecimal": 3747524.378790865,
-      "ratio": 98.23808539908393
+      "big.js": 38732.32746944948,
+      "fastdecimal": 3522558.2387671536,
+      "core": 3866813.0665823803,
+      "ratio": 90.94620615158247,
+      "facadeOverhead": 0.9109719497975394
     },
     {
       "opName": "div",
       "sizeName": "large",
-      "big.js": 15694.803814928147,
-      "fastdecimal": 2468932.5310745668,
-      "ratio": 157.30891320388702
+      "big.js": 16759.5223535994,
+      "fastdecimal": 2303649.2408548603,
+      "core": 2363152.636833104,
+      "ratio": 137.45315601790472,
+      "facadeOverhead": 0.974820333206244
     },
     {
       "opName": "mod",
       "sizeName": "large",
-      "big.js": 652542.0635605233,
-      "fastdecimal": 4215107.89241986,
-      "ratio": 6.459519052949003
+      "big.js": 647039.6764853921,
+      "fastdecimal": 4350692.82462869,
+      "core": 4442823.335790042,
+      "ratio": 6.723996970728137,
+      "facadeOverhead": 0.9792630712053806
     },
     {
       "opName": "pow",
       "sizeName": "large",
-      "big.js": 1861.3331736480457,
-      "fastdecimal": 1502748.4972671524,
-      "ratio": 807.3506229526337
+      "big.js": 1885.936749272738,
+      "fastdecimal": 1582382.626431005,
+      "core": 1622919.9999976968,
+      "ratio": 839.0433173547359,
+      "facadeOverhead": 0.9750219520575572
     },
     {
       "opName": "sqrt",
       "sizeName": "large",
-      "big.js": 5608.861401136178,
-      "fastdecimal": 257614.22715689905,
-      "ratio": 45.92986146969411
+      "big.js": 5674.926225956796,
+      "fastdecimal": 266041.6744783593,
+      "core": 265551.54782995395,
+      "ratio": 46.88019965114251,
+      "facadeOverhead": 1.0018456930581296
     },
     {
       "opName": "cmp",
       "sizeName": "large",
-      "big.js": 12041588.979513764,
-      "fastdecimal": 18346130.82709131,
-      "ratio": 1.5235639464445598
+      "big.js": 12291173.854563618,
+      "fastdecimal": 16035301.982389523,
+      "core": 17107359.999987785,
+      "ratio": 1.3046192472849727,
+      "facadeOverhead": 0.9373335209173697
     },
     {
       "opName": "round",
       "sizeName": "large",
-      "big.js": 4961062.519488398,
-      "fastdecimal": 2187430.6251425995,
-      "ratio": 0.44091978614455657
+      "big.js": 4116889.16839378,
+      "fastdecimal": 2372210.255529309,
+      "core": 2561607.4383832314,
+      "ratio": 0.5762142623953211,
+      "facadeOverhead": 0.926063150810703
     },
     {
       "opName": "toString",
       "sizeName": "large",
-      "big.js": 987206.2603195125,
-      "fastdecimal": 3076221.9237636,
-      "ratio": 3.116088346895178
+      "big.js": 975492.0734994311,
+      "fastdecimal": 2991594.9999855673,
+      "core": 3002446.997596528,
+      "ratio": 3.0667548012498655,
+      "facadeOverhead": 0.9963856155929988
     },
     {
       "opName": "toFixed",
       "sizeName": "large",
-      "big.js": 1322199.338890327,
-      "fastdecimal": 1698880.7528083378,
-      "ratio": 1.2848900334756979
+      "big.js": 1234341.2969762757,
+      "fastdecimal": 1569593.4304294516,
+      "ratio": 1.2716040808765223,
+      "facadeOverhead": null
     },
     {
       "opName": "parse",
       "sizeName": "huge",
-      "big.js": 312886.71468997473,
-      "fastdecimal": 514821.39625371085,
-      "ratio": 1.645392316397403
+      "big.js": 308747.2212779322,
+      "fastdecimal": 564930.7630076059,
+      "core": 565670.1917872068,
+      "ratio": 1.8297517324020187,
+      "facadeOverhead": 0.9986928270389064
     },
     {
       "opName": "plus",
       "sizeName": "huge",
-      "big.js": 353502.1719811894,
-      "fastdecimal": 4771503.299769596,
-      "ratio": 13.49780476037216
+      "big.js": 440247.13839282707,
+      "fastdecimal": 4720667.6396825705,
+      "core": 4477044.999960589,
+      "ratio": 10.722767345895562,
+      "facadeOverhead": 1.0544159461707725
     },
     {
       "opName": "minus",
       "sizeName": "huge",
-      "big.js": 362895.28236218955,
-      "fastdecimal": 4431047.7844191175,
-      "ratio": 12.210265604931967
+      "big.js": 329536.53986551677,
+      "fastdecimal": 4399593.400627806,
+      "core": 4483953.811947207,
+      "ratio": 13.350851478938486,
+      "facadeOverhead": 0.9811861551529304
     },
     {
       "opName": "times",
       "sizeName": "huge",
-      "big.js": 1621.7046960574346,
-      "fastdecimal": 1336797.9947970973,
-      "ratio": 824.3165343524126
+      "big.js": 1612.761487057128,
+      "fastdecimal": 1366722.9499621273,
+      "core": 1376378.623642863,
+      "ratio": 847.44270056699,
+      "facadeOverhead": 0.9929847256308151
     },
     {
       "opName": "div",
       "sizeName": "huge",
-      "big.js": 3429.6673222691597,
-      "fastdecimal": 1482972.775542534,
-      "ratio": 432.3955171725984
+      "big.js": 3452.716028341518,
+      "fastdecimal": 1455064.2724755225,
+      "core": 1496203.5038279872,
+      "ratio": 421.42599059165894,
+      "facadeOverhead": 0.9725042541023254
     },
     {
       "opName": "mod",
       "sizeName": "huge",
-      "big.js": 60983.71934194169,
-      "fastdecimal": 2269365.461299097,
-      "ratio": 37.21264438750518
+      "big.js": 57488.302612410844,
+      "fastdecimal": 2366920.2661342868,
+      "core": 2335194.999884973,
+      "ratio": 41.172206493766005,
+      "facadeOverhead": 1.0135857032285855
     },
     {
       "opName": "pow",
       "sizeName": "huge",
-      "big.js": 75.18642415129119,
-      "fastdecimal": 138881.25020562724,
-      "ratio": 1847.158603076646
+      "big.js": 77.77311274124396,
+      "fastdecimal": 132618.67381380705,
+      "core": 140996.8980677972,
+      "ratio": 1705.1995109805841,
+      "facadeOverhead": 0.9405786625890056
     },
     {
       "opName": "sqrt",
       "sizeName": "huge",
-      "big.js": 378.614460382302,
-      "fastdecimal": 62253.07015478569,
-      "ratio": 164.42338227633013
+      "big.js": 381.3680414571292,
+      "fastdecimal": 63209.4627192058,
+      "core": 62589.311517695234,
+      "ratio": 165.74399490239242,
+      "facadeOverhead": 1.0099082604756762
     },
     {
       "opName": "cmp",
       "sizeName": "huge",
-      "big.js": 4462084.999898691,
-      "fastdecimal": 16518276.74095101,
-      "ratio": 3.7019188879920595
+      "big.js": 3756748.121753212,
+      "fastdecimal": 18227819.99935925,
+      "core": 17920416.039865673,
+      "ratio": 4.852020792613754,
+      "facadeOverhead": 1.0171538405587084
     },
     {
       "opName": "round",
       "sizeName": "huge",
-      "big.js": 2439535.120948146,
-      "fastdecimal": 1195523.804473309,
-      "ratio": 0.49006214102326945
+      "big.js": 1988638.039789531,
+      "fastdecimal": 1093442.813078468,
+      "core": 1098620.6055305675,
+      "ratio": 0.5498450654168283,
+      "facadeOverhead": 0.9952870058817084
     },
     {
       "opName": "toString",
       "sizeName": "huge",
-      "big.js": 201934.99999991243,
-      "fastdecimal": 250363.12227734883,
-      "ratio": 1.2398203495058182
+      "big.js": 186489.0675541012,
+      "fastdecimal": 240906.02504976577,
+      "core": 243017.5698239229,
+      "ratio": 1.2917970378069374,
+      "facadeOverhead": 0.9913111435700429
     },
     {
       "opName": "toFixed",
       "sizeName": "huge",
-      "big.js": 335420.639531846,
-      "fastdecimal": 476373.3269342886,
-      "ratio": 1.4202266372134207
+      "big.js": 329209.8353936848,
+      "fastdecimal": 484452.4909833918,
+      "ratio": 1.471561414330348,
+      "facadeOverhead": null
     }
   ]
 }
