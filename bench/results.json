@@ -1,6 +1,6 @@
 {
   "meta": {
-    "date": "2026-08-03",
+    "date": "2026-08-04",
     "node": "v24.18.0",
     "cpu": "12th Gen Intel(R) Core(TM) i7-12700",
     "bigJsVersion": "7.0.1",
@@ -15,338 +15,338 @@
     {
       "opName": "parse",
       "sizeName": "small",
-      "big.js": 5559597.220210308,
-      "fastdecimal": 6598766.700610152,
-      "ratio": 1.1869145262218357
+      "big.js": 5318882.340565249,
+      "fastdecimal": 7165024.999996706,
+      "ratio": 1.347092216225874
     },
     {
       "opName": "plus",
       "sizeName": "small",
-      "big.js": 7091691.454168973,
-      "fastdecimal": 9649984.999898396,
-      "ratio": 1.3607451850186583
+      "big.js": 6727176.6364366105,
+      "fastdecimal": 9538669.999937644,
+      "ratio": 1.417930658795706
     },
     {
       "opName": "minus",
       "sizeName": "small",
-      "big.js": 7713977.042104746,
-      "fastdecimal": 7275739.9999873545,
-      "ratio": 0.9431892213672158
+      "big.js": 7999681.0001697745,
+      "fastdecimal": 6949646.525150462,
+      "ratio": 0.8687404566510805
     },
     {
       "opName": "times",
       "sizeName": "small",
-      "big.js": 4490409.999985388,
-      "fastdecimal": 7966866.016580578,
-      "ratio": 1.7741956784806963
+      "big.js": 4316027.841978913,
+      "fastdecimal": 7229654.999986736,
+      "ratio": 1.6750714464047376
     },
     {
       "opName": "div",
       "sizeName": "small",
-      "big.js": 218905.18408559726,
-      "fastdecimal": 4239232.880385281,
-      "ratio": 19.365612094081964
+      "big.js": 211243.62691636328,
+      "fastdecimal": 4042332.9788296,
+      "ratio": 19.13588134154723
     },
     {
       "opName": "mod",
       "sizeName": "small",
-      "big.js": 3154455.333655225,
-      "fastdecimal": 8069119.9999734275,
-      "ratio": 2.5580073725828716
+      "big.js": 3202406.7975960835,
+      "fastdecimal": 7380216.3099402385,
+      "ratio": 2.3045842631486626
     },
     {
       "opName": "pow",
       "sizeName": "small",
-      "big.js": 325542.07012087316,
-      "fastdecimal": 5657404.342631546,
-      "ratio": 17.378412383170513
+      "big.js": 331524.3369510206,
+      "fastdecimal": 5647484.999955278,
+      "ratio": 17.034903234840456
     },
     {
       "opName": "sqrt",
       "sizeName": "small",
-      "big.js": 23817.999288050116,
-      "fastdecimal": 466182.4359961449,
-      "ratio": 19.57269501767247
+      "big.js": 25153.050638582943,
+      "fastdecimal": 498178.2563766226,
+      "ratio": 19.805878163042916
     },
     {
       "opName": "cmp",
       "sizeName": "small",
-      "big.js": 15935452.03231965,
-      "fastdecimal": 17733316.13343713,
-      "ratio": 1.1128216568611373
+      "big.js": 16677319.999989644,
+      "fastdecimal": 18560300.719986103,
+      "ratio": 1.1129066732543136
     },
     {
       "opName": "round",
       "sizeName": "small",
-      "big.js": 10555329.999923324,
-      "fastdecimal": 20888494.555893864,
-      "ratio": 1.9789522976586806
+      "big.js": 14371564.999932433,
+      "fastdecimal": 20394589.99970832,
+      "ratio": 1.4190931885152525
     },
     {
       "opName": "toString",
       "sizeName": "small",
-      "big.js": 3071528.4642284075,
-      "fastdecimal": 10360729.999869773,
-      "ratio": 3.373151224392925
+      "big.js": 5493002.253554133,
+      "fastdecimal": 10943699.999767728,
+      "ratio": 1.992298472604273
     },
     {
       "opName": "toFixed",
       "sizeName": "small",
-      "big.js": 4019229.9999537338,
-      "fastdecimal": 7462961.26855753,
-      "ratio": 1.8568136853684507
+      "big.js": 3628823.185581658,
+      "fastdecimal": 7324259.999973759,
+      "ratio": 2.018356813050335
     },
     {
       "opName": "parse",
       "sizeName": "medium",
-      "big.js": 2612644.9999868684,
-      "fastdecimal": 3367291.632734371,
-      "ratio": 1.2888439235913396
+      "big.js": 2336441.4953278126,
+      "fastdecimal": 3017673.4911455926,
+      "ratio": 1.2915681805771901
     },
     {
       "opName": "plus",
       "sizeName": "medium",
-      "big.js": 5912392.043813202,
-      "fastdecimal": 8890300.554978449,
-      "ratio": 1.5036723696767311
+      "big.js": 5886892.056610831,
+      "fastdecimal": 9048705.475698674,
+      "ratio": 1.5370938329907387
     },
     {
       "opName": "minus",
       "sizeName": "medium",
-      "big.js": 6667769.999993716,
-      "fastdecimal": 7527041.236414804,
-      "ratio": 1.1288693575846043
+      "big.js": 5543042.22849381,
+      "fastdecimal": 7206982.793023662,
+      "ratio": 1.30018543895921
     },
     {
       "opName": "times",
       "sizeName": "medium",
-      "big.js": 854586.1543619387,
-      "fastdecimal": 6286573.608144171,
-      "ratio": 7.356278329641237
+      "big.js": 851156.1697983443,
+      "fastdecimal": 6214098.785891615,
+      "ratio": 7.30077394300491
     },
     {
       "opName": "div",
       "sizeName": "medium",
-      "big.js": 75104.24895746655,
-      "fastdecimal": 2838057.1619539475,
-      "ratio": 37.788237035180416
+      "big.js": 63455.08223109563,
+      "fastdecimal": 2459998.769999064,
+      "ratio": 38.76756098179891
     },
     {
       "opName": "mod",
       "sizeName": "medium",
-      "big.js": 1541513.8339423381,
-      "fastdecimal": 5021779.99996125,
-      "ratio": 3.257693761410055
+      "big.js": 1562417.656377551,
+      "fastdecimal": 4894007.553009004,
+      "ratio": 3.1323299074561857
     },
     {
       "opName": "pow",
       "sizeName": "medium",
-      "big.js": 42811.61788214201,
-      "fastdecimal": 4530010.939972515,
-      "ratio": 105.81265469675502
+      "big.js": 43770.90742017763,
+      "fastdecimal": 4488075.511972975,
+      "ratio": 102.53558302755336
     },
     {
       "opName": "sqrt",
       "sizeName": "medium",
-      "big.js": 22309.899605450253,
-      "fastdecimal": 397266.2259703266,
-      "ratio": 17.806724055059192
+      "big.js": 22705.22055105347,
+      "fastdecimal": 440109.33983755496,
+      "ratio": 19.38361879586036
     },
     {
       "opName": "cmp",
       "sizeName": "medium",
-      "big.js": 14295122.852483712,
-      "fastdecimal": 15117652.441305246,
-      "ratio": 1.0575391759350024
+      "big.js": 14790977.604589326,
+      "fastdecimal": 17740681.129734535,
+      "ratio": 1.199425866497829
     },
     {
       "opName": "round",
       "sizeName": "medium",
-      "big.js": 7529082.470949088,
-      "fastdecimal": 4411415.588584908,
-      "ratio": 0.5859167575340454
+      "big.js": 8378184.999992828,
+      "fastdecimal": 4335645.664315326,
+      "ratio": 0.5174922330217151
     },
     {
       "opName": "toString",
       "sizeName": "medium",
-      "big.js": 3357063.321422495,
-      "fastdecimal": 6006314.999851252,
-      "ratio": 1.7891574941476482
+      "big.js": 2321193.0363900997,
+      "fastdecimal": 6402626.798650253,
+      "ratio": 2.758334485014467
     },
     {
       "opName": "toFixed",
       "sizeName": "medium",
-      "big.js": 2860705.7089549988,
-      "fastdecimal": 3670804.4938692744,
-      "ratio": 1.283181447982708
+      "big.js": 2670762.329222671,
+      "fastdecimal": 3782769.999972623,
+      "ratio": 1.4163633950436927
     },
     {
       "opName": "parse",
       "sizeName": "large",
-      "big.js": 1099743.3504074765,
-      "fastdecimal": 2020042.9799677846,
-      "ratio": 1.8368312745144755
+      "big.js": 1240388.1394171268,
+      "fastdecimal": 1852418.1475916659,
+      "ratio": 1.4934181396334048
     },
     {
       "opName": "plus",
       "sizeName": "large",
-      "big.js": 2059446.9108515796,
-      "fastdecimal": 7022056.488891466,
-      "ratio": 3.4096807506379716
+      "big.js": 1902832.8745208716,
+      "fastdecimal": 7195954.999821454,
+      "ratio": 3.7817062634223078
     },
     {
       "opName": "minus",
       "sizeName": "large",
-      "big.js": 2569267.4307426955,
-      "fastdecimal": 7288704.999965538,
-      "ratio": 2.8368806270426274
+      "big.js": 2484318.757805794,
+      "fastdecimal": 6707301.646279616,
+      "ratio": 2.6998554936660604
     },
     {
       "opName": "times",
       "sizeName": "large",
-      "big.js": 35678.18041281113,
-      "fastdecimal": 3077944.9999721805,
-      "ratio": 86.26967419187578
+      "big.js": 38147.36783159875,
+      "fastdecimal": 3747524.378790865,
+      "ratio": 98.23808539908393
     },
     {
       "opName": "div",
       "sizeName": "large",
-      "big.js": 15976.221623594896,
-      "fastdecimal": 2421153.7894286057,
-      "ratio": 151.54733368576098
+      "big.js": 15694.803814928147,
+      "fastdecimal": 2468932.5310745668,
+      "ratio": 157.30891320388702
     },
     {
       "opName": "mod",
       "sizeName": "large",
-      "big.js": 657089.6714551738,
-      "fastdecimal": 4618582.690725523,
-      "ratio": 7.028846885535926
+      "big.js": 652542.0635605233,
+      "fastdecimal": 4215107.89241986,
+      "ratio": 6.459519052949003
     },
     {
       "opName": "pow",
       "sizeName": "large",
-      "big.js": 1889.3576184096096,
-      "fastdecimal": 1517365.4479217972,
-      "ratio": 803.1118265471936
+      "big.js": 1861.3331736480457,
+      "fastdecimal": 1502748.4972671524,
+      "ratio": 807.3506229526337
     },
     {
       "opName": "sqrt",
       "sizeName": "large",
-      "big.js": 5357.693512943835,
-      "fastdecimal": 248239.13116304515,
-      "ratio": 46.33320860241739
+      "big.js": 5608.861401136178,
+      "fastdecimal": 257614.22715689905,
+      "ratio": 45.92986146969411
     },
     {
       "opName": "cmp",
       "sizeName": "large",
-      "big.js": 12579924.999879876,
-      "fastdecimal": 17065799.999960247,
-      "ratio": 1.356589963781438
+      "big.js": 12041588.979513764,
+      "fastdecimal": 18346130.82709131,
+      "ratio": 1.5235639464445598
     },
     {
       "opName": "round",
       "sizeName": "large",
-      "big.js": 4701789.999961563,
-      "fastdecimal": 2579814.840386436,
-      "ratio": 0.5486878062200833
+      "big.js": 4961062.519488398,
+      "fastdecimal": 2187430.6251425995,
+      "ratio": 0.44091978614455657
     },
     {
       "opName": "toString",
       "sizeName": "large",
-      "big.js": 963829.5180821342,
-      "fastdecimal": 2940938.5295421937,
-      "ratio": 3.051305728210305
+      "big.js": 987206.2603195125,
+      "fastdecimal": 3076221.9237636,
+      "ratio": 3.116088346895178
     },
     {
       "opName": "toFixed",
       "sizeName": "large",
-      "big.js": 1325003.0125085956,
-      "fastdecimal": 1721007.488230173,
-      "ratio": 1.2988706229217033
+      "big.js": 1322199.338890327,
+      "fastdecimal": 1698880.7528083378,
+      "ratio": 1.2848900334756979
     },
     {
       "opName": "parse",
       "sizeName": "huge",
-      "big.js": 305020.1196782422,
-      "fastdecimal": 568063.0117776288,
-      "ratio": 1.8623788239833612
+      "big.js": 312886.71468997473,
+      "fastdecimal": 514821.39625371085,
+      "ratio": 1.645392316397403
     },
     {
       "opName": "plus",
       "sizeName": "huge",
-      "big.js": 465342.2079474816,
-      "fastdecimal": 4721317.639322051,
-      "ratio": 10.145904580946368
+      "big.js": 353502.1719811894,
+      "fastdecimal": 4771503.299769596,
+      "ratio": 13.49780476037216
     },
     {
       "opName": "minus",
       "sizeName": "huge",
-      "big.js": 356666.9683309667,
-      "fastdecimal": 4693578.003569039,
-      "ratio": 13.159553365798832
+      "big.js": 362895.28236218955,
+      "fastdecimal": 4431047.7844191175,
+      "ratio": 12.210265604931967
     },
     {
       "opName": "times",
       "sizeName": "huge",
-      "big.js": 1581.7613436491533,
-      "fastdecimal": 1299556.7511070566,
-      "ratio": 821.5883871007712
+      "big.js": 1621.7046960574346,
+      "fastdecimal": 1336797.9947970973,
+      "ratio": 824.3165343524126
     },
     {
       "opName": "div",
       "sizeName": "huge",
-      "big.js": 3385.9943686637725,
-      "fastdecimal": 1413448.5865560388,
-      "ratio": 417.4397334021064
+      "big.js": 3429.6673222691597,
+      "fastdecimal": 1482972.775542534,
+      "ratio": 432.3955171725984
     },
     {
       "opName": "mod",
       "sizeName": "huge",
-      "big.js": 58418.719987545104,
-      "fastdecimal": 2296405.6637676433,
-      "ratio": 39.30941424696121
+      "big.js": 60983.71934194169,
+      "fastdecimal": 2269365.461299097,
+      "ratio": 37.21264438750518
     },
     {
       "opName": "pow",
       "sizeName": "huge",
-      "big.js": 77.65056566010672,
-      "fastdecimal": 132019.53793126906,
-      "ratio": 1700.1748385085443
+      "big.js": 75.18642415129119,
+      "fastdecimal": 138881.25020562724,
+      "ratio": 1847.158603076646
     },
     {
       "opName": "sqrt",
       "sizeName": "huge",
-      "big.js": 380.13747153286545,
-      "fastdecimal": 62629.61385311926,
-      "ratio": 164.75517028240273
+      "big.js": 378.614460382302,
+      "fastdecimal": 62253.07015478569,
+      "ratio": 164.42338227633013
     },
     {
       "opName": "cmp",
       "sizeName": "huge",
-      "big.js": 4102677.948710754,
-      "fastdecimal": 18879905.560374606,
-      "ratio": 4.601849279031887
+      "big.js": 4462084.999898691,
+      "fastdecimal": 16518276.74095101,
+      "ratio": 3.7019188879920595
     },
     {
       "opName": "round",
       "sizeName": "huge",
-      "big.js": 1729944.9999973525,
-      "fastdecimal": 1160012.0999766134,
-      "ratio": 0.6705485434383108
+      "big.js": 2439535.120948146,
+      "fastdecimal": 1195523.804473309,
+      "ratio": 0.49006214102326945
     },
     {
       "opName": "toString",
       "sizeName": "huge",
-      "big.js": 189270.45750984934,
-      "fastdecimal": 241718.7914055821,
-      "ratio": 1.2771078729653487
+      "big.js": 201934.99999991243,
+      "fastdecimal": 250363.12227734883,
+      "ratio": 1.2398203495058182
     },
     {
       "opName": "toFixed",
       "sizeName": "huge",
-      "big.js": 340692.95584437466,
-      "fastdecimal": 474516.20386816864,
-      "ratio": 1.3927972261478843
+      "big.js": 335420.639531846,
+      "fastdecimal": 476373.3269342886,
+      "ratio": 1.4202266372134207
     }
   ]
 }
