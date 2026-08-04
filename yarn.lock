@@ -622,6 +622,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bench@workspace:bench":
+  version: 0.0.0-use.local
+  resolution: "bench@workspace:bench"
+  dependencies:
+    big.js: "npm:^7.0.1"
+    tinybench: "npm:^6.1.2"
+  languageName: unknown
+  linkType: soft
+
 "big.js@npm:^7.0.1":
   version: 7.0.1
   resolution: "big.js@npm:7.0.1"
@@ -857,7 +866,6 @@ __metadata:
     "@types/big.js": "npm:^7"
     big.js: "npm:^7.0.1"
     publint: "npm:^0.3.22"
-    tinybench: "npm:^6.1.2"
     tsdown: "npm:^0.22.0"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.1.10"
