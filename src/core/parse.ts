@@ -1,4 +1,4 @@
-import type { Dec } from './types.ts';
+import type { DecimalValue } from './types.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
@@ -8,7 +8,7 @@ import { nan, infinity, zero } from './make.ts';
  * Throws a neutral Error on invalid input (contract §4) — facades validate
  * against their own grammars first and produce their own legacy messages.
  */
-export function parse(str: string): Dec {
+export function parse(str: string): DecimalValue {
   const len = str.length;
   let i = 0;
   let sign: 1 | -1 = 1;
@@ -65,7 +65,7 @@ export function parse(str: string): Dec {
   while (digits.charCodeAt(end - 1) === 48) { end--; scale++; }   // trailing zeros
   return {
     sign,
-    coef: BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits),
+    coefficient: BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits),
     scale,
   };
 }

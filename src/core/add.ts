@@ -1,4 +1,4 @@
-import type { Dec } from './types.ts';
+import type { DecimalValue } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
@@ -15,18 +15,18 @@ import { nan, infinity, zero } from './make.ts';
  * Zero signs: (−0) + (−0) = −0; exact cancellation of nonzeros = +0 (IEEE, and
  * what big.js/bignumber.js/decimal.js all produce under default rounding).
  */
-export function add(x: Dec, y: Dec): Dec {
-  if (x.coef === null || y.coef === null) {
+export function add(x: DecimalValue, y: DecimalValue): DecimalValue {
+  if (x.coefficient === null || y.coefficient === null) {
     if (x.sign === 0 || y.sign === 0) return nan();          // NaN operand
-    if (x.coef === null && y.coef === null) {
+    if (x.coefficient === null && y.coefficient === null) {
       return x.sign === y.sign ? infinity(x.sign as 1 | -1) : nan(); // ∞ + (−∞)
     }
-    return infinity((x.coef === null ? x.sign : y.sign) as 1 | -1);
+    return infinity((x.coefficient === null ? x.sign : y.sign) as 1 | -1);
   }
-  if (x.coef === 0n && y.coef === 0n) return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
+  if (x.coefficient === 0n && y.coefficient === 0n) return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
 
   const scaleDiff = x.scale - y.scale;
-  let xMag = x.coef, yMag = y.coef, scale = x.scale;
+  let xMag = x.coefficient, yMag = y.coefficient, scale = x.scale;
   if (scaleDiff > 0) { xMag *= pow10(scaleDiff); scale = y.scale; }
   else if (scaleDiff < 0) { yMag *= pow10(-scaleDiff); }
 
@@ -36,6 +36,6 @@ export function add(x: Dec, y: Dec): Dec {
   else if (xMag > yMag) { sign = x.sign as 1 | -1; magnitude = xMag - yMag; }
   else { sign = y.sign as 1 | -1; magnitude = yMag - xMag; }
 
-  const coef = stripTrailingZeros(magnitude, scale);
-  return { sign, coef, scale: stripResult.scale };
+  const coefficient = stripTrailingZeros(magnitude, scale);
+  return { sign, coefficient, scale: stripResult.scale };
 }

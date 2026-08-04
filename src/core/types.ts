@@ -1,21 +1,21 @@
 /**
  * Core value representation — see docs/core-contract.md §1.
  *
- * value = sign × coef × 10^scale
+ * value = sign × coefficient × 10^scale
  *
- * Normal form (finite): if coef === 0n then scale === 0, otherwise coef % 10n !== 0n
+ * Normal form (finite): if coefficient === 0n then scale === 0, otherwise coefficient % 10n !== 0n
  * (trailing zeros are absorbed into scale). Equal mathematical values always have
  * identical representations.
  *
- * Special values are encoded with coef === null:
- *   NaN        → { sign: 0,  coef: null, scale: 0 }
- *   +Infinity  → { sign: 1,  coef: null, scale: 0 }
- *   −Infinity  → { sign: -1, coef: null, scale: 0 }
- *   −0         → { sign: -1, coef: 0n,   scale: 0 }
+ * Special values are encoded with coefficient === null:
+ *   NaN        → { sign: 0,  coefficient: null, scale: 0 }
+ *   +Infinity  → { sign: 1,  coefficient: null, scale: 0 }
+ *   −Infinity  → { sign: -1, coefficient: null, scale: 0 }
+ *   −0         → { sign: -1, coefficient: 0n,   scale: 0 }
  */
-export interface Dec {
+export interface DecimalValue {
   sign: 1 | -1 | 0;
-  coef: bigint | null;
+  coefficient: bigint | null;
   scale: number;
 }
 
