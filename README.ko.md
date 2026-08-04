@@ -18,6 +18,45 @@ import { parse, add, toString } from 'fastdecimal';
 toString(add(parse('0.1'), parse('0.2'))); // '0.3'
 ```
 
+## 함수형 코어
+
+루트 진입점은 plain 값을 다루는 순수 함수들입니다 — 클래스도, 전역 설정도 없고 완전히 tree-shaking 가능합니다. 값의 형태:
+
+```ts
+interface DecimalValue {
+  sign: 1 | -1 | 0;           // 0은 NaN 전용
+  coefficient: bigint | null; // 유한수: 음이 아닌 계수 · null: NaN / ±Infinity
+  scale: number;              // 값 = sign × coefficient × 10^scale
+}
+```
+
+값은 항상 정규형입니다(계수에 끝자리 0 없음, 0은 scale이 0) — 같은 수는 언제나 같은 표현을 가집니다. `−0`은 `{ sign: -1, coefficient: 0n, scale: 0 }`이고, NaN과 ±Infinity는 IEEE 754 규칙으로 산술을 통과하는 정식 값입니다 — 코어는 값 때문에 throw하지 않습니다.
+
+```ts
+import { parse, divToDecimalPlaces, toString } from 'fastdecimal';
+
+const price = parse('149.99');
+const people = parse('3');
+toString(divToDecimalPlaces(price, people, 2, 4)); // 1인당 '50' (HALF_UP)
+```
+
+| 분류 | 함수 |
+|---|---|
+| 생성 | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan` |
+| 정확 연산 | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp` |
+| 라운딩 연산 (정밀도를 인자로) | `divToDecimalPlaces`, `sqrtToDecimalPlaces`, `mod`, `roundToDecimalPlaces`, `roundToSignificantDigits` |
+| 조회 / 출력 | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString` |
+
+라운딩 모드는 bignumber.js/decimal.js와 같은 번호 체계입니다:
+
+| # | 모드 | # | 모드 | # | 모드 |
+|---|---|---|---|---|---|
+| 0 | UP (0에서 멀어지게) | 3 | FLOOR | 6 | HALF_EVEN |
+| 1 | DOWN (절단) | 4 | HALF_UP | 7 | HALF_CEIL |
+| 2 | CEIL | 5 | HALF_DOWN | 8 | HALF_FLOOR |
+
+`mod`는 추가로 `9`(EUCLID: 항상 음이 아닌 나머지)를 받습니다. 코어가 따르는 설계 규칙 — 정밀도 인자화, special 값 의미론, 순수성 — 은 [docs/core-contract.md](./docs/core-contract.md)에 명세돼 있습니다.
+
 ## 호환성
 
 fastdecimal의 목표는 big.js와의 **100% 동작 호환**입니다: 같은 API, 같은 결과, 같은 에러. 다만 big.js 코드를 이식한 것이 아니라, 내부적으로는 값을 BigInt 계수와 스케일로 저장합니다 — 성능이 나오는 이유가 바로 이 구조입니다. 호환성은 관찰 가능한 동작의 속성이지, 구현의 속성이 아닙니다.

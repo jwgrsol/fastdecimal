@@ -1,5 +1,5 @@
 import type { DecimalValue, RoundingMode } from './types.ts';
-import { exponentOf } from './_internal/exponentOf.ts';
+import { exponentOf } from './exponentOf.ts';
 import { roundToDecimalPlaces } from './roundToDecimalPlaces.ts';
 
 /**

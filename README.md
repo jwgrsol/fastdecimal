@@ -18,6 +18,51 @@ import { parse, add, toString } from 'fastdecimal';
 toString(add(parse('0.1'), parse('0.2'))); // '0.3'
 ```
 
+## The functional core
+
+The root entry point is a set of pure functions over plain values — no classes,
+no global settings, fully tree-shakable. A value is:
+
+```ts
+interface DecimalValue {
+  sign: 1 | -1 | 0;           // 0 only for NaN
+  coefficient: bigint | null; // finite: non-negative coefficient · null: NaN / ±Infinity
+  scale: number;              // value = sign × coefficient × 10^scale
+}
+```
+
+Values are normalized (no trailing zeros in the coefficient; zero has scale 0),
+so equal numbers always have identical representations. `−0` is `{ sign: -1,
+coefficient: 0n, scale: 0 }`; NaN and ±Infinity are ordinary values that
+propagate through arithmetic by IEEE 754 rules — the core never throws on values.
+
+```ts
+import { parse, divToDecimalPlaces, toString } from 'fastdecimal';
+
+const price = parse('149.99');
+const people = parse('3');
+toString(divToDecimalPlaces(price, people, 2, 4)); // '50' per person, HALF_UP
+```
+
+| Group | Functions |
+|---|---|
+| Construct | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan` |
+| Exact arithmetic | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp` |
+| Rounding arithmetic (precision as arguments) | `divToDecimalPlaces`, `sqrtToDecimalPlaces`, `mod`, `roundToDecimalPlaces`, `roundToSignificantDigits` |
+| Inspect / render | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString` |
+
+Rounding modes are the bignumber.js/decimal.js numbering:
+
+| # | Mode | # | Mode | # | Mode |
+|---|---|---|---|---|---|
+| 0 | UP (away from zero) | 3 | FLOOR | 6 | HALF_EVEN |
+| 1 | DOWN (truncate) | 4 | HALF_UP | 7 | HALF_CEIL |
+| 2 | CEIL | 5 | HALF_DOWN | 8 | HALF_FLOOR |
+
+`mod` additionally accepts `9` (EUCLID: non-negative remainder). The design
+rules the core follows — precision as arguments, special-value semantics, purity
+— are specified in [docs/core-contract.md](./docs/core-contract.md).
+
 ## Compatibility
 
 fastdecimal aims for **100% behavioral compatibility** with big.js: same API, same results, same errors. It is not a port of big.js's code — internally it stores values as a BigInt coefficient and a scale, which is where the performance comes from. Compatibility is a property of the observable behavior, not of the implementation.

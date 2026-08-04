@@ -23,7 +23,7 @@ import { cmp as coreCmp } from './core/cmp.ts';
 import { roundToDecimalPlaces as coreRoundToDecimalPlaces } from './core/roundToDecimalPlaces.ts';
 import { roundToSignificantDigits as coreRoundToSignificantDigits } from './core/roundToSignificantDigits.ts';
 import { toString as coreToString } from './core/toString.ts';
-import { exponentOf } from './core/_internal/exponentOf.ts';
+import { exponentOf } from './core/exponentOf.ts';
 import { pow10 } from './core/_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './core/_internal/strip.ts';
 
