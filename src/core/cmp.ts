@@ -2,9 +2,21 @@ import type { DecimalValue } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 
 /**
- * Comparison: −1, 0, or 1 — or NaN when either operand is NaN.
- * (decimal.js's cmp returns NaN; the bignumber.js facade maps NaN → null.)
- * −0 and +0 compare equal. ±∞ compare as expected; ∞ === ∞.
+ * Compares two decimal values by mathematical value: `-1` if x < y, `0` if
+ * equal, `1` if x > y — or `NaN` when either operand is NaN (which is
+ * unordered; the bignumber.js facade maps this to `null`).
+ *
+ * `−0` and `+0` compare equal. Infinities order against everything, and
+ * `∞ === ∞`. Values with different scales compare correctly: `1.20` equals
+ * `1.2`.
+ *
+ * @param x - The first value.
+ * @param y - The second value.
+ * @returns `-1`, `0`, `1`, or `NaN`.
+ *
+ * @example
+ * cmp(parse('1.20'), parse('1.2')); // 0
+ * cmp(parse('-1'), parse('1'));     // -1
  */
 export function cmp(x: DecimalValue, y: DecimalValue): number {
   if (x.coefficient === null || y.coefficient === null) {

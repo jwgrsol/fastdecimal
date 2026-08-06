@@ -5,12 +5,26 @@ import { roundUp } from './_internal/roundUp.ts';
 import { nan, zero } from './make.ts';
 
 /**
- * Remainder: r = x − y·q, where q is x ÷ y rounded to an integer per `mode`
- * (contract §3). Mode 1 (DOWN, truncated division) is big.js/JS `%` semantics;
- * mode 9 (EUCLID) always returns a non-negative remainder.
+ * Computes the remainder `r = x − y·q`, where `q` is `x ÷ y` rounded to an
+ * integer according to `mode` (the bignumber.js MODULO_MODE family).
  *
- * Special values: NaN operand → NaN · ±∞ mod y = NaN · finite x mod ±∞ = x ·
- * x mod 0 = NaN · 0 mod y = ±0 (dividend's sign). An exact zero remainder is +0.
+ * The mode decides which of the possible remainders you get: mode `1` (DOWN,
+ * truncated division) matches big.js and JavaScript's `%` — the remainder
+ * takes the dividend's sign; mode `3` (FLOOR) matches Python's `%` — the
+ * divisor's sign; mode `9` (EUCLID) always returns a non-negative remainder.
+ *
+ * Special values: NaN operand → NaN · `±∞ mod y = NaN` · `x mod ±∞ = x` ·
+ * `x mod 0 = NaN` · `0 mod y = ±0` (dividend's sign). An exact zero remainder
+ * is `+0`.
+ *
+ * @param x - The dividend.
+ * @param y - The divisor.
+ * @param mode - Quotient rounding mode 0–8, or 9 for Euclidean.
+ * @returns The remainder as a new normalized value.
+ *
+ * @example
+ * toString(mod(parse('-7'), parse('3'), 1)); // '-1' (truncated, like JS %)
+ * toString(mod(parse('-7'), parse('3'), 9)); // '2'  (Euclidean, always ≥ 0)
  */
 export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): DecimalValue {
   if (x.coefficient === null || y.coefficient === null) {

@@ -11,14 +11,28 @@ import { nan, infinity, zero } from './make.ts';
 const HALF: DecimalValue = { sign: 1, coefficient: 5n, scale: -1 };
 
 /**
- * Square root to `decimalPlaces` decimal places of precision (the big.js model: iterate
- * with decimalPlaces+4 guard digits, then round to decimalPlaces + e + 1 significant digits).
+ * Computes the square root to `decimalPlaces` decimal places of precision
+ * (the big.js model: iterate with `decimalPlaces + 4` guard digits, then round
+ * to `decimalPlaces + e + 1` significant digits).
  *
- * Newton–Raphson: r ← ½(r + x/r), seeded from a float estimate. Convergence is
- * detected when two successive iterates agree on their guard-digit prefix.
+ * Uses Newton–Raphson iteration `r ← ½(r + x/r)`, seeded from a float
+ * estimate; convergence is detected when two successive iterates agree on
+ * their guard-digit prefix. An iteration cap guarantees termination on inputs
+ * where the true root's exponent sits far below `−decimalPlaces` — upstream
+ * big.js hangs forever on those (see README, intentional divergence).
  *
- * Specials (contract §4): NaN → NaN · +∞ → +∞ · −∞ → NaN · sqrt of a negative
- * is NaN (big.js's facade throws before reaching the core) · ±0 → ±0.
+ * Specials: `NaN → NaN` · `+∞ → +∞` · `−∞ → NaN` · the square root of a
+ * negative value is NaN (big.js's facade throws before reaching the core) ·
+ * `±0 → ±0`.
+ *
+ * @param x - The value to take the square root of.
+ * @param decimalPlaces - Decimal places of precision for the result (≥ 0).
+ * @param roundingMode - Rounding mode for the iteration divisions and the final rounding.
+ * @returns The rounded square root as a new normalized value.
+ *
+ * @example
+ * const result = sqrtToDecimalPlaces(parse('2'), 20, 4);
+ * toString(result); // '1.4142135623730950488'
  */
 export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
   if (x.coefficient === null) {

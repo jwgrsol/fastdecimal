@@ -2,11 +2,24 @@ import type { DecimalValue } from './types.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
- * Parse a decimal string: optional sign, digits with optional dot, optional
- * e-notation exponent, plus the special literals NaN / Infinity / -Infinity.
+ * Parses a decimal string into a normalized value.
  *
- * Throws a neutral Error on invalid input (contract §4) — facades validate
- * against their own grammars first and produce their own legacy messages.
+ * Accepts an optional sign (`+` or `-`), digits with an optional decimal
+ * point, an optional e-notation exponent (`1.2e-5`), and the special literals
+ * `NaN` / `Infinity` / `-Infinity`. The result is always in normal form:
+ * trailing zeros are absorbed into the scale, so `parse('1.20')` and
+ * `parse('1.2')` produce identical representations.
+ *
+ * Throws a neutral `Error` on invalid input — facades validate against their
+ * own stricter grammars first and produce their own legacy messages.
+ *
+ * @param str - The decimal string to parse.
+ * @returns The parsed value in normal form.
+ *
+ * @example
+ * parse('123.4500'); // { sign: 1, coefficient: 12345n, scale: -2 }
+ * parse('-0');       // { sign: -1, coefficient: 0n, scale: 0 }
+ * parse('1e21');     // { sign: 1, coefficient: 1n, scale: 21 }
  */
 export function parse(str: string): DecimalValue {
   const len = str.length;

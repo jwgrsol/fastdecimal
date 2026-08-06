@@ -1,14 +1,23 @@
 import type { DecimalValue } from './types.ts';
 
 /**
- * Fixed/exponential string form of a value.
+ * Renders a decimal value as a string, in fixed or exponential notation
+ * depending on the value's exponent. Specials render as `'NaN'`, `'Infinity'`,
+ * `'-Infinity'`.
  *
- * `negativeExponent`/`positiveExponent` are the exponent thresholds at which output switches to
- * exponential notation (the NE/PE of big.js, EXPONENTIAL_AT of bignumber.js,
- * toExpNeg/toExpPos of decimal.js — all default to −7/21).
+ * @param x - The value to render.
+ * @param negativeExponent - Exponent at or below which output switches to exponential
+ *   notation (big.js `NE`, bignumber.js `EXPONENTIAL_AT[0]`, decimal.js `toExpNeg`).
+ * @param positiveExponent - Exponent at or above which output switches to exponential
+ *   notation (big.js `PE`, bignumber.js `EXPONENTIAL_AT[1]`, decimal.js `toExpPos`).
+ * @param signedZero - Whether `−0` renders as `'-0'` (bignumber.js/decimal.js
+ *   behavior, the default) or `'0'` (big.js `toString` behavior).
+ * @returns The string form of the value.
  *
- * `signedZero`: whether −0 renders as "-0" (bignumber.js/decimal.js) or "0"
- * (big.js toString) — a facade-visible difference, so it is a parameter.
+ * @example
+ * toString(parse('1e21'));         // '1e+21'  (past the default threshold)
+ * toString(parse('1234'), -7, 3);  // '1.234e+3'
+ * toString(parse('-0'));           // '-0'
  */
 export function toString(x: DecimalValue, negativeExponent = -7, positiveExponent = 21, signedZero = true): string {
   if (x.coefficient === null) return x.sign === 0 ? 'NaN' : x.sign > 0 ? 'Infinity' : '-Infinity';

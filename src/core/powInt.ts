@@ -3,9 +3,21 @@ import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
- * Exact integer power for n ≥ 1. Exponent 0 and negative exponents are facade
- * policy (big.js: x^0 = 1 unconditionally; x^−n = 1 ÷ x^n at the facade's
- * precision) — the core only computes the exact part.
+ * Raises a decimal value to an integer power `n ≥ 1`, exactly — the result may
+ * carry `n` times the operand's digit count, with no rounding.
+ *
+ * Exponent `0` and negative exponents are deliberately not handled here: they
+ * are facade policy (big.js returns `1` for `x^0` unconditionally, and computes
+ * `x^−n` as `1 ÷ x^n` at its configured precision). The sign follows exponent
+ * parity for negative bases: `(−2)^3 = −8`, `(−2)^4 = 16`.
+ *
+ * @param x - The base.
+ * @param n - The integer exponent, `n ≥ 1`.
+ * @returns The exact power as a new normalized value.
+ *
+ * @example
+ * toString(powInt(parse('2'), 10));  // '1024'
+ * toString(powInt(parse('0.5'), 3)); // '0.125'
  */
 export function powInt(x: DecimalValue, n: number): DecimalValue {
   if (x.coefficient === null) {
