@@ -7,6 +7,7 @@ import { roundToSignificantDigits } from './roundToSignificantDigits.ts';
 import { toString } from './toString.ts';
 import { parse } from './parse.ts';
 import { nan, infinity, zero } from './make.ts';
+import { isFinite, isNaN, isZero } from './predicates.ts';
 
 const HALF: DecimalValue = { sign: 1, coefficient: 5n, scale: -1 };
 
@@ -35,11 +36,11 @@ const HALF: DecimalValue = { sign: 1, coefficient: 5n, scale: -1 };
  * toString(result); // '1.4142135623730950488'
  */
 export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
-  if (x.coefficient === null) {
-    if (x.sign === 0) return nan();
-    return x.sign > 0 ? infinity(1) : nan();
+  if (!isFinite(x)) {
+    if (isNaN(x)) return nan();
+    return x.sign > 0 ? infinity(1) : nan(); // +∞ → +∞ · −∞ → NaN
   }
-  if (x.coefficient === 0n) return zero(x.sign as 1 | -1); // ±0 → ±0
+  if (isZero(x)) return zero(x.sign as 1 | -1); // ±0 → ±0
   if (x.sign < 0) return nan();
 
   // Initial estimate via float sqrt (same strategy as big.js)

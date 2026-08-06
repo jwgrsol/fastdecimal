@@ -1,4 +1,5 @@
 import type { DecimalValue, RoundingMode } from './types.ts';
+import { isFinite, isZero } from './predicates.ts';
 import { exponentOf } from './exponentOf.ts';
 import { roundToDecimalPlaces } from './roundToDecimalPlaces.ts';
 
@@ -24,7 +25,6 @@ export function roundToSignificantDigits(
   significantDigits: number,
   roundingMode: RoundingMode
 ): DecimalValue {
-  if (x.coefficient === null || x.coefficient === 0n)
-    return { sign: x.sign, coefficient: x.coefficient, scale: x.coefficient === null ? 0 : x.scale };
+  if (!isFinite(x) || isZero(x)) return { sign: x.sign, coefficient: x.coefficient, scale: isFinite(x) ? x.scale : 0 };
   return roundToDecimalPlaces(x, significantDigits - exponentOf(x) - 1, roundingMode);
 }

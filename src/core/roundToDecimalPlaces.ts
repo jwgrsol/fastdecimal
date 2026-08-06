@@ -1,4 +1,5 @@
 import type { DecimalValue, RoundingMode } from './types.ts';
+import { isFinite, isZero } from './predicates.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
@@ -22,9 +23,9 @@ import { roundUp } from './_internal/roundUp.ts';
  * toString(roundToDecimalPlaces(parse('2.5'), 0, 6)); // '2'  (HALF_EVEN)
  */
 export function roundToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
-  if (x.coefficient === null) return { sign: x.sign, coefficient: null, scale: 0 };
+  if (!isFinite(x)) return { sign: x.sign, coefficient: null, scale: 0 };
   const shift = -decimalPlaces - x.scale; // how many digits to drop
-  if (shift <= 0 || x.coefficient === 0n) return { sign: x.sign, coefficient: x.coefficient, scale: x.scale };
+  if (shift <= 0 || isZero(x)) return { sign: x.sign, coefficient: x.coefficient, scale: x.scale };
   const divisor = pow10(shift);
   let truncated = x.coefficient / divisor;
   if (roundUp(truncated, x.coefficient - truncated * divisor, divisor, x.sign, roundingMode)) truncated += 1n;

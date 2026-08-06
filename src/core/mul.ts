@@ -1,6 +1,7 @@
 import type { DecimalValue } from './types.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
+import { isFinite, isNaN, isZero } from './predicates.ts';
 
 /**
  * Multiplies two decimal values exactly, with no rounding and no precision
@@ -19,13 +20,13 @@ import { nan, infinity, zero } from './make.ts';
  * toString(result); // '-3'
  */
 export function mul(x: DecimalValue, y: DecimalValue): DecimalValue {
-  if (x.coefficient === null || y.coefficient === null) {
-    if (x.sign === 0 || y.sign === 0) return nan(); // NaN operand
-    if (x.coefficient === 0n || y.coefficient === 0n) return nan(); // ∞ × 0
+  if (!isFinite(x) || !isFinite(y)) {
+    if (isNaN(x) || isNaN(y)) return nan();
+    if (isZero(x) || isZero(y)) return nan(); // ∞ × 0
     return infinity((x.sign * y.sign) as 1 | -1);
   }
   const sign = (x.sign * y.sign) as 1 | -1;
-  if (x.coefficient === 0n || y.coefficient === 0n) return zero(sign);
+  if (isZero(x) || isZero(y)) return zero(sign);
   const coefficient = stripTrailingZeros(x.coefficient * y.coefficient, x.scale + y.scale);
   return { sign, coefficient, scale: stripResult.scale };
 }

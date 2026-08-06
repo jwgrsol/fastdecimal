@@ -1,4 +1,5 @@
 import type { DecimalValue } from './types.ts';
+import { isNaN } from './predicates.ts';
 
 /**
  * Returns the absolute value: the sign becomes positive, the coefficient is
@@ -13,5 +14,5 @@ import type { DecimalValue } from './types.ts';
  * toString(result); // '1.5'
  */
 export function abs(x: DecimalValue): DecimalValue {
-  return { sign: x.sign === 0 ? 0 : 1, coefficient: x.coefficient, scale: x.scale };
+  return { sign: isNaN(x) ? 0 : 1, coefficient: x.coefficient, scale: x.scale };
 }

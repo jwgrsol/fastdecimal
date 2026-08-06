@@ -1,4 +1,5 @@
 import type { DecimalValue } from './types.ts';
+import { isFinite, isZero } from './predicates.ts';
 
 /**
  * Returns the base-10 exponent of the most significant digit — the `e`
@@ -16,7 +17,7 @@ import type { DecimalValue } from './types.ts';
  * exponentOf(parse('0.00012')); // -4
  */
 export function exponentOf(x: DecimalValue): number {
-  if (x.coefficient === null) return NaN;
-  if (x.coefficient === 0n) return 0;
+  if (!isFinite(x)) return NaN;
+  if (isZero(x)) return 0;
   return x.coefficient.toString().length - 1 + x.scale;
 }

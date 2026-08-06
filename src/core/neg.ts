@@ -1,4 +1,5 @@
 import type { DecimalValue } from './types.ts';
+import { isNaN } from './predicates.ts';
 
 /**
  * Negates a decimal value: flips the sign, sharing the coefficient (no BigInt
@@ -13,5 +14,5 @@ import type { DecimalValue } from './types.ts';
  * toString(result); // '-1.5'
  */
 export function neg(x: DecimalValue): DecimalValue {
-  return { sign: x.sign === 0 ? 0 : (-x.sign as 1 | -1), coefficient: x.coefficient, scale: x.scale };
+  return { sign: isNaN(x) ? 0 : (-x.sign as 1 | -1), coefficient: x.coefficient, scale: x.scale };
 }
