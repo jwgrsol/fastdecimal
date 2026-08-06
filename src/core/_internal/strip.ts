@@ -15,8 +15,12 @@ export const stripResult = { scale: 0 };
 
 export function stripTrailingZeros(coefficient: bigint, scale: number): bigint {
   stripResult.scale = scale;
-  if (coefficient & 1n) return coefficient; // odd numbers cannot be multiples of 10 — O(1) early exit
-  if (coefficient % TEN_1 !== 0n) return coefficient;
+  if (coefficient & 1n) {
+    return coefficient;
+  } // odd numbers cannot be multiples of 10 — O(1) early exit
+  if (coefficient % TEN_1 !== 0n) {
+    return coefficient;
+  }
   while (coefficient % TEN_16 === 0n) {
     coefficient /= TEN_16;
     scale += 16;

@@ -41,33 +41,52 @@ const test = function (name, func) {
   func();
   test.result = [passed, count];
   console.log(`${passed === count ? 'PASS' : 'FAIL'} ${name}: ${passed}/${count}`);
-  for (const f of failures.slice(0, 5)) console.log(`   #${f.n} expected=${f.expected} actual=${f.actual}`);
-  if (failures.length > 5) console.log(`   ... and ${failures.length - 5} more`);
+  for (const f of failures.slice(0, 5)) {
+    console.log(`   #${f.n} expected=${f.expected} actual=${f.actual}`);
+  }
+  if (failures.length > 5) {
+    console.log(`   ... and ${failures.length - 5} more`);
+  }
 };
 test.areEqual = (expected, actual) => {
   ++count;
-  if (expected === actual || (expected !== expected && actual !== actual)) ++passed;
-  else fail(expected, actual);
+  if (expected === actual || (expected !== expected && actual !== actual)) {
+    ++passed;
+  } else {
+    fail(expected, actual);
+  }
 };
 test.isNegativeZero = a => {
   ++count;
-  if (isBigZero(a) && a.s === -1) ++passed;
-  else fail('negative zero', a);
+  if (isBigZero(a) && a.s === -1) {
+    ++passed;
+  } else {
+    fail('negative zero', a);
+  }
 };
 test.isPositiveZero = a => {
   ++count;
-  if (isBigZero(a) && a.s === 1) ++passed;
-  else fail('positive zero', a);
+  if (isBigZero(a) && a.s === 1) {
+    ++passed;
+  } else {
+    fail('positive zero', a);
+  }
 };
 test.isTrue = a => {
   ++count;
-  if (a === true) ++passed;
-  else fail('true', a);
+  if (a === true) {
+    ++passed;
+  } else {
+    fail('true', a);
+  }
 };
 test.isFalse = a => {
   ++count;
-  if (a === false) ++passed;
-  else fail('false', a);
+  if (a === false) {
+    ++passed;
+  } else {
+    fail('false', a);
+  }
 };
 test.isException = (func, msg) => {
   ++count;
@@ -77,8 +96,11 @@ test.isException = (func, msg) => {
   } catch (e) {
     actual = e;
   }
-  if (actual instanceof Error && /\[big\.js\]/.test(actual.message)) ++passed;
-  else fail(msg + ' (expected an exception)', actual || 'no exception');
+  if (actual instanceof Error && /\[big\.js\]/.test(actual.message)) {
+    ++passed;
+  } else {
+    fail(msg + ' (expected an exception)', actual || 'no exception');
+  }
 };
 test.write = () => {};
 
@@ -99,7 +121,9 @@ for (const m of METHODS) {
     require(`./vendored/methods/${m}.js`);
     totalPassed += test.result[0];
     totalCount += test.result[1];
-    if (test.result[0] !== test.result[1]) fileFails++;
+    if (test.result[0] !== test.result[1]) {
+      fileFails++;
+    }
   } catch (e) {
     console.log(`ERROR ${m}: ${e.message}`);
     fileFails++;

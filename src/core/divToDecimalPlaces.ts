@@ -31,24 +31,41 @@ export function divToDecimalPlaces(
   roundingMode: RoundingMode
 ): DecimalValue {
   if (!isFinite(x) || !isFinite(y)) {
-    if (isNaN(x) || isNaN(y)) return nan();
-    if (isInfinite(x) && isInfinite(y)) return nan(); // ∞ ÷ ∞
-    if (isInfinite(x)) return infinity((x.sign * y.sign) as 1 | -1);
+    if (isNaN(x) || isNaN(y)) {
+      return nan();
+    }
+    if (isInfinite(x) && isInfinite(y)) {
+      return nan();
+    } // ∞ ÷ ∞
+    if (isInfinite(x)) {
+      return infinity((x.sign * y.sign) as 1 | -1);
+    }
     return zero((x.sign * y.sign) as 1 | -1); // finite ÷ ∞
   }
   const sign = (x.sign * y.sign) as 1 | -1;
-  if (isZero(y)) return isZero(x) ? nan() : infinity(sign); // x ÷ 0 · 0 ÷ 0
-  if (isZero(x)) return zero(sign);
+  if (isZero(y)) {
+    return isZero(x) ? nan() : infinity(sign);
+  } // x ÷ 0 · 0 ÷ 0
+  if (isZero(x)) {
+    return zero(sign);
+  }
 
   // Scale the integer division so the quotient carries exactly decimalPlaces decimal places
   const shift = x.scale - y.scale + decimalPlaces;
   let numerator = x.coefficient,
     denominator = y.coefficient;
-  if (shift > 0) numerator *= pow10(shift);
-  else if (shift < 0) denominator *= pow10(-shift);
+  if (shift > 0) {
+    numerator *= pow10(shift);
+  } else if (shift < 0) {
+    denominator *= pow10(-shift);
+  }
   let truncated = numerator / denominator;
-  if (roundUp(truncated, numerator - truncated * denominator, denominator, sign, roundingMode)) truncated += 1n;
-  if (truncated === 0n) return zero(sign);
+  if (roundUp(truncated, numerator - truncated * denominator, denominator, sign, roundingMode)) {
+    truncated += 1n;
+  }
+  if (truncated === 0n) {
+    return zero(sign);
+  }
   const coefficient = stripTrailingZeros(truncated, -decimalPlaces);
   return { sign, coefficient, scale: stripResult.scale };
 }

@@ -117,7 +117,9 @@ function parseInto(x: Big, str: string): void {
     expPos = -1;
   for (; i < len; i++) {
     const code = str.charCodeAt(i);
-    if (code >= 48 && code <= 57) continue; // '0'-'9'
+    if (code >= 48 && code <= 57) {
+      continue;
+    } // '0'-'9'
     if (code === 46 /* '.' */ && dotPos < 0 && expPos < 0) {
       dotPos = i;
       continue;
@@ -131,23 +133,30 @@ function parseInto(x: Big, str: string): void {
   const mantissaEnd = expPos < 0 ? len : expPos;
   const intLen = (dotPos < 0 ? mantissaEnd : dotPos) - digitsStart;
   const fracLen = dotPos < 0 ? 0 : mantissaEnd - dotPos - 1;
-  if (intLen === 0 && fracLen === 0) invalid();
+  if (intLen === 0 && fracLen === 0) {
+    invalid();
+  }
 
   let exp = 0;
   if (expPos >= 0) {
     let j = expPos + 1,
       expSign = 1;
     const first = str.charCodeAt(j);
-    if (first === 43 /* '+' */) j++;
-    else if (first === 45 /* '-' */) {
+    if (first === 43 /* '+' */) {
+      j++;
+    } else if (first === 45 /* '-' */) {
       expSign = -1;
       j++;
     }
-    if (j >= len) invalid();
+    if (j >= len) {
+      invalid();
+    }
     let value = 0;
     for (; j < len; j++) {
       const code = str.charCodeAt(j);
-      if (code < 48 || code > 57) invalid();
+      if (code < 48 || code > 57) {
+        invalid();
+      }
       value = value * 10 + (code - 48);
     }
     exp = expSign * value;
@@ -159,7 +168,9 @@ function parseInto(x: Big, str: string): void {
       : str.slice(digitsStart, dotPos) + str.slice(dotPos + 1, mantissaEnd);
   let start = 0,
     end = digits.length;
-  while (start < end && digits.charCodeAt(start) === 48) start++; // leading zeros
+  while (start < end && digits.charCodeAt(start) === 48) {
+    start++;
+  } // leading zeros
   if (start === end) {
     x.sign = sign;
     x.coefficient = 0n;
@@ -200,7 +211,9 @@ function toBig(x: Big, y: BigSource): Big {
   return y instanceof Object && 'coefficient' in (y as any) ? (y as Big) : new x.constructor(y as any);
 }
 function checkRM(rm: unknown): asserts rm is RoundingMode {
-  if (rm !== 0 && rm !== 1 && rm !== 2 && rm !== 3) throw Error(INVALID_RM);
+  if (rm !== 0 && rm !== 1 && rm !== 2 && rm !== 3) {
+    throw Error(INVALID_RM);
+  }
 }
 
 function digitsOf(x: Big | DecimalValue): string {
@@ -235,9 +248,13 @@ bigPrototype.times = bigPrototype.mul = function (this: Big, y: BigSource): Big 
 bigPrototype.div = function (this: Big, y: BigSource): Big {
   const Ctor = this.constructor,
     dp = Ctor.DP;
-  if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
+  if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+    throw Error(INVALID_DP);
+  }
   const other = toBig(this, y);
-  if (other.coefficient === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return ±∞
+  if (other.coefficient === 0n) {
+    throw Error(DIV_BY_ZERO);
+  } // big.js throws; the core would return ±∞
   const rm = Ctor.RM;
   checkRM(rm);
   return fromDec(Ctor, coreDivToDecimalPlaces(this, other, dp, TO_CORE_RM[rm]));
@@ -245,14 +262,20 @@ bigPrototype.div = function (this: Big, y: BigSource): Big {
 
 bigPrototype.mod = function (this: Big, y: BigSource): Big {
   const other = toBig(this, y);
-  if (other.coefficient === 0n) throw Error(DIV_BY_ZERO); // big.js throws; the core would return NaN
+  if (other.coefficient === 0n) {
+    throw Error(DIV_BY_ZERO);
+  } // big.js throws; the core would return NaN
   return fromDec(this.constructor, coreMod(this, other, 1)); // mode 1 = truncated division (big.js semantics)
 };
 
 bigPrototype.pow = function (this: Big, n: number): Big {
-  if (n !== ~~n || n < -MAX_POWER || n > MAX_POWER) throw Error(INVALID + 'exponent');
+  if (n !== ~~n || n < -MAX_POWER || n > MAX_POWER) {
+    throw Error(INVALID + 'exponent');
+  }
   const Ctor = this.constructor;
-  if (n === 0) return new Ctor(1); // big.js: x^0 = 1 unconditionally (facade policy)
+  if (n === 0) {
+    return new Ctor(1);
+  } // big.js: x^0 = 1 unconditionally (facade policy)
   const isNegativeExp = n < 0;
   const result = fromDec(Ctor, corePowInt(this, isNegativeExp ? -n : n));
   return isNegativeExp ? new Ctor(1).div(result) : result; // 1 ÷ x^n at the facade's DP/RM
@@ -260,10 +283,16 @@ bigPrototype.pow = function (this: Big, n: number): Big {
 
 bigPrototype.sqrt = function (this: Big): Big {
   const Ctor = this.constructor;
-  if (this.coefficient === 0n) return makeBig(Ctor, this.sign, 0n, 0);
-  if (this.sign < 0) throw Error(NAME + 'No square root'); // big.js throws; the core would return NaN
+  if (this.coefficient === 0n) {
+    return makeBig(Ctor, this.sign, 0n, 0);
+  }
+  if (this.sign < 0) {
+    throw Error(NAME + 'No square root');
+  } // big.js throws; the core would return NaN
   const dp = Ctor.DP;
-  if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP); // big.js validates via its inner div
+  if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+    throw Error(INVALID_DP);
+  } // big.js validates via its inner div
   const rm = Ctor.RM;
   checkRM(rm);
   return fromDec(Ctor, coreSqrtToDecimalPlaces(this, dp, TO_CORE_RM[rm]));
@@ -289,16 +318,25 @@ bigPrototype.lte = function (this: Big, y: BigSource): boolean {
 };
 
 bigPrototype.round = function (this: Big, dp?: number, rm?: RoundingMode): Big {
-  if (dp === undefined) dp = 0;
-  else if (dp !== ~~dp || dp < -MAX_DP || dp > MAX_DP) throw Error(INVALID_DP);
-  if (rm === undefined) rm = this.constructor.RM;
+  if (dp === undefined) {
+    dp = 0;
+  } else if (dp !== ~~dp || dp < -MAX_DP || dp > MAX_DP) {
+    throw Error(INVALID_DP);
+  }
+  if (rm === undefined) {
+    rm = this.constructor.RM;
+  }
   checkRM(rm);
   return fromDec(this.constructor, coreRoundToDecimalPlaces(this, dp, TO_CORE_RM[rm]));
 };
 
 bigPrototype.prec = function (this: Big, sd: number, rm?: RoundingMode): Big {
-  if (sd !== ~~sd || sd < 1 || sd > MAX_DP) throw Error(INVALID + 'precision');
-  if (rm === undefined) rm = this.constructor.RM;
+  if (sd !== ~~sd || sd < 1 || sd > MAX_DP) {
+    throw Error(INVALID + 'precision');
+  }
+  if (rm === undefined) {
+    rm = this.constructor.RM;
+  }
   checkRM(rm);
   return fromDec(this.constructor, coreRoundToSignificantDigits(this, sd, TO_CORE_RM[rm]));
 };
@@ -308,14 +346,20 @@ bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode
   let x: Big | DecimalValue = this,
     pad = 0;
   if (dp !== undefined) {
-    if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
-    if (rm === undefined) rm = this.constructor.RM;
+    if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+      throw Error(INVALID_DP);
+    }
+    if (rm === undefined) {
+      rm = this.constructor.RM;
+    }
     checkRM(rm);
     x = coreRoundToSignificantDigits(this, dp + 1, TO_CORE_RM[rm]);
     pad = dp + 1;
   }
   let digits = digitsOf(x);
-  if (pad > digits.length) digits = digits.padEnd(pad, '0');
+  if (pad > digits.length) {
+    digits = digits.padEnd(pad, '0');
+  }
   const exponent = x.coefficient === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
   const body = digits[0] + (digits.length > 1 ? '.' + digits.slice(1) : '') + (exponent < 0 ? 'e' : 'e+') + exponent;
   return x.sign < 0 && wasNonzero ? '-' + body : body;
@@ -325,11 +369,17 @@ bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): str
   const wasNonzero = this.coefficient !== 0n; // big.js decides the sign from the pre-rounding original
   let x: Big | DecimalValue = this;
   if (dp !== undefined) {
-    if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
-    if (rm === undefined) rm = this.constructor.RM;
+    if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+      throw Error(INVALID_DP);
+    }
+    if (rm === undefined) {
+      rm = this.constructor.RM;
+    }
     checkRM(rm);
     x = coreRoundToDecimalPlaces(this, dp, TO_CORE_RM[rm]);
-  } else dp = Math.max(0, -x.scale);
+  } else {
+    dp = Math.max(0, -x.scale);
+  }
   // exactly dp digits after the decimal point, never exponential notation
   let coefficient = x.coefficient as bigint,
     scale = x.scale;
@@ -339,8 +389,9 @@ bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): str
   } // align digits (rounding guarantees scale >= -dp)
   const digits = coefficient.toString();
   let body: string;
-  if (dp === 0) body = digits + (scale > 0 ? '0'.repeat(scale) : '');
-  else {
+  if (dp === 0) {
+    body = digits + (scale > 0 ? '0'.repeat(scale) : '');
+  } else {
     const padded = digits.padStart(dp + 1, '0');
     body = padded.slice(0, padded.length - dp) + '.' + padded.slice(padded.length - dp);
   }
@@ -348,15 +399,23 @@ bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): str
 };
 
 bigPrototype.toPrecision = function (this: Big, sd?: number, rm?: RoundingMode): string {
-  if (sd === undefined) return this.toString();
+  if (sd === undefined) {
+    return this.toString();
+  }
   const Ctor = this.constructor;
   const wasNonzero = this.coefficient !== 0n;
-  if (sd !== ~~sd || sd < 1 || sd > MAX_DP) throw Error(INVALID + 'precision');
-  if (rm === undefined) rm = Ctor.RM;
+  if (sd !== ~~sd || sd < 1 || sd > MAX_DP) {
+    throw Error(INVALID + 'precision');
+  }
+  if (rm === undefined) {
+    rm = Ctor.RM;
+  }
   checkRM(rm);
   const x = coreRoundToSignificantDigits(this, sd, TO_CORE_RM[rm]);
   let digits = digitsOf(x);
-  if (sd > digits.length) digits = digits.padEnd(sd, '0');
+  if (sd > digits.length) {
+    digits = digits.padEnd(sd, '0');
+  }
   const exponent = x.coefficient === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
   let body: string;
   if (sd <= exponent || exponent <= Ctor.NE || exponent >= Ctor.PE) {
@@ -377,12 +436,16 @@ bigPrototype.toString = bigPrototype.toJSON = function (this: Big): string {
   return stringify(this, false);
 };
 bigPrototype.valueOf = function (this: Big): string {
-  if (this.constructor.strict === true) throw Error(NAME + 'valueOf disallowed');
+  if (this.constructor.strict === true) {
+    throw Error(NAME + 'valueOf disallowed');
+  }
   return stringify(this, true);
 };
 bigPrototype.toNumber = function (this: Big): number {
   const n = Number(stringify(this, true));
-  if (this.constructor.strict === true && !this.eq(n.toString())) throw Error(NAME + 'Imprecise conversion');
+  if (this.constructor.strict === true && !this.eq(n.toString())) {
+    throw Error(NAME + 'Imprecise conversion');
+  }
   return n;
 };
 
@@ -405,7 +468,9 @@ Object.defineProperty(bigPrototype, 'c', {
   get(this: Big): number[] {
     const digits = digitsOf(this);
     const result = new Array(digits.length);
-    for (let i = 0; i < digits.length; i++) result[i] = digits.charCodeAt(i) - 48;
+    for (let i = 0; i < digits.length; i++) {
+      result[i] = digits.charCodeAt(i) - 48;
+    }
     return result;
   },
   set(this: Big, value: number[]): void {
@@ -426,7 +491,9 @@ Object.defineProperty(bigPrototype, 'e', {
     return this.coefficient === 0n ? 0 : exponentOf(this);
   },
   set(this: Big, exponent: number): void {
-    if (this.coefficient !== 0n) this.scale = exponent - (digitsOf(this).length - 1);
+    if (this.coefficient !== 0n) {
+      this.scale = exponent - (digitsOf(this).length - 1);
+    }
   },
 });
 

@@ -35,11 +35,15 @@ export function parse(str: string): DecimalValue {
 
   // special literals
   if (str.charCodeAt(i) === 78 /* 'N' */) {
-    if (str.slice(i) === 'NaN' && i === 0) return nan();
+    if (str.slice(i) === 'NaN' && i === 0) {
+      return nan();
+    }
     throw Error(`Invalid decimal string: ${str}`);
   }
   if (str.charCodeAt(i) === 73 /* 'I' */) {
-    if (str.slice(i) === 'Infinity') return infinity(sign);
+    if (str.slice(i) === 'Infinity') {
+      return infinity(sign);
+    }
     throw Error(`Invalid decimal string: ${str}`);
   }
 
@@ -48,7 +52,9 @@ export function parse(str: string): DecimalValue {
     expPos = -1;
   for (; i < len; i++) {
     const code = str.charCodeAt(i);
-    if (code >= 48 && code <= 57) continue; // '0'-'9'
+    if (code >= 48 && code <= 57) {
+      continue;
+    } // '0'-'9'
     if (code === 46 /* '.' */ && dotPos < 0 && expPos < 0) {
       dotPos = i;
       continue;
@@ -62,23 +68,30 @@ export function parse(str: string): DecimalValue {
   const mantissaEnd = expPos < 0 ? len : expPos;
   const intLen = (dotPos < 0 ? mantissaEnd : dotPos) - digitsStart;
   const fracLen = dotPos < 0 ? 0 : mantissaEnd - dotPos - 1;
-  if (intLen === 0 && fracLen === 0) throw Error(`Invalid decimal string: ${str}`);
+  if (intLen === 0 && fracLen === 0) {
+    throw Error(`Invalid decimal string: ${str}`);
+  }
 
   let exp = 0;
   if (expPos >= 0) {
     let j = expPos + 1,
       expSign = 1;
     const c = str.charCodeAt(j);
-    if (c === 43 /* '+' */) j++;
-    else if (c === 45 /* '-' */) {
+    if (c === 43 /* '+' */) {
+      j++;
+    } else if (c === 45 /* '-' */) {
       expSign = -1;
       j++;
     }
-    if (j >= len) throw Error(`Invalid decimal string: ${str}`);
+    if (j >= len) {
+      throw Error(`Invalid decimal string: ${str}`);
+    }
     let value = 0;
     for (; j < len; j++) {
       const code = str.charCodeAt(j);
-      if (code < 48 || code > 57) throw Error(`Invalid decimal string: ${str}`);
+      if (code < 48 || code > 57) {
+        throw Error(`Invalid decimal string: ${str}`);
+      }
       value = value * 10 + (code - 48);
     }
     exp = expSign * value;
@@ -90,8 +103,12 @@ export function parse(str: string): DecimalValue {
       : str.slice(digitsStart, dotPos) + str.slice(dotPos + 1, mantissaEnd);
   let start = 0,
     end = digits.length;
-  while (start < end && digits.charCodeAt(start) === 48) start++; // leading zeros
-  if (start === end) return zero(sign);
+  while (start < end && digits.charCodeAt(start) === 48) {
+    start++;
+  } // leading zeros
+  if (start === end) {
+    return zero(sign);
+  }
   let scale = exp - fracLen;
   while (digits.charCodeAt(end - 1) === 48) {
     end--;

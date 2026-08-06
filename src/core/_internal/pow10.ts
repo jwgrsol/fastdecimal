@@ -2,10 +2,14 @@
 const POWERS_OF_TEN: bigint[] = [1n];
 
 export function pow10(n: number): bigint {
-  if (n < POWERS_OF_TEN.length) return POWERS_OF_TEN[n];
+  if (n < POWERS_OF_TEN.length) {
+    return POWERS_OF_TEN[n];
+  }
   if (n <= 4096) {
     let value = POWERS_OF_TEN[POWERS_OF_TEN.length - 1];
-    for (let i = POWERS_OF_TEN.length; i <= n; i++) POWERS_OF_TEN[i] = value *= 10n;
+    for (let i = POWERS_OF_TEN.length; i <= n; i++) {
+      POWERS_OF_TEN[i] = value *= 10n;
+    }
     return value;
   }
   return 10n ** BigInt(n);

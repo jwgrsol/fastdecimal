@@ -6,7 +6,9 @@ const require = createRequire(import.meta.url);
 
 let failed = 0;
 function check(label, actual, expected) {
-  if (actual === expected) return;
+  if (actual === expected) {
+    return;
+  }
   failed++;
   console.error(`FAIL ${label}: expected ${expected}, got ${actual}`);
 }
@@ -28,5 +30,7 @@ check('esm big', new BigEsm('0.1').plus('0.2').toString(), '0.3');
 const coreEsm = await import('../dist/index.mjs');
 check('esm core', coreEsm.toString(coreEsm.mul(coreEsm.parse('1.5'), coreEsm.parse('-2'))), '-3');
 
-if (failed > 0) process.exit(1);
+if (failed > 0) {
+  process.exit(1);
+}
 console.log(`dist smoke: all checks passed on node ${process.version}`);

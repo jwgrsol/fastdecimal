@@ -22,11 +22,15 @@ import { isFinite, isNaN, isZero } from './predicates.ts';
  */
 export function powInt(x: DecimalValue, n: number): DecimalValue {
   if (!isFinite(x)) {
-    if (isNaN(x)) return nan();
+    if (isNaN(x)) {
+      return nan();
+    }
     return infinity(x.sign < 0 && n & 1 ? -1 : 1); // (±∞)^n
   }
   const sign: 1 | -1 = x.sign < 0 && n & 1 ? -1 : 1;
-  if (isZero(x)) return zero(sign);
+  if (isZero(x)) {
+    return zero(sign);
+  }
   const coefficient = stripTrailingZeros(x.coefficient ** BigInt(n), x.scale * n);
   return { sign, coefficient, scale: stripResult.scale };
 }

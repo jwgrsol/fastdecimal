@@ -35,10 +35,14 @@ function mulberry32(seed) {
 }
 function randomDecimalString(rand, intDigits, fracDigits) {
   let s = String(1 + Math.floor(rand() * 9)); // non-zero leading digit
-  for (let i = 1; i < intDigits; i++) s += Math.floor(rand() * 10);
+  for (let i = 1; i < intDigits; i++) {
+    s += Math.floor(rand() * 10);
+  }
   if (fracDigits > 0) {
     s += '.';
-    for (let i = 0; i < fracDigits - 1; i++) s += Math.floor(rand() * 10);
+    for (let i = 0; i < fracDigits - 1; i++) {
+      s += Math.floor(rand() * 10);
+    }
     s += 1 + Math.floor(rand() * 9); // non-zero last digit (keeps the full precision)
   }
   return s;
@@ -139,14 +143,20 @@ console.log(
   `fastdecimal bench — ops: ${opFilter.join(', ')} | sizes: ${sizeFilter.join(', ')}${quick ? ' | quick' : ''}`
 );
 const bench = new Bench({ time: sampleTimeMs, warmupTime: Math.max(10, sampleTimeMs / 4) });
-for (const c of cases) bench.add(c.name, c.run);
+for (const c of cases) {
+  bench.add(c.name, c.run);
+}
 await bench.run();
 
 // hz across tinybench major versions: v2 exposes result.hz, newer versions expose latency stats in ms
 function opsPerSec(task) {
   const r = task.result;
-  if (!r) return NaN;
-  if (typeof r.hz === 'number') return r.hz;
+  if (!r) {
+    return NaN;
+  }
+  if (typeof r.hz === 'number') {
+    return r.hz;
+  }
   const meanMs = r.latency?.mean ?? r.mean;
   return meanMs ? 1000 / meanMs : NaN;
 }
@@ -155,7 +165,9 @@ const byCase = new Map();
 for (let i = 0; i < cases.length; i++) {
   const { opName, sizeName, libName } = cases[i];
   const key = `${opName}|${sizeName}`;
-  if (!byCase.has(key)) byCase.set(key, { opName, sizeName });
+  if (!byCase.has(key)) {
+    byCase.set(key, { opName, sizeName });
+  }
   byCase.get(key)[libName] = opsPerSec(bench.tasks[i]);
 }
 

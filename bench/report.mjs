@@ -53,9 +53,11 @@ function panel(sizeName) {
     parts.push(`<line x1="${x1}" y1="${y}" x2="${x}" y2="${y}" class="stem"/>`);
     parts.push(`<circle cx="${x}" cy="${y}" r="5" class="dot ${cls}"/>`);
     // selective direct labels: the panel max and every slower-than-parity case
-    if (r === maxRow) parts.push(`<text x="${x + 10}" y="${y + 4}" class="vlabel">${fmtRatio(r.ratio)}</text>`);
-    else if (r.ratio < 1)
+    if (r === maxRow) {
+      parts.push(`<text x="${x + 10}" y="${y + 4}" class="vlabel">${fmtRatio(r.ratio)}</text>`);
+    } else if (r.ratio < 1) {
       parts.push(`<text x="${x - 10}" y="${y + 4}" class="vlabel" text-anchor="end">${fmtRatio(r.ratio)}</text>`);
+    }
     // oversized invisible hit target for the tooltip
     parts.push(
       `<circle cx="${x}" cy="${y}" r="13" class="hit" data-op="${r.opName}" data-size="${sizeName}" data-big="${fmtOps(r['big.js'])}" data-fast="${fmtOps(r['fastdecimal'])}" data-ratio="${fmtRatio(r.ratio)}"/>`

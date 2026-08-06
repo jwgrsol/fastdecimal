@@ -29,12 +29,20 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  */
 export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): DecimalValue {
   if (!isFinite(x) || !isFinite(y)) {
-    if (isNaN(x) || isNaN(y)) return nan();
-    if (isInfinite(x)) return nan(); // ±∞ mod y
+    if (isNaN(x) || isNaN(y)) {
+      return nan();
+    }
+    if (isInfinite(x)) {
+      return nan();
+    } // ±∞ mod y
     return { sign: x.sign, coefficient: x.coefficient, scale: x.scale }; // finite mod ±∞ = x
   }
-  if (isZero(y)) return nan(); // x mod 0
-  if (isZero(x)) return zero(x.sign as 1 | -1);
+  if (isZero(y)) {
+    return nan();
+  } // x mod 0
+  if (isZero(x)) {
+    return zero(x.sign as 1 | -1);
+  }
 
   // Align both operands to a common scale so the division is over integers
   const scaleDiff = x.scale - y.scale;
@@ -55,7 +63,9 @@ export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): Decimal
   if (truncRemainder !== 0n) {
     if (mode === 9) {
       // EUCLID: q = sign(y)·floor(x ÷ |y|) — for a negative dividend, floor sits one below trunc
-      if (x.sign < 0) quotientBump = 1n;
+      if (x.sign < 0) {
+        quotientBump = 1n;
+      }
     } else if (roundUp(truncated, truncRemainder, yMag, x.sign * y.sign, mode as RoundingMode)) {
       quotientBump = 1n;
     }
@@ -64,7 +74,9 @@ export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): Decimal
   // r = sign(x) · (truncRemainder − bump·|y|)  [derived from r = x − y·q]
   let remainder = truncRemainder - quotientBump * yMag;
   let sign: 1 | -1 = x.sign as 1 | -1;
-  if (remainder === 0n) return zero(1);
+  if (remainder === 0n) {
+    return zero(1);
+  }
   if (remainder < 0n) {
     remainder = -remainder;
     sign = -sign as 1 | -1;

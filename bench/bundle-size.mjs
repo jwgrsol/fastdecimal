@@ -48,7 +48,9 @@ async function measure({ name, code }) {
 }
 
 const results = [];
-for (const scenario of SCENARIOS) results.push(await measure(scenario));
+for (const scenario of SCENARIOS) {
+  results.push(await measure(scenario));
+}
 
 const fmt = n => `${(n / 1024).toFixed(2)} KB`;
 const width = Math.max(...results.map(r => r.name.length));

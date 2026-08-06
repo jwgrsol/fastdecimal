@@ -21,18 +21,33 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  */
 export function cmp(x: DecimalValue, y: DecimalValue): number {
   if (!isFinite(x) || !isFinite(y)) {
-    if (isNaN(x) || isNaN(y)) return NaN;
-    if (isInfinite(x) && isInfinite(y)) return x.sign === y.sign ? 0 : x.sign;
-    if (isInfinite(x)) return x.sign; // ±∞ vs finite
+    if (isNaN(x) || isNaN(y)) {
+      return NaN;
+    }
+    if (isInfinite(x) && isInfinite(y)) {
+      return x.sign === y.sign ? 0 : x.sign;
+    }
+    if (isInfinite(x)) {
+      return x.sign;
+    } // ±∞ vs finite
     return -y.sign; // finite vs ±∞
   }
-  if (isZero(x)) return isZero(y) ? 0 : -y.sign;
-  if (isZero(y)) return x.sign;
-  if (x.sign !== y.sign) return x.sign;
+  if (isZero(x)) {
+    return isZero(y) ? 0 : -y.sign;
+  }
+  if (isZero(y)) {
+    return x.sign;
+  }
+  if (x.sign !== y.sign) {
+    return x.sign;
+  }
   const scaleDiff = x.scale - y.scale;
   let xMag = x.coefficient,
     yMag = y.coefficient;
-  if (scaleDiff > 0) xMag *= pow10(scaleDiff);
-  else if (scaleDiff < 0) yMag *= pow10(-scaleDiff);
+  if (scaleDiff > 0) {
+    xMag *= pow10(scaleDiff);
+  } else if (scaleDiff < 0) {
+    yMag *= pow10(-scaleDiff);
+  }
   return xMag === yMag ? 0 : (xMag > yMag ? 1 : -1) * x.sign;
 }

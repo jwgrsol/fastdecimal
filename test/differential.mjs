@@ -15,8 +15,9 @@ let passed = 0,
   failed = 0;
 const failures = [];
 function record(label, expected, actual) {
-  if (String(expected) === String(actual)) passed++;
-  else {
+  if (String(expected) === String(actual)) {
+    passed++;
+  } else {
     failed++;
     failures.push({ label, expected: String(expected), actual: String(actual) });
   }
@@ -119,17 +120,27 @@ const rnd = () => {
 function randomDecimal() {
   // biased toward edge shapes: zeros, trailing zeros, long digits, exponents
   const roll = rnd();
-  if (roll < 0.05) return rnd() < 0.5 ? '0' : '-0';
+  if (roll < 0.05) {
+    return rnd() < 0.5 ? '0' : '-0';
+  }
   const intDigits = 1 + Math.floor(rnd() * (roll < 0.5 ? 8 : 40));
   const fracDigits = Math.floor(rnd() * (roll < 0.5 ? 8 : 40));
   let s = rnd() < 0.5 ? '-' : '';
-  for (let i = 0; i < intDigits; i++) s += Math.floor(rnd() * 10);
-  if (rnd() < 0.2 && !fracDigits) s += '0'.repeat(1 + Math.floor(rnd() * 4)); // trailing zeros
+  for (let i = 0; i < intDigits; i++) {
+    s += Math.floor(rnd() * 10);
+  }
+  if (rnd() < 0.2 && !fracDigits) {
+    s += '0'.repeat(1 + Math.floor(rnd() * 4));
+  } // trailing zeros
   if (fracDigits) {
     s += '.';
-    for (let i = 0; i < fracDigits; i++) s += Math.floor(rnd() * 10);
+    for (let i = 0; i < fracDigits; i++) {
+      s += Math.floor(rnd() * 10);
+    }
   }
-  if (rnd() < 0.15) s += 'e' + (rnd() < 0.5 ? '-' : '+') + Math.floor(rnd() * 30);
+  if (rnd() < 0.15) {
+    s += 'e' + (rnd() < 0.5 ? '-' : '+') + Math.floor(rnd() * 30);
+  }
   return s;
 }
 const OPS = [
@@ -158,7 +169,9 @@ for (let i = 0; i < FUZZ_ITERATIONS; i++) {
   // Upstream big.js hangs (infinite Newton oscillation) when sqrt's result
   // exponent sits far below -DP, so those inputs cannot be compared — skip.
   // fastdecimal itself terminates there (iteration cap in core sqrt).
-  if (OPS.indexOf(op) === SQRT_OP && new Orig(a).abs().e < -(dp + 2) * 2) op = OPS[0];
+  if (OPS.indexOf(op) === SQRT_OP && new Orig(a).abs().e < -(dp + 2) * 2) {
+    op = OPS[0];
+  }
   Orig.DP = Fast.DP = dp;
   Orig.RM = Fast.RM = rm;
   let expected, actual;
@@ -180,6 +193,8 @@ Orig.RM = Fast.RM = 1;
 for (const f of failures.slice(0, 5)) {
   console.log(`DIFF ${f.label}\n  big.js      = ${f.expected}\n  fastdecimal = ${f.actual}`);
 }
-if (failures.length > 5) console.log(`... and ${failures.length - 5} more`);
+if (failures.length > 5) {
+  console.log(`... and ${failures.length - 5} more`);
+}
 console.log(`differential vs upstream big.js: ${passed} passed, ${failed} failed (seed ${FUZZ_SEED.toString(16)})`);
 process.exit(failed === 0 ? 0 : 1);

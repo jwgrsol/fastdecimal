@@ -16,7 +16,9 @@ export function roundUp(
   sign: number,
   roundingMode: RoundingMode
 ): boolean {
-  if (remainder === 0n) return false;
+  if (remainder === 0n) {
+    return false;
+  }
   switch (roundingMode) {
     case 0:
       return true; // UP — away from zero
@@ -28,8 +30,12 @@ export function roundUp(
       return sign < 0; // FLOOR
   }
   const doubled = remainder * 2n;
-  if (doubled > divisor) return true;
-  if (doubled < divisor) return false;
+  if (doubled > divisor) {
+    return true;
+  }
+  if (doubled < divisor) {
+    return false;
+  }
   // exact tie
   switch (roundingMode) {
     case 4:
