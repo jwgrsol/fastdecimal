@@ -8,7 +8,9 @@
 // (dist/big.d.mts) is left untouched.
 import { writeFileSync } from 'node:fs';
 
-writeFileSync(new URL('../dist/big.d.ts', import.meta.url), `\
+writeFileSync(
+  new URL('../dist/big.d.ts', import.meta.url),
+  `\
 import type * as m from './big.mjs';
 
 declare const Big: m.BigConstructor;
@@ -21,5 +23,6 @@ declare namespace Big {
 }
 
 export = Big;
-`);
+`
+);
 console.log('postbuild: dist/big.d.ts rewritten to `export =` form (CJS interop types)');

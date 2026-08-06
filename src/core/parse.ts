@@ -13,8 +13,12 @@ export function parse(str: string): DecimalValue {
   let i = 0;
   let sign: 1 | -1 = 1;
   const first = str.charCodeAt(0);
-  if (first === 45 /* '-' */) { sign = -1; i = 1; }
-  else if (first === 43 /* '+' */) { i = 1; }
+  if (first === 45 /* '-' */) {
+    sign = -1;
+    i = 1;
+  } else if (first === 43 /* '+' */) {
+    i = 1;
+  }
 
   // special literals
   if (str.charCodeAt(i) === 78 /* 'N' */) {
@@ -27,12 +31,19 @@ export function parse(str: string): DecimalValue {
   }
 
   const digitsStart = i;
-  let dotPos = -1, expPos = -1;
+  let dotPos = -1,
+    expPos = -1;
   for (; i < len; i++) {
     const code = str.charCodeAt(i);
     if (code >= 48 && code <= 57) continue; // '0'-'9'
-    if (code === 46 /* '.' */ && dotPos < 0 && expPos < 0) { dotPos = i; continue; }
-    if ((code === 101 || code === 69) /* 'e' | 'E' */ && i > digitsStart) { expPos = i; break; }
+    if (code === 46 /* '.' */ && dotPos < 0 && expPos < 0) {
+      dotPos = i;
+      continue;
+    }
+    if ((code === 101 || code === 69) /* 'e' | 'E' */ && i > digitsStart) {
+      expPos = i;
+      break;
+    }
     throw Error(`Invalid decimal string: ${str}`);
   }
   const mantissaEnd = expPos < 0 ? len : expPos;
@@ -42,9 +53,14 @@ export function parse(str: string): DecimalValue {
 
   let exp = 0;
   if (expPos >= 0) {
-    let j = expPos + 1, expSign = 1;
+    let j = expPos + 1,
+      expSign = 1;
     const c = str.charCodeAt(j);
-    if (c === 43 /* '+' */) j++; else if (c === 45 /* '-' */) { expSign = -1; j++; }
+    if (c === 43 /* '+' */) j++;
+    else if (c === 45 /* '-' */) {
+      expSign = -1;
+      j++;
+    }
     if (j >= len) throw Error(`Invalid decimal string: ${str}`);
     let value = 0;
     for (; j < len; j++) {
@@ -55,14 +71,19 @@ export function parse(str: string): DecimalValue {
     exp = expSign * value;
   }
 
-  const digits = dotPos < 0
-    ? str.slice(digitsStart, mantissaEnd)
-    : str.slice(digitsStart, dotPos) + str.slice(dotPos + 1, mantissaEnd);
-  let start = 0, end = digits.length;
+  const digits =
+    dotPos < 0
+      ? str.slice(digitsStart, mantissaEnd)
+      : str.slice(digitsStart, dotPos) + str.slice(dotPos + 1, mantissaEnd);
+  let start = 0,
+    end = digits.length;
   while (start < end && digits.charCodeAt(start) === 48) start++; // leading zeros
   if (start === end) return zero(sign);
   let scale = exp - fracLen;
-  while (digits.charCodeAt(end - 1) === 48) { end--; scale++; }   // trailing zeros
+  while (digits.charCodeAt(end - 1) === 48) {
+    end--;
+    scale++;
+  } // trailing zeros
   return {
     sign,
     coefficient: BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits),

@@ -6,18 +6,17 @@ import { toString } from './toString.ts';
 import { nan } from './make.ts';
 import { isNaN } from './predicates.ts';
 
-const round = (value: string, dp: number, rm: RoundingMode) =>
-  toString(roundToDecimalPlaces(parse(value), dp, rm));
+const round = (value: string, dp: number, rm: RoundingMode) => toString(roundToDecimalPlaces(parse(value), dp, rm));
 
 describe('roundToDecimalPlaces', () => {
   // Every mode against signed values, including exact ties (contract §3)
   const matrix: Array<[string, string[]]> = [
     //         UP    DOWN  CEIL  FLOOR H_UP  H_DN  H_EVEN H_CEIL H_FLOOR
-    ['2.5',  ['3',  '2',  '3',  '2',  '3',  '2',  '2',   '3',   '2']],
-    ['-2.5', ['-3', '-2', '-2', '-3', '-3', '-2', '-2',  '-2',  '-3']],
-    ['3.5',  ['4',  '3',  '4',  '3',  '4',  '3',  '4',   '4',   '3']],
-    ['2.4',  ['3',  '2',  '3',  '2',  '2',  '2',  '2',   '2',   '2']],
-    ['-2.4', ['-3', '-2', '-2', '-3', '-2', '-2', '-2',  '-2',  '-2']],
+    ['2.5', ['3', '2', '3', '2', '3', '2', '2', '3', '2']],
+    ['-2.5', ['-3', '-2', '-2', '-3', '-3', '-2', '-2', '-2', '-3']],
+    ['3.5', ['4', '3', '4', '3', '4', '3', '4', '4', '3']],
+    ['2.4', ['3', '2', '3', '2', '2', '2', '2', '2', '2']],
+    ['-2.4', ['-3', '-2', '-2', '-3', '-2', '-2', '-2', '-2', '-2']],
   ];
   it.each(matrix)('rounds %s correctly in all 9 modes', (value, expected) => {
     for (let rm = 0; rm <= 8; rm++) {

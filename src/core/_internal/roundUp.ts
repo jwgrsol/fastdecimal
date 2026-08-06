@@ -14,24 +14,33 @@ export function roundUp(
   remainder: bigint,
   divisor: bigint,
   sign: number,
-  roundingMode: RoundingMode,
+  roundingMode: RoundingMode
 ): boolean {
   if (remainder === 0n) return false;
   switch (roundingMode) {
-    case 0: return true;                    // UP — away from zero
-    case 1: return false;                   // DOWN — truncate
-    case 2: return sign > 0;                // CEIL
-    case 3: return sign < 0;                // FLOOR
+    case 0:
+      return true; // UP — away from zero
+    case 1:
+      return false; // DOWN — truncate
+    case 2:
+      return sign > 0; // CEIL
+    case 3:
+      return sign < 0; // FLOOR
   }
   const doubled = remainder * 2n;
   if (doubled > divisor) return true;
   if (doubled < divisor) return false;
   // exact tie
   switch (roundingMode) {
-    case 4: return true;                    // HALF_UP — ties away from zero
-    case 5: return false;                   // HALF_DOWN — ties toward zero
-    case 6: return (truncated & 1n) === 1n; // HALF_EVEN — ties to even
-    case 7: return sign > 0;                // HALF_CEIL
-    default: return sign < 0;               // 8 HALF_FLOOR
+    case 4:
+      return true; // HALF_UP — ties away from zero
+    case 5:
+      return false; // HALF_DOWN — ties toward zero
+    case 6:
+      return (truncated & 1n) === 1n; // HALF_EVEN — ties to even
+    case 7:
+      return sign > 0; // HALF_CEIL
+    default:
+      return sign < 0; // 8 HALF_FLOOR
   }
 }

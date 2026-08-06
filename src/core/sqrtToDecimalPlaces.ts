@@ -64,7 +64,7 @@ export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roun
   } while (
     ++iterations < 100 &&
     (prev.coefficient as bigint).toString().slice(0, cmpDigits) !==
-    (result.coefficient as bigint).toString().slice(0, cmpDigits)
+      (result.coefficient as bigint).toString().slice(0, cmpDigits)
   );
   return roundToSignificantDigits(result, decimalPlaces + exponentOf(result) + 1, roundingMode);
 }

@@ -7,28 +7,31 @@ import { dirname, join } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 const { meta, results } = JSON.parse(readFileSync(join(here, 'results.json'), 'utf8'));
 
-const OPS = [...new Set(results.map((r) => r.opName))];
-const SIZES = [...new Set(results.map((r) => r.sizeName))];
+const OPS = [...new Set(results.map(r => r.opName))];
+const SIZES = [...new Set(results.map(r => r.sizeName))];
 
 // ---- layout ----
-const ROW_H = 24, M = { top: 8, right: 74, bottom: 30, left: 88 };
-const W = 760, innerW = W - M.left - M.right;
+const ROW_H = 24,
+  M = { top: 8, right: 74, bottom: 30, left: 88 };
+const W = 760,
+  innerW = W - M.left - M.right;
 const panelH = M.top + OPS.length * ROW_H + M.bottom;
 
 // log-10 x scale over the data range with headroom
-const ratios = results.map((r) => r.ratio);
+const ratios = results.map(r => r.ratio);
 const domainMin = Math.min(0.4, ...ratios) / 1.4;
 const domainMax = Math.max(4, ...ratios) * 1.4;
-const xPos = (v) => M.left + ((Math.log10(v) - Math.log10(domainMin)) / (Math.log10(domainMax) - Math.log10(domainMin))) * innerW;
-const TICKS = [0.25, 1, 4, 16, 64, 256, 1024].filter((t) => t > domainMin && t < domainMax);
+const xPos = v =>
+  M.left + ((Math.log10(v) - Math.log10(domainMin)) / (Math.log10(domainMax) - Math.log10(domainMin))) * innerW;
+const TICKS = [0.25, 1, 4, 16, 64, 256, 1024].filter(t => t > domainMin && t < domainMax);
 
-const fmtOps = (n) => Math.round(n).toLocaleString('en-US');
-const fmtRatio = (r) => (r >= 100 ? `${Math.round(r)}×` : `${r.toFixed(2)}×`);
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const fmtOps = n => Math.round(n).toLocaleString('en-US');
+const fmtRatio = r => (r >= 100 ? `${Math.round(r)}×` : `${r.toFixed(2)}×`);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 // ---- one panel per operand size ----
 function panel(sizeName) {
-  const rows = OPS.map((op) => results.find((r) => r.sizeName === sizeName && r.opName === op)).filter(Boolean);
+  const rows = OPS.map(op => results.find(r => r.sizeName === sizeName && r.opName === op)).filter(Boolean);
   const maxRow = rows.reduce((a, b) => (b.ratio > a.ratio ? b : a));
   const parts = [];
 
@@ -51,9 +54,12 @@ function panel(sizeName) {
     parts.push(`<circle cx="${x}" cy="${y}" r="5" class="dot ${cls}"/>`);
     // selective direct labels: the panel max and every slower-than-parity case
     if (r === maxRow) parts.push(`<text x="${x + 10}" y="${y + 4}" class="vlabel">${fmtRatio(r.ratio)}</text>`);
-    else if (r.ratio < 1) parts.push(`<text x="${x - 10}" y="${y + 4}" class="vlabel" text-anchor="end">${fmtRatio(r.ratio)}</text>`);
+    else if (r.ratio < 1)
+      parts.push(`<text x="${x - 10}" y="${y + 4}" class="vlabel" text-anchor="end">${fmtRatio(r.ratio)}</text>`);
     // oversized invisible hit target for the tooltip
-    parts.push(`<circle cx="${x}" cy="${y}" r="13" class="hit" data-op="${r.opName}" data-size="${sizeName}" data-big="${fmtOps(r['big.js'])}" data-fast="${fmtOps(r['fastdecimal'])}" data-ratio="${fmtRatio(r.ratio)}"/>`);
+    parts.push(
+      `<circle cx="${x}" cy="${y}" r="13" class="hit" data-op="${r.opName}" data-size="${sizeName}" data-big="${fmtOps(r['big.js'])}" data-fast="${fmtOps(r['fastdecimal'])}" data-ratio="${fmtRatio(r.ratio)}"/>`
+    );
   });
 
   return `<section class="panel">
@@ -64,13 +70,16 @@ function panel(sizeName) {
 </section>`;
 }
 
-const fasterCount = results.filter((r) => r.ratio >= 1).length;
+const fasterCount = results.filter(r => r.ratio >= 1).length;
 const median = [...ratios].sort((a, b) => a - b)[Math.floor(ratios.length / 2)];
 const max = Math.max(...ratios);
 
-const tableRows = results.map((r) =>
-  `<tr><td>${r.opName}</td><td>${r.sizeName}</td><td class="num">${fmtOps(r['big.js'])}</td><td class="num">${fmtOps(r['fastdecimal'])}</td><td class="num">${fmtRatio(r.ratio)}</td></tr>`,
-).join('\n');
+const tableRows = results
+  .map(
+    r =>
+      `<tr><td>${r.opName}</td><td>${r.sizeName}</td><td class="num">${fmtOps(r['big.js'])}</td><td class="num">${fmtOps(r['fastdecimal'])}</td><td class="num">${fmtRatio(r.ratio)}</td></tr>`
+  )
+  .join('\n');
 
 const html = `<!doctype html>
 <html lang="en">

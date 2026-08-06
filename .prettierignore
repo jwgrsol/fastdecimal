@@ -1,0 +1,8 @@
+dist/
+node_modules/
+.yarn/
+test/vendored/
+bench/report.html
+bench/RESULTS.md
+bench/results.json
+bench/bundle-size.json

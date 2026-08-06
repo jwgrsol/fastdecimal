@@ -10,8 +10,8 @@ import { nan, infinity, zero } from './make.ts';
  */
 export function mul(x: DecimalValue, y: DecimalValue): DecimalValue {
   if (x.coefficient === null || y.coefficient === null) {
-    if (x.sign === 0 || y.sign === 0) return nan();       // NaN operand
-    if (x.coefficient === 0n || y.coefficient === 0n) return nan();     // ∞ × 0
+    if (x.sign === 0 || y.sign === 0) return nan(); // NaN operand
+    if (x.coefficient === 0n || y.coefficient === 0n) return nan(); // ∞ × 0
     return infinity((x.sign * y.sign) as 1 | -1);
   }
   const sign = (x.sign * y.sign) as 1 | -1;

@@ -9,10 +9,10 @@ import { nan, infinity, zero } from './make.ts';
  */
 export function powInt(x: DecimalValue, n: number): DecimalValue {
   if (x.coefficient === null) {
-    if (x.sign === 0) return nan();                       // NaN^n
-    return infinity(x.sign < 0 && (n & 1) ? -1 : 1);      // (±∞)^n
+    if (x.sign === 0) return nan(); // NaN^n
+    return infinity(x.sign < 0 && n & 1 ? -1 : 1); // (±∞)^n
   }
-  const sign: 1 | -1 = x.sign < 0 && (n & 1) ? -1 : 1;
+  const sign: 1 | -1 = x.sign < 0 && n & 1 ? -1 : 1;
   if (x.coefficient === 0n) return zero(sign);
   const coefficient = stripTrailingZeros(x.coefficient ** BigInt(n), x.scale * n);
   return { sign, coefficient, scale: stripResult.scale };

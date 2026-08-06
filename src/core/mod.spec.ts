@@ -35,8 +35,8 @@ describe('mod', () => {
   });
 
   it('special-value semantics', () => {
-    expect(isNaN(mod(parse('1'), parse('0'), 1))).toBe(true);  // x mod 0
+    expect(isNaN(mod(parse('1'), parse('0'), 1))).toBe(true); // x mod 0
     expect(isNaN(mod(infinity(1), parse('3'), 1))).toBe(true); // ±∞ mod y
-    expect(rem('-7.5', 'Infinity', 1)).toBe('-7.5');           // finite mod ±∞ = x
+    expect(rem('-7.5', 'Infinity', 1)).toBe('-7.5'); // finite mod ±∞ = x
   });
 });
