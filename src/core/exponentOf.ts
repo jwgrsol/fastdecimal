@@ -17,7 +17,11 @@ import { isFinite, isZero } from './predicates.ts';
  * exponentOf(parse('0.00012')); // -4
  */
 export function exponentOf(x: DecimalValue): number {
-  if (!isFinite(x)) return NaN;
-  if (isZero(x)) return 0;
+  if (!isFinite(x)) {
+    return NaN;
+  }
+  if (isZero(x)) {
+    return 0;
+  }
   return x.coefficient.toString().length - 1 + x.scale;
 }

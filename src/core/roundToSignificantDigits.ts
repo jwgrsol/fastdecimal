@@ -25,6 +25,8 @@ export function roundToSignificantDigits(
   significantDigits: number,
   roundingMode: RoundingMode
 ): DecimalValue {
-  if (!isFinite(x) || isZero(x)) return { sign: x.sign, coefficient: x.coefficient, scale: isFinite(x) ? x.scale : 0 };
+  if (!isFinite(x) || isZero(x)) {
+    return { sign: x.sign, coefficient: x.coefficient, scale: isFinite(x) ? x.scale : 0 };
+  }
   return roundToDecimalPlaces(x, significantDigits - exponentOf(x) - 1, roundingMode);
 }

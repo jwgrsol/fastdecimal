@@ -73,7 +73,9 @@ export function fromNormalized(sign: 1 | -1, coefficient: bigint, scale: number)
  * fromParts(1, 12300n, -2); // { sign: 1, coefficient: 123n, scale: 0 } — i.e. 123
  */
 export function fromParts(sign: 1 | -1, coefficient: bigint, scale: number): DecimalValue {
-  if (coefficient === 0n) return { sign, coefficient: 0n, scale: 0 };
+  if (coefficient === 0n) {
+    return { sign, coefficient: 0n, scale: 0 };
+  }
   const stripped = stripTrailingZeros(coefficient, scale);
   return { sign, coefficient: stripped, scale: stripResult.scale };
 }

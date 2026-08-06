@@ -21,7 +21,9 @@ import { isFinite, isNaN, isZero } from './predicates.ts';
  * toString(parse('-0'));           // '-0'
  */
 export function toString(x: DecimalValue, negativeExponent = -7, positiveExponent = 21, signedZero = true): string {
-  if (!isFinite(x)) return isNaN(x) ? 'NaN' : x.sign > 0 ? 'Infinity' : '-Infinity';
+  if (!isFinite(x)) {
+    return isNaN(x) ? 'NaN' : x.sign > 0 ? 'Infinity' : '-Infinity';
+  }
   const digits = x.coefficient.toString();
   const exponent = isZero(x) ? 0 : digits.length - 1 + x.scale;
   let body: string;

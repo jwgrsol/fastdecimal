@@ -21,12 +21,18 @@ import { isFinite, isNaN, isZero } from './predicates.ts';
  */
 export function mul(x: DecimalValue, y: DecimalValue): DecimalValue {
   if (!isFinite(x) || !isFinite(y)) {
-    if (isNaN(x) || isNaN(y)) return nan();
-    if (isZero(x) || isZero(y)) return nan(); // ∞ × 0
+    if (isNaN(x) || isNaN(y)) {
+      return nan();
+    }
+    if (isZero(x) || isZero(y)) {
+      return nan();
+    } // ∞ × 0
     return infinity((x.sign * y.sign) as 1 | -1);
   }
   const sign = (x.sign * y.sign) as 1 | -1;
-  if (isZero(x) || isZero(y)) return zero(sign);
+  if (isZero(x) || isZero(y)) {
+    return zero(sign);
+  }
   const coefficient = stripTrailingZeros(x.coefficient * y.coefficient, x.scale + y.scale);
   return { sign, coefficient, scale: stripResult.scale };
 }

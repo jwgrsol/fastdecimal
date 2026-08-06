@@ -37,11 +37,17 @@ const HALF: DecimalValue = { sign: 1, coefficient: 5n, scale: -1 };
  */
 export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
   if (!isFinite(x)) {
-    if (isNaN(x)) return nan();
+    if (isNaN(x)) {
+      return nan();
+    }
     return x.sign > 0 ? infinity(1) : nan(); // +∞ → +∞ · −∞ → NaN
   }
-  if (isZero(x)) return zero(x.sign as 1 | -1); // ±0 → ±0
-  if (x.sign < 0) return nan();
+  if (isZero(x)) {
+    return zero(x.sign as 1 | -1);
+  } // ±0 → ±0
+  if (x.sign < 0) {
+    return nan();
+  }
 
   // Initial estimate via float sqrt (same strategy as big.js)
   let estimate = Math.sqrt(Number(toString(x)));
@@ -50,12 +56,15 @@ export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roun
     // Value out of float range: estimate from the digits and halve the exponent
     let digits = x.coefficient.toString();
     const exponent = exponentOf(x);
-    if (!((digits.length + exponent) & 1)) digits += '0';
+    if (!((digits.length + exponent) & 1)) {
+      digits += '0';
+    }
     estimate = Math.sqrt(Number(digits));
     const halfExp = (((exponent + 1) / 2) | 0) - (exponent < 0 || exponent & 1 ? 1 : 0);
     let mantissa: string;
-    if (estimate === Infinity) mantissa = '5e';
-    else {
+    if (estimate === Infinity) {
+      mantissa = '5e';
+    } else {
       const text = estimate.toExponential();
       mantissa = text.slice(0, text.indexOf('e') + 1);
     }

@@ -21,11 +21,6 @@ export default defineConfig(
     },
   },
   pluginJs.configs.recommended,
-  {
-    rules: {
-      curly: ['error', 'all'], // every branch gets braces — uniform shape, clean future diffs
-    },
-  },
   ...tseslint.configs.recommended,
   {
     // The facade reproduces big.js's dynamic constructor semantics (function-style
@@ -46,5 +41,11 @@ export default defineConfig(
       'vitest/no-commented-out-tests': 'warn',
     },
   },
-  prettier
+  prettier,
+  {
+    // After the prettier config, which blanket-disables curly (safe with 'all')
+    rules: {
+      curly: ['error', 'all'], // every branch gets braces — uniform shape, clean future diffs
+    },
+  }
 );

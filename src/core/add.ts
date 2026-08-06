@@ -25,11 +25,17 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  */
 export function add(x: DecimalValue, y: DecimalValue): DecimalValue {
   if (!isFinite(x) || !isFinite(y)) {
-    if (isNaN(x) || isNaN(y)) return nan();
-    if (isInfinite(x) && isInfinite(y)) return x.sign === y.sign ? infinity(x.sign) : nan(); // ∞ + (−∞)
+    if (isNaN(x) || isNaN(y)) {
+      return nan();
+    }
+    if (isInfinite(x) && isInfinite(y)) {
+      return x.sign === y.sign ? infinity(x.sign) : nan();
+    } // ∞ + (−∞)
     return isInfinite(x) ? infinity(x.sign) : infinity(y.sign as 1 | -1); // ∞ + finite
   }
-  if (isZero(x) && isZero(y)) return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
+  if (isZero(x) && isZero(y)) {
+    return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
+  }
 
   const scaleDiff = x.scale - y.scale;
   let xMag = x.coefficient,
@@ -46,8 +52,9 @@ export function add(x: DecimalValue, y: DecimalValue): DecimalValue {
   if (x.sign === y.sign) {
     sign = x.sign as 1 | -1;
     magnitude = xMag + yMag;
-  } else if (xMag === yMag)
-    return zero(1); // exact cancellation → +0
+  } else if (xMag === yMag) {
+    return zero(1);
+  } // exact cancellation → +0
   else if (xMag > yMag) {
     sign = x.sign as 1 | -1;
     magnitude = xMag - yMag;

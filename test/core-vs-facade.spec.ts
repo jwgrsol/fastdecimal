@@ -21,10 +21,14 @@ function randomDecimal(): string {
   const intDigits = 1 + Math.floor(rnd() * 25),
     fracDigits = Math.floor(rnd() * 25);
   let s = rnd() < 0.5 ? '-' : '';
-  for (let i = 0; i < intDigits; i++) s += Math.floor(rnd() * 10);
+  for (let i = 0; i < intDigits; i++) {
+    s += Math.floor(rnd() * 10);
+  }
   if (fracDigits) {
     s += '.';
-    for (let i = 0; i < fracDigits; i++) s += Math.floor(rnd() * 10);
+    for (let i = 0; i < fracDigits; i++) {
+      s += Math.floor(rnd() * 10);
+    }
   }
   return s;
 }
