@@ -16,16 +16,15 @@ export function toString(x: DecimalValue, negativeExponent = -7, positiveExponen
   const exponent = x.coefficient === 0n ? 0 : digits.length - 1 + x.scale;
   let body: string;
   if (exponent <= negativeExponent || exponent >= positiveExponent) {
-    body = digits[0]
-      + (digits.length > 1 ? '.' + digits.slice(1) : '')
-      + (exponent < 0 ? 'e' : 'e+') + exponent;
+    body = digits[0] + (digits.length > 1 ? '.' + digits.slice(1) : '') + (exponent < 0 ? 'e' : 'e+') + exponent;
   } else if (exponent < 0) {
     body = '0.' + '0'.repeat(-exponent - 1) + digits;
   } else {
     const intLen = exponent + 1;
-    body = intLen >= digits.length
-      ? digits + '0'.repeat(intLen - digits.length)
-      : digits.slice(0, intLen) + '.' + digits.slice(intLen);
+    body =
+      intLen >= digits.length
+        ? digits + '0'.repeat(intLen - digits.length)
+        : digits.slice(0, intLen) + '.' + digits.slice(intLen);
   }
   return x.sign < 0 && (x.coefficient !== 0n || signedZero) ? '-' + body : body;
 }

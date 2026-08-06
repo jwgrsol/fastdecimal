@@ -25,9 +25,9 @@ no global settings, fully tree-shakable. A value is:
 
 ```ts
 interface DecimalValue {
-  sign: 1 | -1 | 0;           // 0 only for NaN
+  sign: 1 | -1 | 0; // 0 only for NaN
   coefficient: bigint | null; // finite: non-negative coefficient · null: NaN / ±Infinity
-  scale: number;              // value = sign × coefficient × 10^scale
+  scale: number; // value = sign × coefficient × 10^scale
 }
 ```
 
@@ -44,20 +44,20 @@ const people = parse('3');
 toString(divToDecimalPlaces(price, people, 2, 4)); // '50' per person, HALF_UP
 ```
 
-| Group | Functions |
-|---|---|
-| Construct | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan` |
-| Exact arithmetic | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp` |
+| Group                                        | Functions                                                                                              |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Construct                                    | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan`                                      |
+| Exact arithmetic                             | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp`                                                     |
 | Rounding arithmetic (precision as arguments) | `divToDecimalPlaces`, `sqrtToDecimalPlaces`, `mod`, `roundToDecimalPlaces`, `roundToSignificantDigits` |
-| Inspect / render | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString` |
+| Inspect / render                             | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString`                                  |
 
 Rounding modes are the bignumber.js/decimal.js numbering:
 
-| # | Mode | # | Mode | # | Mode |
-|---|---|---|---|---|---|
-| 0 | UP (away from zero) | 3 | FLOOR | 6 | HALF_EVEN |
-| 1 | DOWN (truncate) | 4 | HALF_UP | 7 | HALF_CEIL |
-| 2 | CEIL | 5 | HALF_DOWN | 8 | HALF_FLOOR |
+| #   | Mode                | #   | Mode      | #   | Mode       |
+| --- | ------------------- | --- | --------- | --- | ---------- |
+| 0   | UP (away from zero) | 3   | FLOOR     | 6   | HALF_EVEN  |
+| 1   | DOWN (truncate)     | 4   | HALF_UP   | 7   | HALF_CEIL  |
+| 2   | CEIL                | 5   | HALF_DOWN | 8   | HALF_FLOOR |
 
 `mod` additionally accepts `9` (EUCLID: non-negative remainder). The design
 rules the core follows — precision as arguments, special-value semantics, purity
@@ -78,7 +78,7 @@ fastdecimal aims for **100% behavioral compatibility** with big.js: same API, sa
 
 ### Out of scope — documented non-goals
 
-- **Instance own-property shape.** A big.js instance stores `{s, e, c}` as plain own properties; a fastdecimal instance stores `{s, _coef, _scale}` and derives `c`/`e` via prototype accessors. Property *access* (`x.c`, `x.e = 5`) is fully compatible, but code that enumerates instances directly behaves differently:
+- **Instance own-property shape.** A big.js instance stores `{s, e, c}` as plain own properties; a fastdecimal instance stores `{s, _coef, _scale}` and derives `c`/`e` via prototype accessors. Property _access_ (`x.c`, `x.e = 5`) is fully compatible, but code that enumerates instances directly behaves differently:
   - `{ ...x }`, `Object.assign({}, x)`, `Object.keys(x)`
   - `x.hasOwnProperty('c')` (`false` here, `true` in big.js)
   - deep-equality helpers (e.g. lodash `isEqual`) comparing a fastdecimal instance against a big.js instance

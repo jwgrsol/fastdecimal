@@ -18,9 +18,9 @@
 
 ```ts
 interface DecimalValue {
-  sign: 1 | -1 | 0;      // 0은 NaN 전용 (bignumber.js의 s === null에 대응)
-  coefficient: bigint | null;   // 유한수: 음이 아닌 계수 / null: special 값 (NaN, ±Infinity)
-  scale: number;         // 최하위 자리의 10진 지수 — 값 = sign × coefficient × 10^scale
+  sign: 1 | -1 | 0; // 0은 NaN 전용 (bignumber.js의 s === null에 대응)
+  coefficient: bigint | null; // 유한수: 음이 아닌 계수 / null: special 값 (NaN, ±Infinity)
+  scale: number; // 최하위 자리의 10진 지수 — 값 = sign × coefficient × 10^scale
 }
 ```
 
@@ -28,12 +28,12 @@ interface DecimalValue {
   (끝자리 0은 scale로 흡수). 같은 수학적 값은 항상 같은 표현을 가진다.
 - **special 값 인코딩** (bignumber/decimal의 `c === null`/`d === null` 관례를 따름):
 
-  | 값 | sign | coefficient | scale |
-  |---|---|---|---|
-  | NaN | 0 | null | 0 |
-  | +Infinity | 1 | null | 0 |
-  | −Infinity | −1 | null | 0 |
-  | −0 | −1 | 0n | 0 |
+  | 값        | sign | coefficient | scale |
+  | --------- | ---- | ----------- | ----- |
+  | NaN       | 0    | null        | 0     |
+  | +Infinity | 1    | null        | 0     |
+  | −Infinity | −1   | null        | 0     |
+  | −0        | −1   | 0n          | 0     |
 
 - **필드는 항상 3개, 같은 순서로 생성한다** (V8 히든 클래스 안정화 — big.ts에서 실측 이득 확인됨).
 - 부호를 BigInt에 넣지 않는 이유: BigInt에는 −0이 없다 (`-0n === 0n`).
@@ -69,17 +69,17 @@ roundToSignificantDigits(x: DecimalValue, significantDigits: number, roundingMod
 **코어는 bignumber.js/decimal.js가 공유하는 0–8 번호 체계를 채택한다** (둘은 수치까지 동일).
 big.js의 0–3은 다른 체계이므로 big 파사드가 매핑한다.
 
-| 코어(=bignumber/decimal) | 의미 | big.js 파사드 매핑 |
-|---|---|---|
-| 0 ROUND_UP | 0에서 멀어지게 | big 3 → 코어 0 |
-| 1 ROUND_DOWN | 0을 향해 절단 | big 0 → 코어 1 |
-| 2 ROUND_CEIL | +∞ 방향 | — |
-| 3 ROUND_FLOOR | −∞ 방향 | — |
-| 4 ROUND_HALF_UP | 반은 0에서 멀어지게 | big 1 → 코어 4 |
-| 5 ROUND_HALF_DOWN | 반은 0을 향해 | — |
-| 6 ROUND_HALF_EVEN | 반은 짝수로 | big 2 → 코어 6 |
-| 7 ROUND_HALF_CEIL | 반은 +∞ 방향 | — |
-| 8 ROUND_HALF_FLOOR | 반은 −∞ 방향 | — |
+| 코어(=bignumber/decimal) | 의미                | big.js 파사드 매핑 |
+| ------------------------ | ------------------- | ------------------ |
+| 0 ROUND_UP               | 0에서 멀어지게      | big 3 → 코어 0     |
+| 1 ROUND_DOWN             | 0을 향해 절단       | big 0 → 코어 1     |
+| 2 ROUND_CEIL             | +∞ 방향             | —                  |
+| 3 ROUND_FLOOR            | −∞ 방향             | —                  |
+| 4 ROUND_HALF_UP          | 반은 0에서 멀어지게 | big 1 → 코어 4     |
+| 5 ROUND_HALF_DOWN        | 반은 0을 향해       | —                  |
+| 6 ROUND_HALF_EVEN        | 반은 짝수로         | big 2 → 코어 6     |
+| 7 ROUND_HALF_CEIL        | 반은 +∞ 방향        | —                  |
+| 8 ROUND_HALF_FLOOR       | 반은 −∞ 방향        | —                  |
 
 - **코어의 라운딩 프리미티브는 부호를 인지해야 한다.** CEIL/FLOOR 계열(2,3,7,8)은 값의
   부호에 따라 방향이 달라진다. (`core/_internal/roundUp.ts`가 이 계약의 구현.)
@@ -159,11 +159,11 @@ src/
 
 ## 10. 결정 기록 (요약)
 
-| 결정 | 선택 | 근거 |
-|---|---|---|
-| 계수 표현 | 이진 BigInt (십진 림 아님) | JS 루프로는 네이티브 BigInt를 못 이김 — 십진 림 방식(libmpdec/bignumber)은 JS에서는 경쟁 상대이지 선택지가 아님 |
-| special 인코딩 | `coefficient: null` + `sign: 0`(NaN) | bignumber/decimal 관례와 정합, 3필드 shape 유지 |
-| 정밀도 전달 | 연산 인자 (Java 모델) | 전역 컨텍스트(Python 모델)는 파사드에서 재현 가능, 역방향은 불가 |
-| dp/sd 분리 | 별도 함수 진입점 | 단형성, tree-shaking, 파사드별 필요 함수만 번들 |
-| 라운딩 번호 | bignumber/decimal의 0–8 + EUCLID 9 | 두 라이브러리가 이미 공유하는 체계, big.js만 매핑 필요 |
-| 에러 정책 | 코어 중립 / 레거시 메시지는 파사드 | 메시지까지 관찰 가능한 표면이므로 파사드 책임 |
+| 결정           | 선택                                 | 근거                                                                                                            |
+| -------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 계수 표현      | 이진 BigInt (십진 림 아님)           | JS 루프로는 네이티브 BigInt를 못 이김 — 십진 림 방식(libmpdec/bignumber)은 JS에서는 경쟁 상대이지 선택지가 아님 |
+| special 인코딩 | `coefficient: null` + `sign: 0`(NaN) | bignumber/decimal 관례와 정합, 3필드 shape 유지                                                                 |
+| 정밀도 전달    | 연산 인자 (Java 모델)                | 전역 컨텍스트(Python 모델)는 파사드에서 재현 가능, 역방향은 불가                                                |
+| dp/sd 분리     | 별도 함수 진입점                     | 단형성, tree-shaking, 파사드별 필요 함수만 번들                                                                 |
+| 라운딩 번호    | bignumber/decimal의 0–8 + EUCLID 9   | 두 라이브러리가 이미 공유하는 체계, big.js만 매핑 필요                                                          |
+| 에러 정책      | 코어 중립 / 레거시 메시지는 파사드   | 메시지까지 관찰 가능한 표면이므로 파사드 책임                                                                   |

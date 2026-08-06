@@ -14,8 +14,8 @@ import { nan, zero } from './make.ts';
  */
 export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): DecimalValue {
   if (x.coefficient === null || y.coefficient === null) {
-    if (x.sign === 0 || y.sign === 0) return nan();  // NaN operand
-    if (x.coefficient === null) return nan();               // ±∞ mod y
+    if (x.sign === 0 || y.sign === 0) return nan(); // NaN operand
+    if (x.coefficient === null) return nan(); // ±∞ mod y
     return { sign: x.sign, coefficient: x.coefficient, scale: x.scale }; // finite mod ±∞ = x
   }
   if (y.coefficient === 0n) return nan();
@@ -23,9 +23,15 @@ export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): Decimal
 
   // Align both operands to a common scale so the division is over integers
   const scaleDiff = x.scale - y.scale;
-  let xMag = x.coefficient, yMag = y.coefficient, scale = x.scale;
-  if (scaleDiff > 0) { xMag *= pow10(scaleDiff); scale = y.scale; }
-  else if (scaleDiff < 0) { yMag *= pow10(-scaleDiff); }
+  let xMag = x.coefficient,
+    yMag = y.coefficient,
+    scale = x.scale;
+  if (scaleDiff > 0) {
+    xMag *= pow10(scaleDiff);
+    scale = y.scale;
+  } else if (scaleDiff < 0) {
+    yMag *= pow10(-scaleDiff);
+  }
 
   const truncated = xMag / yMag;
   const truncRemainder = xMag - truncated * yMag;
@@ -44,7 +50,10 @@ export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): Decimal
   let remainder = truncRemainder - quotientBump * yMag;
   let sign: 1 | -1 = x.sign as 1 | -1;
   if (remainder === 0n) return zero(1);
-  if (remainder < 0n) { remainder = -remainder; sign = -sign as 1 | -1; }
+  if (remainder < 0n) {
+    remainder = -remainder;
+    sign = -sign as 1 | -1;
+  }
   const coefficient = stripTrailingZeros(remainder, scale);
   return { sign, coefficient, scale: stripResult.scale };
 }

@@ -27,6 +27,8 @@
   "scripts": {
     "bench": "node bench/run.mjs",
     "build": "tsdown && node scripts/postbuild-cjs-dts.mjs",
+    "format": "prettier --write .",
+    "lint": "eslint .",
     "check:exports": "yarn pack -o .pack-check.tgz && attw .pack-check.tgz && publint --pack yarn && rm -f .pack-check.tgz",
     "prepack": "yarn build",
     "test": "node test/run-vendored.mjs && vitest run && node test/differential.mjs",
@@ -43,11 +45,19 @@
   ],
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@eslint/js": "^10.0.1",
     "@types/big.js": "^7",
+    "@vitest/eslint-plugin": "^1.6.26",
     "big.js": "^7.0.1",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.9.0",
+    "prettier": "^3.9.6",
     "publint": "^0.3.22",
     "tsdown": "^0.22.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.66.0",
     "vitest": "^4.1.10"
   },
   "publishConfig": {

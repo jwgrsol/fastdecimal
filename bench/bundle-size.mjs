@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const dist = (f) => join(here, '..', 'dist', f).replaceAll('\\', '/');
+const dist = f => join(here, '..', 'dist', f).replaceAll('\\', '/');
 
 // Each scenario is what a user's entry file would import
 const SCENARIOS = [
@@ -50,8 +50,8 @@ async function measure({ name, code }) {
 const results = [];
 for (const scenario of SCENARIOS) results.push(await measure(scenario));
 
-const fmt = (n) => `${(n / 1024).toFixed(2)} KB`;
-const width = Math.max(...results.map((r) => r.name.length));
+const fmt = n => `${(n / 1024).toFixed(2)} KB`;
+const width = Math.max(...results.map(r => r.name.length));
 console.log(`${'scenario'.padEnd(width)}  minified   gzipped`);
 for (const r of results) {
   console.log(`${r.name.padEnd(width)}  ${fmt(r.minified).padStart(8)}  ${fmt(r.gzipped).padStart(8)}`);
@@ -59,6 +59,6 @@ for (const r of results) {
 
 writeFileSync(
   join(here, 'bundle-size.json'),
-  JSON.stringify({ date: new Date().toISOString().slice(0, 10), results }, null, 2),
+  JSON.stringify({ date: new Date().toISOString().slice(0, 10), results }, null, 2)
 );
 console.log(`\nWrote ${join(here, 'bundle-size.json')}`);

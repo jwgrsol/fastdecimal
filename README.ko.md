@@ -24,9 +24,9 @@ toString(add(parse('0.1'), parse('0.2'))); // '0.3'
 
 ```ts
 interface DecimalValue {
-  sign: 1 | -1 | 0;           // 0은 NaN 전용
+  sign: 1 | -1 | 0; // 0은 NaN 전용
   coefficient: bigint | null; // 유한수: 음이 아닌 계수 · null: NaN / ±Infinity
-  scale: number;              // 값 = sign × coefficient × 10^scale
+  scale: number; // 값 = sign × coefficient × 10^scale
 }
 ```
 
@@ -40,20 +40,20 @@ const people = parse('3');
 toString(divToDecimalPlaces(price, people, 2, 4)); // 1인당 '50' (HALF_UP)
 ```
 
-| 분류 | 함수 |
-|---|---|
-| 생성 | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan` |
-| 정확 연산 | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp` |
+| 분류                          | 함수                                                                                                   |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 생성                          | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan`                                      |
+| 정확 연산                     | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp`                                                     |
 | 라운딩 연산 (정밀도를 인자로) | `divToDecimalPlaces`, `sqrtToDecimalPlaces`, `mod`, `roundToDecimalPlaces`, `roundToSignificantDigits` |
-| 조회 / 출력 | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString` |
+| 조회 / 출력                   | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString`                                  |
 
 라운딩 모드는 bignumber.js/decimal.js와 같은 번호 체계입니다:
 
-| # | 모드 | # | 모드 | # | 모드 |
-|---|---|---|---|---|---|
-| 0 | UP (0에서 멀어지게) | 3 | FLOOR | 6 | HALF_EVEN |
-| 1 | DOWN (절단) | 4 | HALF_UP | 7 | HALF_CEIL |
-| 2 | CEIL | 5 | HALF_DOWN | 8 | HALF_FLOOR |
+| #   | 모드                | #   | 모드      | #   | 모드       |
+| --- | ------------------- | --- | --------- | --- | ---------- |
+| 0   | UP (0에서 멀어지게) | 3   | FLOOR     | 6   | HALF_EVEN  |
+| 1   | DOWN (절단)         | 4   | HALF_UP   | 7   | HALF_CEIL  |
+| 2   | CEIL                | 5   | HALF_DOWN | 8   | HALF_FLOOR |
 
 `mod`는 추가로 `9`(EUCLID: 항상 음이 아닌 나머지)를 받습니다. 코어가 따르는 설계 규칙 — 정밀도 인자화, special 값 의미론, 순수성 — 은 [docs/core-contract.md](./docs/core-contract.md)에 명세돼 있습니다.
 
@@ -72,7 +72,7 @@ fastdecimal의 목표는 big.js와의 **100% 동작 호환**입니다: 같은 AP
 
 ### 지원 범위 밖 — 명시적 non-goal
 
-- **인스턴스 own-property 모양.** big.js 인스턴스는 `{s, e, c}`를 plain own property로 저장하지만, fastdecimal 인스턴스는 `{s, _coef, _scale}`로 저장하고 `c`/`e`는 프로토타입 접근자로 파생합니다. 속성 *접근*(`x.c`, `x.e = 5`)은 완전 호환이지만, 인스턴스를 직접 열거하는 코드는 다르게 동작합니다:
+- **인스턴스 own-property 모양.** big.js 인스턴스는 `{s, e, c}`를 plain own property로 저장하지만, fastdecimal 인스턴스는 `{s, _coef, _scale}`로 저장하고 `c`/`e`는 프로토타입 접근자로 파생합니다. 속성 _접근_(`x.c`, `x.e = 5`)은 완전 호환이지만, 인스턴스를 직접 열거하는 코드는 다르게 동작합니다:
   - `{ ...x }`, `Object.assign({}, x)`, `Object.keys(x)`
   - `x.hasOwnProperty('c')` (fastdecimal은 `false`, big.js는 `true`)
   - deep-equality 헬퍼(예: lodash `isEqual`)로 fastdecimal 인스턴스와 big.js 인스턴스를 직접 비교하는 경우
