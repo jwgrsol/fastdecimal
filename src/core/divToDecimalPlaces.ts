@@ -3,6 +3,7 @@ import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
 import { nan, infinity, zero } from './make.ts';
+import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
 /**
  * Divides one decimal value by another, rounding the quotient to
@@ -29,15 +30,15 @@ export function divToDecimalPlaces(
   decimalPlaces: number,
   roundingMode: RoundingMode
 ): DecimalValue {
-  if (x.coefficient === null || y.coefficient === null) {
-    if (x.sign === 0 || y.sign === 0) return nan(); // NaN operand
-    if (x.coefficient === null && y.coefficient === null) return nan(); // ∞ ÷ ∞
-    if (x.coefficient === null) return infinity((x.sign * y.sign) as 1 | -1);
+  if (!isFinite(x) || !isFinite(y)) {
+    if (isNaN(x) || isNaN(y)) return nan();
+    if (isInfinite(x) && isInfinite(y)) return nan(); // ∞ ÷ ∞
+    if (isInfinite(x)) return infinity((x.sign * y.sign) as 1 | -1);
     return zero((x.sign * y.sign) as 1 | -1); // finite ÷ ∞
   }
   const sign = (x.sign * y.sign) as 1 | -1;
-  if (y.coefficient === 0n) return x.coefficient === 0n ? nan() : infinity(sign);
-  if (x.coefficient === 0n) return zero(sign);
+  if (isZero(y)) return isZero(x) ? nan() : infinity(sign); // x ÷ 0 · 0 ÷ 0
+  if (isZero(x)) return zero(sign);
 
   // Scale the integer division so the quotient carries exactly decimalPlaces decimal places
   const shift = x.scale - y.scale + decimalPlaces;

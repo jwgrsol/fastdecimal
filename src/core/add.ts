@@ -2,6 +2,7 @@ import type { DecimalValue } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
+import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
 /**
  * Adds two decimal values exactly, with no rounding and no precision limit.
@@ -23,14 +24,12 @@ import { nan, infinity, zero } from './make.ts';
  * toString(result); // '0.3' — exact, no binary float error
  */
 export function add(x: DecimalValue, y: DecimalValue): DecimalValue {
-  if (x.coefficient === null || y.coefficient === null) {
-    if (x.sign === 0 || y.sign === 0) return nan(); // NaN operand
-    if (x.coefficient === null && y.coefficient === null) {
-      return x.sign === y.sign ? infinity(x.sign as 1 | -1) : nan(); // ∞ + (−∞)
-    }
-    return infinity((x.coefficient === null ? x.sign : y.sign) as 1 | -1);
+  if (!isFinite(x) || !isFinite(y)) {
+    if (isNaN(x) || isNaN(y)) return nan();
+    if (isInfinite(x) && isInfinite(y)) return x.sign === y.sign ? infinity(x.sign) : nan(); // ∞ + (−∞)
+    return isInfinite(x) ? infinity(x.sign) : infinity(y.sign as 1 | -1); // ∞ + finite
   }
-  if (x.coefficient === 0n && y.coefficient === 0n) return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
+  if (isZero(x) && isZero(y)) return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
 
   const scaleDiff = x.scale - y.scale;
   let xMag = x.coefficient,

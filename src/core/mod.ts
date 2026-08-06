@@ -3,6 +3,7 @@ import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
 import { nan, zero } from './make.ts';
+import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
 /**
  * Computes the remainder `r = x − y·q`, where `q` is `x ÷ y` rounded to an
@@ -27,13 +28,13 @@ import { nan, zero } from './make.ts';
  * toString(mod(parse('-7'), parse('3'), 9)); // '2'  (Euclidean, always ≥ 0)
  */
 export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): DecimalValue {
-  if (x.coefficient === null || y.coefficient === null) {
-    if (x.sign === 0 || y.sign === 0) return nan(); // NaN operand
-    if (x.coefficient === null) return nan(); // ±∞ mod y
+  if (!isFinite(x) || !isFinite(y)) {
+    if (isNaN(x) || isNaN(y)) return nan();
+    if (isInfinite(x)) return nan(); // ±∞ mod y
     return { sign: x.sign, coefficient: x.coefficient, scale: x.scale }; // finite mod ±∞ = x
   }
-  if (y.coefficient === 0n) return nan();
-  if (x.coefficient === 0n) return zero(x.sign as 1 | -1);
+  if (isZero(y)) return nan(); // x mod 0
+  if (isZero(x)) return zero(x.sign as 1 | -1);
 
   // Align both operands to a common scale so the division is over integers
   const scaleDiff = x.scale - y.scale;

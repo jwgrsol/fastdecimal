@@ -1,4 +1,5 @@
 import type { DecimalValue } from './types.ts';
+import { isFinite, isNaN, isZero } from './predicates.ts';
 
 /**
  * Renders a decimal value as a string, in fixed or exponential notation
@@ -20,9 +21,9 @@ import type { DecimalValue } from './types.ts';
  * toString(parse('-0'));           // '-0'
  */
 export function toString(x: DecimalValue, negativeExponent = -7, positiveExponent = 21, signedZero = true): string {
-  if (x.coefficient === null) return x.sign === 0 ? 'NaN' : x.sign > 0 ? 'Infinity' : '-Infinity';
+  if (!isFinite(x)) return isNaN(x) ? 'NaN' : x.sign > 0 ? 'Infinity' : '-Infinity';
   const digits = x.coefficient.toString();
-  const exponent = x.coefficient === 0n ? 0 : digits.length - 1 + x.scale;
+  const exponent = isZero(x) ? 0 : digits.length - 1 + x.scale;
   let body: string;
   if (exponent <= negativeExponent || exponent >= positiveExponent) {
     body = digits[0] + (digits.length > 1 ? '.' + digits.slice(1) : '') + (exponent < 0 ? 'e' : 'e+') + exponent;

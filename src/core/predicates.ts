@@ -11,7 +11,7 @@ import type { DecimalValue } from './types.ts';
  * isFinite(parse('1.5'));  // true
  * isFinite(infinity(1));   // false
  */
-export function isFinite(x: DecimalValue): boolean {
+export function isFinite(x: DecimalValue): x is DecimalValue & { coefficient: bigint } {
   return x.coefficient !== null;
 }
 
@@ -25,7 +25,7 @@ export function isFinite(x: DecimalValue): boolean {
  * isNaN(nan());        // true
  * isNaN(parse('1.5')); // false
  */
-export function isNaN(x: DecimalValue): boolean {
+export function isNaN(x: DecimalValue): x is DecimalValue & { sign: 0; coefficient: null } {
   return x.coefficient === null && x.sign === 0;
 }
 
@@ -39,7 +39,7 @@ export function isNaN(x: DecimalValue): boolean {
  * isInfinite(infinity(-1)); // true
  * isInfinite(nan());        // false
  */
-export function isInfinite(x: DecimalValue): boolean {
+export function isInfinite(x: DecimalValue): x is DecimalValue & { sign: 1 | -1; coefficient: null } {
   return x.coefficient === null && x.sign !== 0;
 }
 
@@ -53,6 +53,6 @@ export function isInfinite(x: DecimalValue): boolean {
  * isZero(parse('-0')); // true
  * isZero(parse('1'));  // false
  */
-export function isZero(x: DecimalValue): boolean {
+export function isZero(x: DecimalValue): x is DecimalValue & { coefficient: 0n } {
   return x.coefficient === 0n;
 }

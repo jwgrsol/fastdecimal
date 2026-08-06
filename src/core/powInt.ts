@@ -1,6 +1,7 @@
 import type { DecimalValue } from './types.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
+import { isFinite, isNaN, isZero } from './predicates.ts';
 
 /**
  * Raises a decimal value to an integer power `n ≥ 1`, exactly — the result may
@@ -20,12 +21,12 @@ import { nan, infinity, zero } from './make.ts';
  * toString(powInt(parse('0.5'), 3)); // '0.125'
  */
 export function powInt(x: DecimalValue, n: number): DecimalValue {
-  if (x.coefficient === null) {
-    if (x.sign === 0) return nan(); // NaN^n
+  if (!isFinite(x)) {
+    if (isNaN(x)) return nan();
     return infinity(x.sign < 0 && n & 1 ? -1 : 1); // (±∞)^n
   }
   const sign: 1 | -1 = x.sign < 0 && n & 1 ? -1 : 1;
-  if (x.coefficient === 0n) return zero(sign);
+  if (isZero(x)) return zero(sign);
   const coefficient = stripTrailingZeros(x.coefficient ** BigInt(n), x.scale * n);
   return { sign, coefficient, scale: stripResult.scale };
 }
