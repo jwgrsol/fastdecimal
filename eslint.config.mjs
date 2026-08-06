@@ -21,6 +21,11 @@ export default defineConfig(
     },
   },
   pluginJs.configs.recommended,
+  {
+    rules: {
+      curly: ['error', 'all'], // every branch gets braces — uniform shape, clean future diffs
+    },
+  },
   ...tseslint.configs.recommended,
   {
     // The facade reproduces big.js's dynamic constructor semantics (function-style
