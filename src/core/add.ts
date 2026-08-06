@@ -4,16 +4,23 @@ import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
- * Exact addition (contract §2: exact operations take no precision arguments).
+ * Adds two decimal values exactly, with no rounding and no precision limit.
  *
- * Special-value propagation (IEEE 754, contract §4):
- *   NaN + anything = NaN · ∞ + (−∞) = NaN · ∞ + finite = ∞
+ * Special values propagate by IEEE 754 rules: `NaN + anything = NaN`,
+ * `∞ + (−∞) = NaN`, `∞ + finite = ∞`. Zero signs follow IEEE as well:
+ * `(−0) + (−0) = −0`, and exact cancellation of nonzero operands yields `+0`.
  *
- * Magnitudes are compared and the smaller subtracted from the larger instead of
- * negating BigInts — avoids up to two negation allocations (measured win).
+ * Implementation note: magnitudes are compared and the smaller subtracted from
+ * the larger instead of negating BigInts — avoids up to two negation
+ * allocations per call (a measured win on small operands).
  *
- * Zero signs: (−0) + (−0) = −0; exact cancellation of nonzeros = +0 (IEEE, and
- * what big.js/bignumber.js/decimal.js all produce under default rounding).
+ * @param x - The first addend.
+ * @param y - The second addend.
+ * @returns The exact sum as a new normalized value.
+ *
+ * @example
+ * const result = add(parse('0.1'), parse('0.2'));
+ * toString(result); // '0.3' — exact, no binary float error
  */
 export function add(x: DecimalValue, y: DecimalValue): DecimalValue {
   if (x.coefficient === null || y.coefficient === null) {

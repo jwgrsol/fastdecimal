@@ -4,10 +4,22 @@ import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
 
 /**
- * Round to `decimalPlaces` decimal places (negative decimalPlaces allowed — rounds at a power of ten
- * above the decimal point). Specials pass through unchanged; a result that
- * rounds to zero keeps the input's sign (−0.4 → −0, matching IEEE ceil/floor
- * behavior and all three target libraries).
+ * Rounds a decimal value to `decimalPlaces` decimal places. A negative
+ * `decimalPlaces` rounds at a power of ten above the decimal point:
+ * `roundToDecimalPlaces(parse('12345'), -2, 4)` is `12300`.
+ *
+ * Specials pass through unchanged. A result that rounds to zero keeps the
+ * input's sign — `−0.4` rounded with CEIL is `−0`, matching IEEE ceil/floor
+ * behavior and all three target libraries.
+ *
+ * @param x - The value to round.
+ * @param decimalPlaces - Decimal places to keep (may be negative).
+ * @param roundingMode - How to round the dropped digits (0–8, see {@link RoundingMode}).
+ * @returns The rounded value as a new normalized value.
+ *
+ * @example
+ * toString(roundToDecimalPlaces(parse('2.5'), 0, 4)); // '3'  (HALF_UP)
+ * toString(roundToDecimalPlaces(parse('2.5'), 0, 6)); // '2'  (HALF_EVEN)
  */
 export function roundToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
   if (x.coefficient === null) return { sign: x.sign, coefficient: null, scale: 0 };

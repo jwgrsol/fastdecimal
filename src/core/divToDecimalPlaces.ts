@@ -5,12 +5,23 @@ import { roundUp } from './_internal/roundUp.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
- * Division rounded to `decimalPlaces` decimal places (contract §2, DP model — big.js/bignumber.js).
+ * Divides one decimal value by another, rounding the quotient to
+ * `decimalPlaces` decimal places (the big.js/bignumber.js precision model).
  *
- * Special-value semantics (contract §4 — the core never throws on values):
- *   NaN ÷ anything = NaN · ∞ ÷ ∞ = NaN · ∞ ÷ x = ±∞ · x ÷ ∞ = ±0
- *   x ÷ 0 = ±∞ (sign product) · 0 ÷ 0 = NaN
- * Facades that throw on division by zero (big.js) must validate before calling.
+ * Division by zero never throws: `x ÷ 0` is `±∞` (sign product) and `0 ÷ 0`
+ * is NaN, per IEEE 754. Other specials: `NaN ÷ anything = NaN`, `∞ ÷ ∞ = NaN`,
+ * `∞ ÷ x = ±∞`, `x ÷ ∞ = ±0`. Facades that throw on division by zero
+ * (big.js) validate before calling.
+ *
+ * @param x - The dividend.
+ * @param y - The divisor.
+ * @param decimalPlaces - Number of decimal places the quotient is rounded to (≥ 0).
+ * @param roundingMode - How to round the dropped digits (0–8, see {@link RoundingMode}).
+ * @returns The rounded quotient as a new normalized value.
+ *
+ * @example
+ * const result = divToDecimalPlaces(parse('1'), parse('3'), 5, 4); // HALF_UP
+ * toString(result); // '0.33333'
  */
 export function divToDecimalPlaces(
   x: DecimalValue,

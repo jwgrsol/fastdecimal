@@ -3,10 +3,20 @@ import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
- * Exact multiplication.
+ * Multiplies two decimal values exactly, with no rounding and no precision
+ * limit — the result may carry up to the sum of both operands' digit counts.
  *
- * Special-value propagation (contract §4):
- *   NaN × anything = NaN · ∞ × 0 = NaN · ∞ × x = ±∞ (sign product)
+ * Special values propagate by IEEE 754 rules: `NaN × anything = NaN`,
+ * `∞ × 0 = NaN`, `∞ × x = ±∞` with the sign product. Zero results keep the
+ * sign product too: `0 × −5` is `−0`.
+ *
+ * @param x - The first factor.
+ * @param y - The second factor.
+ * @returns The exact product as a new normalized value.
+ *
+ * @example
+ * const result = mul(parse('1.5'), parse('-2'));
+ * toString(result); // '-3'
  */
 export function mul(x: DecimalValue, y: DecimalValue): DecimalValue {
   if (x.coefficient === null || y.coefficient === null) {
