@@ -86,7 +86,7 @@ fastdecimal aims for **100% behavioral compatibility** with big.js: same API, sa
 
 ### Out of scope — documented non-goals
 
-- **Instance own-property shape.** A big.js instance stores `{s, e, c}` as plain own properties; a fastdecimal instance stores `{s, _coef, _scale}` and derives `c`/`e` via prototype accessors. Property _access_ (`x.c`, `x.e = 5`) is fully compatible, but code that enumerates instances directly behaves differently:
+- **Instance own-property shape.** A big.js instance stores `{s, e, c}` as plain own properties; a fastdecimal instance stores `{sign, coefficient, scale}` and provides `s`/`c`/`e` as prototype accessors. Property _access_ (`x.s`, `x.c`, `x.e = 5`) is fully compatible, but code that enumerates instances directly behaves differently:
   - `{ ...x }`, `Object.assign({}, x)`, `Object.keys(x)`
   - `x.hasOwnProperty('c')` (`false` here, `true` in big.js)
   - deep-equality helpers (e.g. lodash `isEqual`) comparing a fastdecimal instance against a big.js instance
