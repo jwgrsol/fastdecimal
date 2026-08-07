@@ -74,7 +74,7 @@ fastdecimal의 목표는 big.js와의 **100% 동작 호환**입니다: 같은 AP
 
 ### 지원 범위 밖 — 명시적 non-goal
 
-- **인스턴스 own-property 모양.** big.js 인스턴스는 `{s, e, c}`를 plain own property로 저장하지만, fastdecimal 인스턴스는 `{s, _coef, _scale}`로 저장하고 `c`/`e`는 프로토타입 접근자로 파생합니다. 속성 _접근_(`x.c`, `x.e = 5`)은 완전 호환이지만, 인스턴스를 직접 열거하는 코드는 다르게 동작합니다:
+- **인스턴스 own-property 모양.** big.js 인스턴스는 `{s, e, c}`를 plain own property로 저장하지만, fastdecimal 인스턴스는 `{sign, coefficient, scale}`로 저장하고 `s`/`c`/`e`를 프로토타입 접근자로 제공합니다. 속성 _접근_(`x.s`, `x.c`, `x.e = 5`)은 완전 호환이지만, 인스턴스를 직접 열거하는 코드는 다르게 동작합니다:
   - `{ ...x }`, `Object.assign({}, x)`, `Object.keys(x)`
   - `x.hasOwnProperty('c')` (fastdecimal은 `false`, big.js는 `true`)
   - deep-equality 헬퍼(예: lodash `isEqual`)로 fastdecimal 인스턴스와 big.js 인스턴스를 직접 비교하는 경우
