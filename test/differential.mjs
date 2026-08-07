@@ -100,6 +100,13 @@ both('toFixed pads', B => new B('1.5').toFixed(5));
 both('toExponential pads', B => new B('1.5').toExponential(4));
 both('toPrecision', B => new B('12345.6789').toPrecision(5));
 both('bigint input', B => new B(123456789012345678901234567890n).toString());
+// a foreign object that merely carries a `coefficient`-like field must NOT be
+// treated as an instance — both libraries reject it through the string path
+both('foreign object throws', B => new B({ coefficient: 0.95 }).toString());
+both('cross-clone instance accepted', B => {
+  const C = B();
+  return new B(new C('1.5')).plus('0.5').toString();
+});
 record(
   'interop: fastdecimal accepts big.js instance',
   '124',
