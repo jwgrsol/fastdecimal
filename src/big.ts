@@ -6,12 +6,12 @@
  * shared prototype), its global settings (DP/RM/NE/PE/strict), its rounding-mode
  * numbering, and its derived c/e properties. All arithmetic lives in src/core.
  *
- * Instances are structurally core DecimalValue values: they carry {sign, coefficient, scale} as
+ * Instances are structurally core PlainDecimal values: they carry {sign, coefficient, scale} as
  * own fields, so they flow into core functions with zero conversion cost. The
  * big.js public property `s` is a prototype accessor over `sign`.
  */
 
-import type { DecimalValue, RoundingMode as CoreRoundingMode } from './core/types.ts';
+import type { PlainDecimal, RoundingMode as CoreRoundingMode } from './core/types.ts';
 import { add as coreAdd } from './core/add.ts';
 import { sub as coreSub } from './core/sub.ts';
 import { mul as coreMul } from './core/mul.ts';
@@ -31,7 +31,7 @@ export type BigSource = number | string | bigint | Big;
 export type RoundingMode = 0 | 1 | 2 | 3;
 
 export interface Big {
-  sign: 1 | -1; // structurally a subset of core DecimalValue's sign (the facade never holds NaN)
+  sign: 1 | -1; // structurally a subset of core PlainDecimal's sign (the facade never holds NaN)
   coefficient: bigint;
   scale: number;
   s: number;
@@ -204,7 +204,7 @@ function makeBig(Ctor: BigConstructor, sign: number, coefficient: bigint, scale:
   return new InternalBig(sign, coefficient, scale, Ctor);
 }
 /** Wrap a core result into a big.js instance. */
-function fromDec(Ctor: BigConstructor, d: DecimalValue): Big {
+function fromDec(Ctor: BigConstructor, d: PlainDecimal): Big {
   return new InternalBig(d.sign, d.coefficient, d.scale, Ctor);
 }
 function toBig(x: Big, y: BigSource): Big {
@@ -216,14 +216,14 @@ function checkRM(rm: unknown): asserts rm is RoundingMode {
   }
 }
 
-function digitsOf(x: Big | DecimalValue): string {
+function digitsOf(x: Big | PlainDecimal): string {
   return (x.coefficient as bigint).toString();
 }
 
 // big.js's stringify: exponential form outside (NE, PE); forceSign emits '-' even for -0
-function stringify(x: Big | DecimalValue, forceSign: boolean): string {
+function stringify(x: Big | PlainDecimal, forceSign: boolean): string {
   const Ctor = (x as Big).constructor;
-  return coreToString(x as DecimalValue, Ctor.NE, Ctor.PE, forceSign);
+  return coreToString(x as PlainDecimal, Ctor.NE, Ctor.PE, forceSign);
 }
 
 // ---- instance methods ----
@@ -343,7 +343,7 @@ bigPrototype.prec = function (this: Big, sd: number, rm?: RoundingMode): Big {
 
 bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode): string {
   const wasNonzero = this.coefficient !== 0n; // big.js decides the sign from the pre-rounding original
-  let x: Big | DecimalValue = this,
+  let x: Big | PlainDecimal = this,
     pad = 0;
   if (dp !== undefined) {
     if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
@@ -367,7 +367,7 @@ bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode
 
 bigPrototype.toFixed = function (this: Big, dp?: number, rm?: RoundingMode): string {
   const wasNonzero = this.coefficient !== 0n; // big.js decides the sign from the pre-rounding original
-  let x: Big | DecimalValue = this;
+  let x: Big | PlainDecimal = this;
   if (dp !== undefined) {
     if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
       throw Error(INVALID_DP);

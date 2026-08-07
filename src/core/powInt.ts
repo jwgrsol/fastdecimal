@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
@@ -20,7 +20,7 @@ import { isFinite, isNaN, isZero } from './predicates.ts';
  * toString(powInt(parse('2'), 10));  // '1024'
  * toString(powInt(parse('0.5'), 3)); // '0.125'
  */
-export function powInt(x: DecimalValue, n: number): DecimalValue {
+export function powInt(x: PlainDecimal, n: number): PlainDecimal {
   if (!isFinite(x)) {
     if (isNaN(x)) {
       return nan();

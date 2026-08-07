@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { isNaN } from './predicates.ts';
 
 /**
@@ -13,6 +13,6 @@ import { isNaN } from './predicates.ts';
  * const result = neg(parse('1.5'));
  * toString(result); // '-1.5'
  */
-export function neg(x: DecimalValue): DecimalValue {
+export function neg(x: PlainDecimal): PlainDecimal {
   return { sign: isNaN(x) ? 0 : (-x.sign as 1 | -1), coefficient: x.coefficient, scale: x.scale };
 }

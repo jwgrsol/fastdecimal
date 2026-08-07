@@ -1,4 +1,4 @@
-import type { DecimalValue, RoundingMode } from './types.ts';
+import type { PlainDecimal, RoundingMode } from './types.ts';
 import { exponentOf } from './exponentOf.ts';
 import { add } from './add.ts';
 import { mul } from './mul.ts';
@@ -9,7 +9,7 @@ import { parse } from './parse.ts';
 import { nan, infinity, zero } from './make.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
 
-const HALF: DecimalValue = { sign: 1, coefficient: 5n, scale: -1 };
+const HALF: PlainDecimal = { sign: 1, coefficient: 5n, scale: -1 };
 
 /**
  * Computes the square root to `decimalPlaces` decimal places of precision
@@ -35,7 +35,7 @@ const HALF: DecimalValue = { sign: 1, coefficient: 5n, scale: -1 };
  * const result = sqrtToDecimalPlaces(parse('2'), 20, 4);
  * toString(result); // '1.4142135623730950488'
  */
-export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
+export function sqrtToDecimalPlaces(x: PlainDecimal, decimalPlaces: number, roundingMode: RoundingMode): PlainDecimal {
   if (!isFinite(x)) {
     if (isNaN(x)) {
       return nan();
@@ -51,7 +51,7 @@ export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roun
 
   // Initial estimate via float sqrt (same strategy as big.js)
   let estimate = Math.sqrt(Number(toString(x)));
-  let result: DecimalValue;
+  let result: PlainDecimal;
   if (estimate === 0 || estimate === Infinity) {
     // Value out of float range: estimate from the digits and halve the exponent
     let digits = x.coefficient.toString();
@@ -75,7 +75,7 @@ export function sqrtToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roun
 
   const guardDigits = decimalPlaces + 4;
   const cmpDigits = exponentOf(result) + guardDigits;
-  let prev: DecimalValue;
+  let prev: PlainDecimal;
   // Iteration cap: when the true root's exponent is far below −decimalPlaces, the
   // dp-limited division makes the iteration oscillate forever — upstream big.js
   // hangs on such inputs (found by differential fuzzing). Normal convergence is

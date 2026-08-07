@@ -17,7 +17,7 @@
 ## 1. 값 표현 (Representation)
 
 ```ts
-interface DecimalValue {
+interface PlainDecimal {
   sign: 1 | -1 | 0; // 0은 NaN 전용 (bignumber.js의 s === null에 대응)
   coefficient: bigint | null; // 유한수: 음이 아닌 계수 / null: special 값 (NaN, ±Infinity)
   scale: number; // 최하위 자리의 10진 지수 — 값 = sign × coefficient × 10^scale
@@ -51,12 +51,12 @@ interface DecimalValue {
 
 ```ts
 // 소수 자릿수(DP) 모델 — big.js, bignumber.js 파사드가 사용
-divToDecimalPlaces(x: DecimalValue, y: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue
-roundToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue
+divToDecimalPlaces(x: PlainDecimal, y: PlainDecimal, decimalPlaces: number, roundingMode: RoundingMode): PlainDecimal
+roundToDecimalPlaces(x: PlainDecimal, decimalPlaces: number, roundingMode: RoundingMode): PlainDecimal
 
 // 유효숫자(SD) 모델 — decimal.js 파사드가 사용
-divToSignificantDigits(x: DecimalValue, y: DecimalValue, significantDigits: number, roundingMode: RoundingMode): DecimalValue
-roundToSignificantDigits(x: DecimalValue, significantDigits: number, roundingMode: RoundingMode): DecimalValue
+divToSignificantDigits(x: PlainDecimal, y: PlainDecimal, significantDigits: number, roundingMode: RoundingMode): PlainDecimal
+roundToSignificantDigits(x: PlainDecimal, significantDigits: number, roundingMode: RoundingMode): PlainDecimal
 ```
 
 - 정확한 연산(add, sub, mul, cmp, abs, neg)은 정밀도 인자를 받지 않는다 — 항상 정확한 결과.
@@ -107,12 +107,12 @@ big.js의 0–3은 다른 체계이므로 big 파사드가 매핑한다.
 ## 6. 파사드 경계 규칙
 
 - **변환 비용 0 원칙**: 파사드 인스턴스는 코어 표현(`sign`/`coefficient`/`scale`)을 그대로
-  own 필드로 보유해 구조적으로 DecimalValue 그 자체다. wrap은 프로토타입 부착뿐이다.
+  own 필드로 보유해 구조적으로 PlainDecimal 그 자체다. wrap은 프로토타입 부착뿐이다.
   (레거시 공개 속성 — big.js의 `s` 등 — 은 프로토타입 접근자로 제공한다.)
 - 레거시 파생 속성(big의 `c`/`e`, bignumber의 base-1e14 `c`, decimal의 base-1e7 `d`)은
   파사드의 getter/setter로 lazy 파생한다. 코어는 이들을 모른다.
 - 함수형 코어 사용자와 파사드 사용자가 한 코드베이스에서 공존할 수 있도록,
-  파사드 인스턴스 ↔ `DecimalValue` 변환 헬퍼를 각 파사드가 제공한다.
+  파사드 인스턴스 ↔ `PlainDecimal` 변환 헬퍼를 각 파사드가 제공한다.
 
 ## 7. 모듈 구조와 이름
 

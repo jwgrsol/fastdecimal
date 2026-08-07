@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
@@ -19,7 +19,7 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  * cmp(parse('1.20'), parse('1.2')); // 0
  * cmp(parse('-1'), parse('1'));     // -1
  */
-export function cmp(x: DecimalValue, y: DecimalValue): number {
+export function cmp(x: PlainDecimal, y: PlainDecimal): number {
   if (!isFinite(x) || !isFinite(y)) {
     if (isNaN(x) || isNaN(y)) {
       return NaN;

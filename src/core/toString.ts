@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
 
 /**
@@ -20,7 +20,7 @@ import { isFinite, isNaN, isZero } from './predicates.ts';
  * toString(parse('1234'), -7, 3);  // '1.234e+3'
  * toString(parse('-0'));           // '-0'
  */
-export function toString(x: DecimalValue, negativeExponent = -7, positiveExponent = 21, signedZero = true): string {
+export function toString(x: PlainDecimal, negativeExponent = -7, positiveExponent = 21, signedZero = true): string {
   if (!isFinite(x)) {
     return isNaN(x) ? 'NaN' : x.sign > 0 ? 'Infinity' : '-Infinity';
   }

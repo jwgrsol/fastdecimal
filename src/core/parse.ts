@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { nan, infinity, zero } from './make.ts';
 
 /**
@@ -21,7 +21,7 @@ import { nan, infinity, zero } from './make.ts';
  * parse('-0');       // { sign: -1, coefficient: 0n, scale: 0 }
  * parse('1e21');     // { sign: 1, coefficient: 1n, scale: 21 }
  */
-export function parse(str: string): DecimalValue {
+export function parse(str: string): PlainDecimal {
   const len = str.length;
   let i = 0;
   let sign: 1 | -1 = 1;

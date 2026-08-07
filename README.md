@@ -32,7 +32,7 @@ engines), and paths where bundle size or per-call overhead dominates. A value
 is:
 
 ```ts
-interface DecimalValue {
+interface PlainDecimal {
   sign: 1 | -1 | 0; // 0 only for NaN
   coefficient: bigint | null; // finite: non-negative coefficient · null: NaN / ±Infinity
   scale: number; // value = sign × coefficient × 10^scale

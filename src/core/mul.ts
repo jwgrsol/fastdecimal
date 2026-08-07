@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
@@ -19,7 +19,7 @@ import { isFinite, isNaN, isZero } from './predicates.ts';
  * const result = mul(parse('1.5'), parse('-2'));
  * toString(result); // '-3'
  */
-export function mul(x: DecimalValue, y: DecimalValue): DecimalValue {
+export function mul(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
   if (!isFinite(x) || !isFinite(y)) {
     if (isNaN(x) || isNaN(y)) {
       return nan();
