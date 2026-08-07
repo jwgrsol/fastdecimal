@@ -44,7 +44,7 @@ toString(divToDecimalPlaces(price, people, 2, 4)); // 1인당 '50' (HALF_UP)
 
 | 분류                          | 함수                                                                                                   |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 생성                          | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan`                                      |
+| 생성                          | `parse`, `fromParts`, `zero`, `infinity`, `nan`                                                        |
 | 정확 연산                     | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp`                                                     |
 | 라운딩 연산 (정밀도를 인자로) | `divToDecimalPlaces`, `sqrtToDecimalPlaces`, `mod`, `roundToDecimalPlaces`, `roundToSignificantDigits` |
 | 조회 / 출력                   | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString`                                  |

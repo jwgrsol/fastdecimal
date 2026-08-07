@@ -1,4 +1,10 @@
-/** Cached powers of ten (internal — invisible to callers, contract §5). */
+/**
+ * Cached powers of ten (internal — invisible to callers, contract §5).
+ *
+ * Precondition: `n` is a non-negative integer. A negative or fractional `n`
+ * silently yields `undefined` (negative array index) — there is no runtime
+ * guard here, so every caller branches on sign before calling.
+ */
 const POWERS_OF_TEN: bigint[] = [1n];
 
 export function pow10(n: number): bigint {

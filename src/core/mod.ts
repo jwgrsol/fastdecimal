@@ -1,8 +1,7 @@
 import type { PlainDecimal, ModuloMode, RoundingMode } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
-import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
-import { nan, zero } from './make.ts';
+import { nan, zero, fromParts } from './make.ts';
 import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
 /**
@@ -81,6 +80,5 @@ export function mod(x: PlainDecimal, y: PlainDecimal, mode: ModuloMode): PlainDe
     remainder = -remainder;
     sign = -sign as 1 | -1;
   }
-  const coefficient = stripTrailingZeros(remainder, scale);
-  return { sign, coefficient, scale: stripResult.scale };
+  return fromParts(sign, remainder, scale);
 }
