@@ -21,7 +21,15 @@ toString(add(parse('0.1'), parse('0.2'))); // '0.3'
 ## The functional core
 
 The root entry point is a set of pure functions over plain values — no classes,
-no global settings, fully tree-shakable. A value is:
+no global settings, fully tree-shakable.
+
+**Pick the right entry point:** if you write formulas by hand, use the
+`fastdecimal/big` facade — arithmetic chains read left-to-right
+(`price.times(qty).plus(fee)`), which nested function calls cannot match. The
+functional core is for the other kind of caller: library authors building on
+top of it, code that _generates_ operations (formula evaluators, settlement
+engines), and paths where bundle size or per-call overhead dominates. A value
+is:
 
 ```ts
 interface DecimalValue {
