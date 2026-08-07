@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { nan, infinity, zero } from './make.ts';
@@ -23,7 +23,7 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  * const result = add(parse('0.1'), parse('0.2'));
  * toString(result); // '0.3' — exact, no binary float error
  */
-export function add(x: DecimalValue, y: DecimalValue): DecimalValue {
+export function add(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
   if (!isFinite(x) || !isFinite(y)) {
     if (isNaN(x) || isNaN(y)) {
       return nan();

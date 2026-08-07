@@ -1,4 +1,4 @@
-import type { DecimalValue, ModuloMode, RoundingMode } from './types.ts';
+import type { PlainDecimal, ModuloMode, RoundingMode } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
@@ -27,7 +27,7 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  * toString(mod(parse('-7'), parse('3'), 1)); // '-1' (truncated, like JS %)
  * toString(mod(parse('-7'), parse('3'), 9)); // '2'  (Euclidean, always ≥ 0)
  */
-export function mod(x: DecimalValue, y: DecimalValue, mode: ModuloMode): DecimalValue {
+export function mod(x: PlainDecimal, y: PlainDecimal, mode: ModuloMode): PlainDecimal {
   if (!isFinite(x) || !isFinite(y)) {
     if (isNaN(x) || isNaN(y)) {
       return nan();

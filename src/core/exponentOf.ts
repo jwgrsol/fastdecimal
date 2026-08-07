@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { isFinite, isZero } from './predicates.ts';
 
 /**
@@ -16,7 +16,7 @@ import { isFinite, isZero } from './predicates.ts';
  * exponentOf(parse('123.45'));  // 2
  * exponentOf(parse('0.00012')); // -4
  */
-export function exponentOf(x: DecimalValue): number {
+export function exponentOf(x: PlainDecimal): number {
   if (!isFinite(x)) {
     return NaN;
   }

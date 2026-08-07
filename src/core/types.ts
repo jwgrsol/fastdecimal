@@ -13,7 +13,7 @@
  *   −Infinity  → { sign: -1, coefficient: null, scale: 0 }
  *   −0         → { sign: -1, coefficient: 0n,   scale: 0 }
  */
-export interface DecimalValue {
+export interface PlainDecimal {
   sign: 1 | -1 | 0;
   coefficient: bigint | null;
   scale: number;

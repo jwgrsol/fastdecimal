@@ -1,4 +1,4 @@
-import type { DecimalValue, RoundingMode } from './types.ts';
+import type { PlainDecimal, RoundingMode } from './types.ts';
 import { isFinite, isZero } from './predicates.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
@@ -22,7 +22,7 @@ import { roundUp } from './_internal/roundUp.ts';
  * toString(roundToDecimalPlaces(parse('2.5'), 0, 4)); // '3'  (HALF_UP)
  * toString(roundToDecimalPlaces(parse('2.5'), 0, 6)); // '2'  (HALF_EVEN)
  */
-export function roundToDecimalPlaces(x: DecimalValue, decimalPlaces: number, roundingMode: RoundingMode): DecimalValue {
+export function roundToDecimalPlaces(x: PlainDecimal, decimalPlaces: number, roundingMode: RoundingMode): PlainDecimal {
   if (!isFinite(x)) {
     return { sign: x.sign, coefficient: null, scale: 0 };
   }

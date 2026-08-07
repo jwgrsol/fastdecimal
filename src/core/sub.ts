@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { add } from './add.ts';
 import { neg } from './neg.ts';
 
@@ -17,6 +17,6 @@ import { neg } from './neg.ts';
  * const result = sub(parse('1'), parse('0.999'));
  * toString(result); // '0.001'
  */
-export function sub(x: DecimalValue, y: DecimalValue): DecimalValue {
+export function sub(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
   return add(x, neg(y));
 }

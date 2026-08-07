@@ -1,4 +1,4 @@
-import type { DecimalValue, RoundingMode } from './types.ts';
+import type { PlainDecimal, RoundingMode } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
@@ -25,11 +25,11 @@ import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
  * toString(result); // '0.33333'
  */
 export function divToDecimalPlaces(
-  x: DecimalValue,
-  y: DecimalValue,
+  x: PlainDecimal,
+  y: PlainDecimal,
   decimalPlaces: number,
   roundingMode: RoundingMode
-): DecimalValue {
+): PlainDecimal {
   if (!isFinite(x) || !isFinite(y)) {
     if (isNaN(x) || isNaN(y)) {
       return nan();

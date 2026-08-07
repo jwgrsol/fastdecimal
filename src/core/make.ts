@@ -1,7 +1,7 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 
-// Value constructors. Every DecimalValue in the system is created here (or by
+// Value constructors. Every PlainDecimal in the system is created here (or by
 // parse), so the three-field shape and creation order stay identical for the
 // JIT and the normal-form invariant holds by construction. Each call returns a
 // fresh object — callers never share mutable state.
@@ -14,7 +14,7 @@ import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
  * @example
  * isNaN(nan()); // true
  */
-export function nan(): DecimalValue {
+export function nan(): PlainDecimal {
   return { sign: 0, coefficient: null, scale: 0 };
 }
 
@@ -27,7 +27,7 @@ export function nan(): DecimalValue {
  * @example
  * toString(infinity(-1)); // '-Infinity'
  */
-export function infinity(sign: 1 | -1): DecimalValue {
+export function infinity(sign: 1 | -1): PlainDecimal {
   return { sign, coefficient: null, scale: 0 };
 }
 
@@ -40,7 +40,7 @@ export function infinity(sign: 1 | -1): DecimalValue {
  * @example
  * cmp(zero(-1), zero(1)); // 0 — −0 and +0 compare equal
  */
-export function zero(sign: 1 | -1): DecimalValue {
+export function zero(sign: 1 | -1): PlainDecimal {
   return { sign, coefficient: 0n, scale: 0 };
 }
 
@@ -55,7 +55,7 @@ export function zero(sign: 1 | -1): DecimalValue {
  * @param scale - The base-10 exponent of the least significant digit.
  * @returns A fresh finite value using the parts as given.
  */
-export function fromNormalized(sign: 1 | -1, coefficient: bigint, scale: number): DecimalValue {
+export function fromNormalized(sign: 1 | -1, coefficient: bigint, scale: number): PlainDecimal {
   return { sign, coefficient, scale };
 }
 
@@ -72,7 +72,7 @@ export function fromNormalized(sign: 1 | -1, coefficient: bigint, scale: number)
  * @example
  * fromParts(1, 12300n, -2); // { sign: 1, coefficient: 123n, scale: 0 } — i.e. 123
  */
-export function fromParts(sign: 1 | -1, coefficient: bigint, scale: number): DecimalValue {
+export function fromParts(sign: 1 | -1, coefficient: bigint, scale: number): PlainDecimal {
   if (coefficient === 0n) {
     return { sign, coefficient: 0n, scale: 0 };
   }

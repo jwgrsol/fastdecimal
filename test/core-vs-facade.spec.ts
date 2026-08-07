@@ -33,7 +33,7 @@ function randomDecimal(): string {
   return s;
 }
 // Render like big.js's toString: −0 prints as "0"
-const str = (x: core.DecimalValue) => core.toString(x, -7, 21, false);
+const str = (x: core.PlainDecimal) => core.toString(x, -7, 21, false);
 
 describe('core matches the big.ts facade on seeded random inputs', () => {
   it('2,000 iterations across add/sub/mul/div/cmp/round', () => {

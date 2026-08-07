@@ -1,4 +1,4 @@
-import type { DecimalValue } from './types.ts';
+import type { PlainDecimal } from './types.ts';
 
 /**
  * Checks whether a value is finite — an ordinary number or a signed zero,
@@ -11,7 +11,7 @@ import type { DecimalValue } from './types.ts';
  * isFinite(parse('1.5'));  // true
  * isFinite(infinity(1));   // false
  */
-export function isFinite(x: DecimalValue): x is DecimalValue & { coefficient: bigint } {
+export function isFinite(x: PlainDecimal): x is PlainDecimal & { coefficient: bigint } {
   return x.coefficient !== null;
 }
 
@@ -25,7 +25,7 @@ export function isFinite(x: DecimalValue): x is DecimalValue & { coefficient: bi
  * isNaN(nan());        // true
  * isNaN(parse('1.5')); // false
  */
-export function isNaN(x: DecimalValue): x is DecimalValue & { sign: 0; coefficient: null } {
+export function isNaN(x: PlainDecimal): x is PlainDecimal & { sign: 0; coefficient: null } {
   return x.coefficient === null && x.sign === 0;
 }
 
@@ -39,7 +39,7 @@ export function isNaN(x: DecimalValue): x is DecimalValue & { sign: 0; coefficie
  * isInfinite(infinity(-1)); // true
  * isInfinite(nan());        // false
  */
-export function isInfinite(x: DecimalValue): x is DecimalValue & { sign: 1 | -1; coefficient: null } {
+export function isInfinite(x: PlainDecimal): x is PlainDecimal & { sign: 1 | -1; coefficient: null } {
   return x.coefficient === null && x.sign !== 0;
 }
 
@@ -53,6 +53,6 @@ export function isInfinite(x: DecimalValue): x is DecimalValue & { sign: 1 | -1;
  * isZero(parse('-0')); // true
  * isZero(parse('1'));  // false
  */
-export function isZero(x: DecimalValue): x is DecimalValue & { coefficient: 0n } {
+export function isZero(x: PlainDecimal): x is PlainDecimal & { coefficient: 0n } {
   return x.coefficient === 0n;
 }
