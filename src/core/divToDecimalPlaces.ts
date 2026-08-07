@@ -1,8 +1,7 @@
 import type { PlainDecimal, RoundingMode } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
-import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
-import { nan, infinity, zero } from './make.ts';
+import { nan, infinity, zero, fromParts } from './make.ts';
 import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
 /**
@@ -66,6 +65,5 @@ export function divToDecimalPlaces(
   if (truncated === 0n) {
     return zero(sign);
   }
-  const coefficient = stripTrailingZeros(truncated, -decimalPlaces);
-  return { sign, coefficient, scale: stripResult.scale };
+  return fromParts(sign, truncated, -decimalPlaces);
 }

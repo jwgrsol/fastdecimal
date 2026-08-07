@@ -1,6 +1,5 @@
 import type { PlainDecimal } from './types.ts';
-import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
-import { nan, infinity, zero } from './make.ts';
+import { nan, infinity, zero, fromParts } from './make.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
 
 /**
@@ -31,6 +30,5 @@ export function powInt(x: PlainDecimal, n: number): PlainDecimal {
   if (isZero(x)) {
     return zero(sign);
   }
-  const coefficient = stripTrailingZeros(x.coefficient ** BigInt(n), x.scale * n);
-  return { sign, coefficient, scale: stripResult.scale };
+  return fromParts(sign, x.coefficient ** BigInt(n), x.scale * n);
 }

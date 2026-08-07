@@ -25,7 +25,7 @@ import { roundToSignificantDigits as coreRoundToSignificantDigits } from './core
 import { toString as coreToString } from './core/toString.ts';
 import { exponentOf } from './core/exponentOf.ts';
 import { pow10 } from './core/_internal/pow10.ts';
-import { stripTrailingZeros, stripResult } from './core/_internal/strip.ts';
+import { fromParts } from './core/make.ts';
 
 export type BigSource = number | string | bigint | Big;
 export type RoundingMode = 0 | 1 | 2 | 3;
@@ -482,8 +482,9 @@ Object.defineProperty(bigPrototype, 'c', {
       this.scale = 0;
       return;
     }
-    this.coefficient = stripTrailingZeros(coefficient, exponent - (digits.length - 1));
-    this.scale = stripResult.scale;
+    const normalized = fromParts(this.sign, coefficient, exponent - (digits.length - 1));
+    this.coefficient = normalized.coefficient as bigint;
+    this.scale = normalized.scale;
   },
 });
 Object.defineProperty(bigPrototype, 'e', {

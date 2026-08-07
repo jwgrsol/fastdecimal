@@ -3,7 +3,7 @@
  * See docs/core-contract.md for the contract these functions implement.
  */
 export type { PlainDecimal, RoundingMode, ModuloMode } from './types.ts';
-export { nan, infinity, zero, fromParts, fromNormalized } from './make.ts';
+export { nan, infinity, zero, fromParts } from './make.ts';
 export { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 export { parse } from './parse.ts';
 export { exponentOf } from './exponentOf.ts';

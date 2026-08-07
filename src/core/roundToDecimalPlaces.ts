@@ -1,8 +1,8 @@
 import type { PlainDecimal, RoundingMode } from './types.ts';
 import { isFinite, isZero } from './predicates.ts';
 import { pow10 } from './_internal/pow10.ts';
-import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
 import { roundUp } from './_internal/roundUp.ts';
+import { fromParts } from './make.ts';
 
 /**
  * Rounds a decimal value to `decimalPlaces` decimal places. A negative
@@ -38,6 +38,5 @@ export function roundToDecimalPlaces(x: PlainDecimal, decimalPlaces: number, rou
   if (truncated === 0n) {
     return { sign: x.sign, coefficient: 0n, scale: 0 };
   }
-  const coefficient = stripTrailingZeros(truncated, -decimalPlaces);
-  return { sign: x.sign, coefficient, scale: stripResult.scale };
+  return fromParts(x.sign as 1 | -1, truncated, -decimalPlaces);
 }

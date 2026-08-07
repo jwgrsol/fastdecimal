@@ -1,7 +1,6 @@
 import type { PlainDecimal } from './types.ts';
 import { pow10 } from './_internal/pow10.ts';
-import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
-import { nan, infinity, zero } from './make.ts';
+import { nan, infinity, zero, fromParts } from './make.ts';
 import { isFinite, isNaN, isInfinite, isZero } from './predicates.ts';
 
 /**
@@ -63,6 +62,5 @@ export function add(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
     magnitude = yMag - xMag;
   }
 
-  const coefficient = stripTrailingZeros(magnitude, scale);
-  return { sign, coefficient, scale: stripResult.scale };
+  return fromParts(sign, magnitude, scale);
 }

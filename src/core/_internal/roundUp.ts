@@ -16,6 +16,11 @@ export function roundUp(
   sign: number,
   roundingMode: RoundingMode
 ): boolean {
+  // Guard for untyped (plain JS) callers: an out-of-range mode would otherwise fall
+  // through the switches and silently behave like a half-mode — the worst failure shape.
+  if (!(roundingMode >= 0 && roundingMode <= 8)) {
+    throw new Error(`Invalid rounding mode: ${roundingMode}`);
+  }
   if (remainder === 0n) {
     return false;
   }

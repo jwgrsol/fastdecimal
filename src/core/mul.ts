@@ -1,6 +1,5 @@
 import type { PlainDecimal } from './types.ts';
-import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
-import { nan, infinity, zero } from './make.ts';
+import { nan, infinity, zero, fromParts } from './make.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
 
 /**
@@ -33,6 +32,5 @@ export function mul(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
   if (isZero(x) || isZero(y)) {
     return zero(sign);
   }
-  const coefficient = stripTrailingZeros(x.coefficient * y.coefficient, x.scale + y.scale);
-  return { sign, coefficient, scale: stripResult.scale };
+  return fromParts(sign, x.coefficient * y.coefficient, x.scale + y.scale);
 }

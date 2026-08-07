@@ -45,21 +45,6 @@ export function zero(sign: 1 | -1): PlainDecimal {
 }
 
 /**
- * Creates a finite value from parts that are already in normal form — a fast
- * path that skips re-normalization. The caller must guarantee the invariant:
- * `coefficient` is not a multiple of 10, and a zero coefficient has scale 0.
- * Use {@link fromParts} when the input is not known to be normalized.
- *
- * @param sign - The sign, `1` or `-1`.
- * @param coefficient - The non-negative coefficient, already stripped of trailing zeros.
- * @param scale - The base-10 exponent of the least significant digit.
- * @returns A fresh finite value using the parts as given.
- */
-export function fromNormalized(sign: 1 | -1, coefficient: bigint, scale: number): PlainDecimal {
-  return { sign, coefficient, scale };
-}
-
-/**
  * Creates a finite value from arbitrary parts, normalizing on the way in:
  * trailing zeros move from the coefficient into the scale, and a zero
  * coefficient forces scale 0.

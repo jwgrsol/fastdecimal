@@ -54,7 +54,7 @@ toString(divToDecimalPlaces(price, people, 2, 4)); // '50' per person, HALF_UP
 
 | Group                                        | Functions                                                                                              |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Construct                                    | `parse`, `fromParts`, `fromNormalized`, `zero`, `infinity`, `nan`                                      |
+| Construct                                    | `parse`, `fromParts`, `zero`, `infinity`, `nan`                                                        |
 | Exact arithmetic                             | `add`, `sub`, `mul`, `powInt`, `neg`, `abs`, `cmp`                                                     |
 | Rounding arithmetic (precision as arguments) | `divToDecimalPlaces`, `sqrtToDecimalPlaces`, `mod`, `roundToDecimalPlaces`, `roundToSignificantDigits` |
 | Inspect / render                             | `exponentOf`, `isFinite`, `isNaN`, `isInfinite`, `isZero`, `toString`                                  |
