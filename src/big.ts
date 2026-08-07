@@ -208,7 +208,13 @@ function fromDec(Ctor: BigConstructor, d: PlainDecimal): Big {
   return new InternalBig(d.sign, d.coefficient, d.scale, Ctor);
 }
 function toBig(x: Big, y: BigSource): Big {
-  return y instanceof Object && 'coefficient' in (y as any) ? (y as Big) : new x.constructor(y as any);
+  // instanceof, not a property check: all clone constructors share bigPrototype, so
+  // instances from any clone pass, while foreign objects that merely carry a
+  // `coefficient` field fall through to the string path and fail validation there —
+  // exactly like upstream big.js.
+  return y instanceof (x.constructor as unknown as new (v: BigSource) => Big)
+    ? (y as Big)
+    : new x.constructor(y as any);
 }
 function checkRM(rm: unknown): asserts rm is RoundingMode {
   if (rm !== 0 && rm !== 1 && rm !== 2 && rm !== 3) {
@@ -504,7 +510,9 @@ function createBig(): BigConstructor {
     if (!(this instanceof Big)) {
       return value === undefined && arguments.length === 0 ? createBig() : new (Big as any)(value);
     }
-    if (value instanceof Object && 'coefficient' in (value as any)) {
+    if (value instanceof (Big as unknown as new (v: BigSource) => Big)) {
+      // lineage check (like upstream) — clones share bigPrototype, so any clone's
+      // instance passes; foreign objects go to the string path and fail validation
       const other = value as Big;
       this.sign = other.sign;
       this.coefficient = other.coefficient;
