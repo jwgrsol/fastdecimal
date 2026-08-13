@@ -47,7 +47,7 @@
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "^10.0.1",
     "@types/big.js": "^7",
-    "@vitest/eslint-plugin": "^1.6.26",
+    "@vitest/eslint-plugin": "^1.6.27",
     "big.js": "^7.0.1",
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
