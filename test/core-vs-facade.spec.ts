@@ -56,9 +56,10 @@ describe('core matches the big.ts facade on seeded random inputs', () => {
       expect(str(core.roundToDecimalPlaces(da, dp, RM_MAP[bigRm])), `round ${context}`).toBe(
         ba.round(dp, bigRm).toString()
       );
-      if (bb.cmp(0) !== 0) {
-        expect(str(core.divToDecimalPlaces(da, db, dp, RM_MAP[bigRm])), `div ${context}`).toBe(ba.div(bb).toString());
-      }
+      const divisorIsZero = bb.cmp(0) === 0;
+      const divActual = divisorIsZero ? 'skipped' : str(core.divToDecimalPlaces(da, db, dp, RM_MAP[bigRm]));
+      const divExpected = divisorIsZero ? 'skipped' : ba.div(bb).toString();
+      expect(divActual, `div ${context}`).toBe(divExpected);
     }
     Big.DP = 20;
     Big.RM = 1;
