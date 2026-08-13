@@ -1,30 +1,30 @@
 {
-  "date": "2026-08-04",
+  "date": "2026-08-13",
   "results": [
     {
       "name": "core: one function (add)",
-      "minified": 1123,
-      "gzipped": 508
+      "minified": 1264,
+      "gzipped": 548
     },
     {
       "name": "core: typical money math (parse, add, divToDecimalPlaces, toString)",
-      "minified": 3403,
-      "gzipped": 1365
+      "minified": 3408,
+      "gzipped": 1426
     },
     {
       "name": "core: everything",
-      "minified": 7208,
-      "gzipped": 2396
+      "minified": 6173,
+      "gzipped": 2351
     },
     {
       "name": "facade: Big (drop-in, all-or-nothing by design)",
-      "minified": 12102,
-      "gzipped": 3699
+      "minified": 11455,
+      "gzipped": 3726
     },
     {
       "name": "upstream big.js (for comparison)",
       "minified": 6874,
-      "gzipped": 2988
+      "gzipped": 2968
     }
   ]
 }

@@ -1,9 +1,13 @@
 // Bundle-size measurement (the es-toolkit pattern): bundle each import shape with
 // esbuild against the built dist/ output — the evidence behind the tree-shaking
 // claim. Run `yarn build` first, then `node bench/bundle-size.mjs`.
+//
+// `--check` compares gzipped sizes against bundle-size.budget.json and exits
+// non-zero on any overrun (CI guard). Budgets are maintained by hand: after an
+// intentional size change, update the budget in the same commit.
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -59,8 +63,28 @@ for (const r of results) {
   console.log(`${r.name.padEnd(width)}  ${fmt(r.minified).padStart(8)}  ${fmt(r.gzipped).padStart(8)}`);
 }
 
-writeFileSync(
-  join(here, 'bundle-size.json'),
-  JSON.stringify({ date: new Date().toISOString().slice(0, 10), results }, null, 2)
-);
-console.log(`\nWrote ${join(here, 'bundle-size.json')}`);
+if (process.argv.includes('--check')) {
+  const budgets = JSON.parse(readFileSync(join(here, 'bundle-size.budget.json'), 'utf8'));
+  let failed = false;
+  for (const r of results) {
+    const budget = budgets[r.name];
+    if (budget === undefined) {
+      continue;
+    } // comparison-only scenarios carry no budget
+    if (r.gzipped > budget) {
+      console.error(`OVER BUDGET: "${r.name}" gzipped ${r.gzipped} B > budget ${budget} B`);
+      failed = true;
+    }
+  }
+  if (failed) {
+    console.error('\nIf the increase is intentional, update bench/bundle-size.budget.json in the same commit.');
+    process.exit(1);
+  }
+  console.log('\nAll scenarios within budget.');
+} else {
+  writeFileSync(
+    join(here, 'bundle-size.json'),
+    JSON.stringify({ date: new Date().toISOString().slice(0, 10), results }, null, 2)
+  );
+  console.log(`\nWrote ${join(here, 'bundle-size.json')}`);
+}

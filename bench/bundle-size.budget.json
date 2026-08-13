@@ -1,0 +1,6 @@
+{
+  "core: one function (add)": 575,
+  "core: typical money math (parse, add, divToDecimalPlaces, toString)": 1497,
+  "core: everything": 2468,
+  "facade: Big (drop-in, all-or-nothing by design)": 3912
+}
