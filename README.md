@@ -99,6 +99,24 @@ fastdecimal aims for **100% behavioral compatibility** with big.js: same API, sa
 
 Run `yarn bench` to reproduce the full operation × operand-size matrix against big.js on your machine; results are written to [bench/RESULTS.md](./bench/RESULTS.md). The matrix measures three ways — upstream big.js, the functional core called directly, and the facade — so the wrapper's overhead is always visible. `node bench/bundle-size.mjs` measures real bundled sizes: importing a single core function is ~0.5 KB gzipped, the full core ~2.3 KB (smaller than big.js's ~2.9 KB), while the all-or-nothing `fastdecimal/big` facade is ~3.6 KB — larger than big.js itself, the documented price of the translation layer. Highlights (Node 24, 500-digit operands): `times` ~870×, `pow` ~1800×, `div` ~440×, `sqrt` ~156× faster. Known trade-off: `round` on operands above ~20 digits runs at 0.4–0.8× of big.js — truncation is nearly free on its digit-array representation, while the BigInt representation must pay for a real division. Every other measured operation is faster, and `round` still exceeds a million calls per second at every size.
 
+## Real-world validation
+
+Beyond the vendored suite, fastdecimal has been validated as a drop-in `big.js`
+replacement inside real projects (measured 2026-08, Apple M3, Node 24 — package-
+manager-level substitution, zero source changes in the target projects):
+
+- **Uniswap SDK monorepo** (`@uniswap/sdk-core` + dependents): the full
+  workspace test run — ~2,580 tests including `toformat` prototype extension and
+  rounding-mode mapping paths — produced **zero regressions** versus upstream
+  big.js (the only failures were pre-existing, environment-dependent, and
+  identical under both libraries).
+- **Ghostfolio** (open-source wealth management, big.js in its portfolio
+  calculation engine): all calculator specs pass unchanged, and the
+  `computeSnapshot` hot path over a synthetic large portfolio (5,000–10,000
+  activities, 10–12 years of daily data) ran **1.67–1.83× faster** end-to-end.
+  CPU profiling attributes the gain to arithmetic: big.js's `div` alone was 24%
+  of total CPU; fastdecimal's division path measures under 1%.
+
 ## License
 
 [MIT](./LICENSE)
