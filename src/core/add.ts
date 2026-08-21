@@ -77,7 +77,7 @@ function addZeroOperand(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
     if (isZero(y)) {
       return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
     }
-    return { sign: y.sign, coefficient: y.coefficient, scale: y.scale };
+    return { sign: y.sign, coefficient: y.coefficient, scale: y.scale, digits: y.digits };
   }
-  return { sign: x.sign, coefficient: x.coefficient, scale: x.scale };
+  return { sign: x.sign, coefficient: x.coefficient, scale: x.scale, digits: x.digits };
 }

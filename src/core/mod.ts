@@ -34,7 +34,7 @@ export function mod(x: PlainDecimal, y: PlainDecimal, mode: ModuloMode): PlainDe
     if (isInfinite(x)) {
       return nan();
     } // ±∞ mod y
-    return { sign: x.sign, coefficient: x.coefficient, scale: x.scale }; // finite mod ±∞ = x
+    return { sign: x.sign, coefficient: x.coefficient, scale: x.scale, digits: x.digits }; // finite mod ±∞ = x
   }
   if (isZero(y)) {
     return nan();

@@ -34,6 +34,8 @@ export interface Big {
   sign: 1 | -1; // structurally a subset of core PlainDecimal's sign (the facade never holds NaN)
   coefficient: bigint;
   scale: number;
+  digits: number; // lazy digit-count cache — see core PlainDecimal.digits
+
   s: number;
   readonly c: number[];
   readonly e: number;
@@ -175,6 +177,7 @@ function parseInto(x: Big, str: string): void {
     x.sign = sign;
     x.coefficient = 0n;
     x.scale = 0;
+    x.digits = 0;
     return;
   } // ±0
   let scale = exp - fracLen;
@@ -185,6 +188,7 @@ function parseInto(x: Big, str: string): void {
   x.sign = sign;
   x.coefficient = BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits);
   x.scale = scale;
+  x.digits = end - start; // known for free from the trimmed digit span
 }
 
 // ---- shared prototype (shared by every cloned constructor, exactly like big.js) ----
@@ -192,20 +196,28 @@ const bigPrototype: any = {};
 
 // Internal allocator: a real constructor call gives V8 a stable hidden class and a
 // preallocated shape, measurably faster than Object.create + per-property assignment
-const InternalBig: any = function (this: any, sign: number, coefficient: bigint, scale: number, Ctor: BigConstructor) {
+const InternalBig: any = function (
+  this: any,
+  sign: number,
+  coefficient: bigint,
+  scale: number,
+  digits: number,
+  Ctor: BigConstructor
+) {
   this.sign = sign;
   this.coefficient = coefficient;
   this.scale = scale;
+  this.digits = digits;
   this.constructor = Ctor;
 };
 InternalBig.prototype = bigPrototype;
 
-function makeBig(Ctor: BigConstructor, sign: number, coefficient: bigint, scale: number): Big {
-  return new InternalBig(sign, coefficient, scale, Ctor);
+function makeBig(Ctor: BigConstructor, sign: number, coefficient: bigint, scale: number, digits: number): Big {
+  return new InternalBig(sign, coefficient, scale, digits, Ctor);
 }
 /** Wrap a core result into a big.js instance. */
 function fromDec(Ctor: BigConstructor, d: PlainDecimal): Big {
-  return new InternalBig(d.sign, d.coefficient, d.scale, Ctor);
+  return new InternalBig(d.sign, d.coefficient, d.scale, d.digits, Ctor);
 }
 function toBig(x: Big, y: BigSource): Big {
   // instanceof, not a property check: all clone constructors share bigPrototype, so
@@ -223,7 +235,11 @@ function checkRM(rm: unknown): asserts rm is RoundingMode {
 }
 
 function digitsOf(x: Big | PlainDecimal): string {
-  return (x.coefficient as bigint).toString();
+  const digits = (x.coefficient as bigint).toString();
+  if (x.digits === 0 && digits !== '0') {
+    x.digits = digits.length; // opportunistic fill of the lazy digit-count cache
+  }
+  return digits;
 }
 
 // big.js's stringify: exponential form outside (NE, PE); forceSign emits '-' even for -0
@@ -235,10 +251,10 @@ function stringify(x: Big | PlainDecimal, forceSign: boolean): string {
 // ---- instance methods ----
 
 bigPrototype.abs = function (this: Big): Big {
-  return makeBig(this.constructor, 1, this.coefficient, this.scale);
+  return makeBig(this.constructor, 1, this.coefficient, this.scale, this.digits);
 };
 bigPrototype.neg = function (this: Big): Big {
-  return makeBig(this.constructor, -this.sign, this.coefficient, this.scale);
+  return makeBig(this.constructor, -this.sign, this.coefficient, this.scale, this.digits);
 };
 
 bigPrototype.plus = bigPrototype.add = function (this: Big, y: BigSource): Big {
@@ -290,7 +306,7 @@ bigPrototype.pow = function (this: Big, n: number): Big {
 bigPrototype.sqrt = function (this: Big): Big {
   const Ctor = this.constructor;
   if (this.coefficient === 0n) {
-    return makeBig(Ctor, this.sign, 0n, 0);
+    return makeBig(Ctor, this.sign, 0n, 0, 0);
   }
   if (this.sign < 0) {
     throw Error(NAME + 'No square root');
@@ -363,10 +379,11 @@ bigPrototype.toExponential = function (this: Big, dp?: number, rm?: RoundingMode
     pad = dp + 1;
   }
   let digits = digitsOf(x);
-  if (pad > digits.length) {
+  const rawLength = digits.length;
+  if (pad > rawLength) {
     digits = digits.padEnd(pad, '0');
   }
-  const exponent = x.coefficient === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
+  const exponent = x.coefficient === 0n ? 0 : rawLength - 1 + x.scale;
   const body = digits[0] + (digits.length > 1 ? '.' + digits.slice(1) : '') + (exponent < 0 ? 'e' : 'e+') + exponent;
   return x.sign < 0 && wasNonzero ? '-' + body : body;
 };
@@ -419,10 +436,11 @@ bigPrototype.toPrecision = function (this: Big, sd?: number, rm?: RoundingMode):
   checkRM(rm);
   const x = coreRoundToSignificantDigits(this, sd, TO_CORE_RM[rm]);
   let digits = digitsOf(x);
-  if (sd > digits.length) {
+  const rawLength = digits.length;
+  if (sd > rawLength) {
     digits = digits.padEnd(sd, '0');
   }
-  const exponent = x.coefficient === 0n ? 0 : digitsOf(x).length - 1 + x.scale;
+  const exponent = x.coefficient === 0n ? 0 : rawLength - 1 + x.scale;
   let body: string;
   if (sd <= exponent || exponent <= Ctor.NE || exponent >= Ctor.PE) {
     body = digits[0] + (digits.length > 1 ? '.' + digits.slice(1) : '') + (exponent < 0 ? 'e' : 'e+') + exponent;
@@ -486,11 +504,13 @@ Object.defineProperty(bigPrototype, 'c', {
     if (coefficient === 0n) {
       this.coefficient = 0n;
       this.scale = 0;
+      this.digits = 0;
       return;
     }
     const normalized = fromParts(this.sign, coefficient, exponent - (digits.length - 1));
     this.coefficient = normalized.coefficient as bigint;
     this.scale = normalized.scale;
+    this.digits = 0; // coefficient replaced — the lazy digit-count cache is stale
   },
 });
 Object.defineProperty(bigPrototype, 'e', {
@@ -517,6 +537,7 @@ function createBig(): BigConstructor {
       this.sign = other.sign;
       this.coefficient = other.coefficient;
       this.scale = other.scale;
+      this.digits = other.digits;
     } else {
       if (typeof value !== 'string') {
         // strict mode accepts strings, bigints, and Big instances — exactly like big.js (big.js:103)

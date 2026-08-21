@@ -197,6 +197,37 @@ for (let i = 0; i < FUZZ_ITERATIONS; i++) {
 Orig.DP = Fast.DP = 20;
 Orig.RM = Fast.RM = 1;
 
+// ---- Layer 3: digit-count cache invariant ----
+// PlainDecimal.digits is a lazy cache: 0, or exactly the coefficient's decimal
+// digit count (and always 0 for zero). A wrong nonzero value would silently
+// corrupt e/toExponential/toPrecision, so every fuzzed instance is audited
+// before and after e-reads and s/c/e writes.
+function checkDigitsInvariant(label, x) {
+  const ok = x.coefficient === 0n ? x.digits === 0 : x.digits === 0 || x.digits === x.coefficient.toString().length;
+  record(`digits-invariant ${label}`, true, ok);
+}
+for (let i = 0; i < 500; i++) {
+  const a = randomDecimal(),
+    b = randomDecimal();
+  const x = new Fast(a);
+  checkDigitsInvariant(`parse ${a}`, x);
+  const results = [x.plus(b), x.minus(b), x.times(b), x.abs(), x.neg(), x.round(i % 10)];
+  for (const r of results) {
+    checkDigitsInvariant(`op ${a}`, r);
+    void r.e; // exponentOf memoizes — the cache it writes must be exact
+    checkDigitsInvariant(`after e-read ${a}`, r);
+  }
+  x.s = -x.s;
+  checkDigitsInvariant(`after s-write ${a}`, x);
+  void x.e;
+  x.e = (i % 21) - 10;
+  checkDigitsInvariant(`after e-write ${a}`, x);
+  x.c = [9, 0, (i % 9) + 1];
+  checkDigitsInvariant(`after c-write ${a}`, x);
+  void x.e;
+  checkDigitsInvariant(`after c-write e-read ${a}`, x);
+}
+
 for (const f of failures.slice(0, 5)) {
   console.log(`DIFF ${f.label}\n  big.js      = ${f.expected}\n  fastdecimal = ${f.actual}`);
 }

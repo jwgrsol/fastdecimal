@@ -17,6 +17,15 @@ export interface PlainDecimal {
   sign: 1 | -1 | 0;
   coefficient: bigint | null;
   scale: number;
+  /**
+   * Decimal digit count of `coefficient` — a lazily filled cache, not part of
+   * value identity. `0` means "not computed yet" (always the case for specials
+   * and zero); a producer sets it only when it knows the count for free, and
+   * `exponentOf` fills it on first demand. Finite core values are never
+   * mutated after creation, so a nonzero `digits` can never go stale; the only
+   * mutation sites are the big.js facade's property setters, which reset it.
+   */
+  digits: number;
 }
 
 /**

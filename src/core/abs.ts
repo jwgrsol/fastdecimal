@@ -14,5 +14,5 @@ import { isNaN } from './predicates.ts';
  * toString(result); // '1.5'
  */
 export function abs(x: PlainDecimal): PlainDecimal {
-  return { sign: isNaN(x) ? 0 : 1, coefficient: x.coefficient, scale: x.scale };
+  return { sign: isNaN(x) ? 0 : 1, coefficient: x.coefficient, scale: x.scale, digits: x.digits };
 }

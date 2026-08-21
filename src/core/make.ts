@@ -15,7 +15,7 @@ import { stripTrailingZeros, stripResult } from './_internal/strip.ts';
  * isNaN(nan()); // true
  */
 export function nan(): PlainDecimal {
-  return { sign: 0, coefficient: null, scale: 0 };
+  return { sign: 0, coefficient: null, scale: 0, digits: 0 };
 }
 
 /**
@@ -28,7 +28,7 @@ export function nan(): PlainDecimal {
  * toString(infinity(-1)); // '-Infinity'
  */
 export function infinity(sign: 1 | -1): PlainDecimal {
-  return { sign, coefficient: null, scale: 0 };
+  return { sign, coefficient: null, scale: 0, digits: 0 };
 }
 
 /**
@@ -41,7 +41,7 @@ export function infinity(sign: 1 | -1): PlainDecimal {
  * cmp(zero(-1), zero(1)); // 0 — −0 and +0 compare equal
  */
 export function zero(sign: 1 | -1): PlainDecimal {
-  return { sign, coefficient: 0n, scale: 0 };
+  return { sign, coefficient: 0n, scale: 0, digits: 0 };
 }
 
 /**
@@ -59,8 +59,8 @@ export function zero(sign: 1 | -1): PlainDecimal {
  */
 export function fromParts(sign: 1 | -1, coefficient: bigint, scale: number): PlainDecimal {
   if (coefficient === 0n) {
-    return { sign, coefficient: 0n, scale: 0 };
+    return { sign, coefficient: 0n, scale: 0, digits: 0 };
   }
   const stripped = stripTrailingZeros(coefficient, scale);
-  return { sign, coefficient: stripped, scale: stripResult.scale };
+  return { sign, coefficient: stripped, scale: stripResult.scale, digits: 0 };
 }

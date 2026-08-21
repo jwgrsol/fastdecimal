@@ -9,7 +9,7 @@ import { parse } from './parse.ts';
 import { nan, infinity, zero } from './make.ts';
 import { isFinite, isNaN, isZero } from './predicates.ts';
 
-const HALF: PlainDecimal = { sign: 1, coefficient: 5n, scale: -1 };
+const HALF: PlainDecimal = { sign: 1, coefficient: 5n, scale: -1, digits: 1 };
 
 /**
  * Computes the square root to `decimalPlaces` decimal places of precision

@@ -22,14 +22,14 @@ describe('add', () => {
   });
 
   it('a zero operand returns the other value without aligning scales', () => {
-    expect(add(parse('0'), parse('1e1000000'))).toEqual({ sign: 1, coefficient: 1n, scale: 1000000 });
-    expect(add(parse('1e-1000000'), parse('-0'))).toEqual({ sign: 1, coefficient: 1n, scale: -1000000 });
+    expect(add(parse('0'), parse('1e1000000'))).toEqual({ sign: 1, coefficient: 1n, scale: 1000000, digits: 1 });
+    expect(add(parse('1e-1000000'), parse('-0'))).toEqual({ sign: 1, coefficient: 1n, scale: -1000000, digits: 1 });
     expect(str(add(parse('-0'), parse('-3.5')))).toBe('-3.5');
     expect(str(add(parse('7'), parse('0')))).toBe('7');
   });
 
   it('carry chains normalize: 999…9 + 1 = 10^n', () => {
-    expect(add(parse('9'.repeat(100)), parse('1'))).toEqual({ sign: 1, coefficient: 1n, scale: 100 });
+    expect(add(parse('9'.repeat(100)), parse('1'))).toEqual({ sign: 1, coefficient: 1n, scale: 100, digits: 0 });
   });
 
   it('propagates specials per IEEE', () => {

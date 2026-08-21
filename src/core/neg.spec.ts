@@ -8,7 +8,7 @@ describe('neg', () => {
   it('flips the sign, sharing the coefficient', () => {
     const x = parse('1.5');
     const negated = neg(x);
-    expect(negated).toEqual({ sign: -1, coefficient: 15n, scale: -1 });
+    expect(negated).toEqual({ sign: -1, coefficient: 15n, scale: -1, digits: 2 });
     expect(negated.coefficient).toBe(x.coefficient); // no BigInt allocation
   });
 

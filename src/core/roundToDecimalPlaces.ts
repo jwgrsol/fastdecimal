@@ -24,11 +24,11 @@ import { fromParts } from './make.ts';
  */
 export function roundToDecimalPlaces(x: PlainDecimal, decimalPlaces: number, roundingMode: RoundingMode): PlainDecimal {
   if (!isFinite(x)) {
-    return { sign: x.sign, coefficient: null, scale: 0 };
+    return { sign: x.sign, coefficient: null, scale: 0, digits: 0 };
   }
   const shift = -decimalPlaces - x.scale; // how many digits to drop
   if (shift <= 0 || isZero(x)) {
-    return { sign: x.sign, coefficient: x.coefficient, scale: x.scale };
+    return { sign: x.sign, coefficient: x.coefficient, scale: x.scale, digits: x.digits };
   }
   const divisor = pow10(shift);
   let truncated = x.coefficient / divisor;
@@ -36,7 +36,7 @@ export function roundToDecimalPlaces(x: PlainDecimal, decimalPlaces: number, rou
     truncated += 1n;
   }
   if (truncated === 0n) {
-    return { sign: x.sign, coefficient: 0n, scale: 0 };
+    return { sign: x.sign, coefficient: 0n, scale: 0, digits: 0 };
   }
   return fromParts(x.sign as 1 | -1, truncated, -decimalPlaces);
 }

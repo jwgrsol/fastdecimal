@@ -118,5 +118,6 @@ export function parse(str: string): PlainDecimal {
     sign,
     coefficient: BigInt(start > 0 || end < digits.length ? digits.slice(start, end) : digits),
     scale,
+    digits: end - start, // known for free from the trimmed digit span
   };
 }
