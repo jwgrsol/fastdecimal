@@ -18,4 +18,21 @@ describe('make', () => {
     expect(fromParts(1, 12300n, -2)).toEqual({ sign: 1, coefficient: 123n, scale: 0 });
     expect(fromParts(-1, 0n, 5)).toEqual({ sign: -1, coefficient: 0n, scale: 0 });
   });
+
+  it('fromParts strips long zero runs across the ladder boundaries', () => {
+    // 16/32/64 sit on the squaring ladder; 37 = 16+16+4+1 and 100 = 64+32+4
+    // exercise the binary descent, 15 stays under the ladder entirely.
+    for (const zeros of [15, 16, 17, 31, 32, 33, 37, 63, 64, 100]) {
+      expect(fromParts(1, 123n * 10n ** BigInt(zeros), -3)).toEqual({
+        sign: 1,
+        coefficient: 123n,
+        scale: zeros - 3,
+      });
+      expect(fromParts(-1, 10n ** BigInt(zeros), 0)).toEqual({
+        sign: -1,
+        coefficient: 1n,
+        scale: zeros,
+      });
+    }
+  });
 });

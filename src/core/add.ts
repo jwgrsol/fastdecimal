@@ -32,8 +32,8 @@ export function add(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
     } // ∞ + (−∞)
     return isInfinite(x) ? infinity(x.sign) : infinity(y.sign as 1 | -1); // ∞ + finite
   }
-  if (isZero(x) && isZero(y)) {
-    return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
+  if (isZero(x) || isZero(y)) {
+    return addZeroOperand(x, y);
   }
 
   const scaleDiff = x.scale - y.scale;
@@ -63,4 +63,21 @@ export function add(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
   }
 
   return fromParts(sign, magnitude, scale);
+}
+
+/**
+ * At least one operand is zero — outlined so add's common-case body stays
+ * within the JIT inlining budget. `0 + y` returns y's value without aligning:
+ * the alignment path would materialize 10^|scaleDiff|, which for
+ * `0 + 1e1000000` is a million-digit multiply (and past ~1e9 digits, a
+ * RangeError) big.js answers in O(1).
+ */
+function addZeroOperand(x: PlainDecimal, y: PlainDecimal): PlainDecimal {
+  if (isZero(x)) {
+    if (isZero(y)) {
+      return zero(x.sign < 0 && y.sign < 0 ? -1 : 1);
+    }
+    return { sign: y.sign, coefficient: y.coefficient, scale: y.scale };
+  }
+  return { sign: x.sign, coefficient: x.coefficient, scale: x.scale };
 }

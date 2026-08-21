@@ -16,6 +16,19 @@ describe('cmp', () => {
     expect(Number.isNaN(cmp(nan(), parse('1')))).toBe(true);
   });
 
+  it('decides far-apart scale gaps by exponent, without materializing the gap', () => {
+    expect(cmp(parse('1e100000000'), parse('1'))).toBe(1);
+    expect(cmp(parse('1'), parse('1e100000000'))).toBe(-1);
+    expect(cmp(parse('-1e100000000'), parse('-1'))).toBe(-1);
+    expect(cmp(parse('1e-100000000'), parse('1'))).toBe(-1);
+  });
+
+  it('equal exponents across a large gap still compare digits', () => {
+    // both have exponent 5000; 1.11…×10^5000 > 1×10^5000
+    expect(cmp(parse('1e5000'), parse('1'.repeat(5001)))).toBe(-1);
+    expect(cmp(parse('1'.repeat(5001)), parse('1e5000'))).toBe(1);
+  });
+
   it('infinities order against everything', () => {
     expect(cmp(infinity(1), parse('1e100'))).toBe(1);
     expect(cmp(infinity(-1), parse('-1e100'))).toBe(-1);
