@@ -3,11 +3,19 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - '*'
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    groups:
+      npm-dependencies:
+        patterns:
+          - '*'
     ignore:
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
