@@ -49,16 +49,16 @@
     "@types/big.js": "^7",
     "@vitest/eslint-plugin": "^1.6.27",
     "big.js": "^7.0.1",
-    "eslint": "^10.8.1",
+    "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "globals": "^17.9.0",
+    "globals": "^17.11.0",
     "prettier": "^3.9.6",
-    "publint": "^0.3.23",
+    "publint": "^0.3.24",
     "tsdown": "^0.22.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.66.0",
-    "vitest": "^4.1.10"
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "access": "public",
