@@ -9,6 +9,6 @@
   "dependencies": {
     "big.js": "^7.0.1",
     "esbuild": "^0.28.2",
-    "tinybench": "^6.1.2"
+    "tinybench": "^6.2.0"
   }
 }
