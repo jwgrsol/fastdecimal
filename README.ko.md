@@ -57,7 +57,7 @@ toString(divToDecimalPlaces(price, people, 2, 4)); // 1인당 '50' (HALF_UP)
 | 1   | DOWN (절단)         | 4   | HALF_UP   | 7   | HALF_CEIL  |
 | 2   | CEIL                | 5   | HALF_DOWN | 8   | HALF_FLOOR |
 
-`mod`는 추가로 `9`(EUCLID: 항상 음이 아닌 나머지)를 받습니다. 코어가 따르는 설계 규칙 — 정밀도 인자화, special 값 의미론, 순수성 — 은 [docs/core-contract.md](./docs/core-contract.md)에 명세돼 있습니다.
+`mod`는 추가로 `9`(EUCLID: 항상 음이 아닌 나머지)를 받습니다. 코어가 따르는 설계 규칙 — 정밀도 인자화, special 값 의미론, 순수성 — 은 [CONTRIBUTING.md](./CONTRIBUTING.md#core-design-rules)에 정리돼 있습니다.
 
 ## 호환성
 

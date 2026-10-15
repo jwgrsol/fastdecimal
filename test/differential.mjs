@@ -1,4 +1,4 @@
-// Differential verification against upstream big.js (docs/core-contract.md §8.3):
+// Differential verification against upstream big.js (CONTRIBUTING.md, "Verification gates", layer 3):
 // the same calls through the public API must produce identical observable results —
 // return strings, s/c/e values, and thrown error messages.
 //

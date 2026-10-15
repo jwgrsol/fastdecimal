@@ -1,5 +1,5 @@
 /*
- * fastdecimal — big.js facade over the functional core (docs/core-contract.md §6).
+ * fastdecimal — big.js facade over the functional core (CONTRIBUTING.md, "Core design rules" → Facade boundary).
  *
  * This file contains ONLY the big.js translation layer: its grammar and error
  * messages, its constructor semantics (new-less calls, the Big() clone factory,

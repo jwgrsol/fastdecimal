@@ -1,6 +1,6 @@
 /**
  * fastdecimal functional core — public entry point.
- * See docs/core-contract.md for the contract these functions implement.
+ * See CONTRIBUTING.md, "Core design rules", for the contract these functions implement.
  */
 export type { PlainDecimal, RoundingMode, ModuloMode } from './types.ts';
 export { nan, infinity, zero, fromParts } from './make.ts';

@@ -1,5 +1,5 @@
 /**
- * Core value representation — see docs/core-contract.md §1.
+ * Core value representation — see CONTRIBUTING.md, "Core design rules" → Value representation.
  *
  * value = sign × coefficient × 10^scale
  *

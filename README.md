@@ -69,7 +69,7 @@ Rounding modes are the bignumber.js/decimal.js numbering:
 
 `mod` additionally accepts `9` (EUCLID: non-negative remainder). The design
 rules the core follows — precision as arguments, special-value semantics, purity
-— are specified in [docs/core-contract.md](./docs/core-contract.md).
+— are written down in [CONTRIBUTING.md](./CONTRIBUTING.md#core-design-rules).
 
 ## Compatibility
 

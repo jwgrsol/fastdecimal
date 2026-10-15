@@ -3,7 +3,7 @@ import * as core from '../src/core/index.ts';
 import Big from '../src/big.ts';
 
 /**
- * Core-vs-facade equivalence (docs/core-contract.md §8.3): seeded random inputs
+ * Core-vs-facade equivalence (CONTRIBUTING.md, "Verification gates", layer 3): seeded random inputs
  * through the core must match the big.ts facade exactly on the overlapping
  * surface. The big.js RM → core RoundingMode mapping is {0→1, 1→4, 2→6, 3→0}.
  */
